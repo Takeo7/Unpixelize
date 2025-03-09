@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEditor.Experimental.GraphView;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class Level_Controller : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class Level_Controller : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Opcional: Mantiene la instancia entre escenas
+            //DontDestroyOnLoad(gameObject); // Opcional: Mantiene la instancia entre escenas
         }
         else
         {
@@ -36,6 +37,11 @@ public class Level_Controller : MonoBehaviour
 
     [Space]
     public Image movie_img;
+
+    [Space]
+    public GameObject correct_img;
+    public GameObject wrong_img;
+    public GameObject deleteAll_Button;
 
 
 
@@ -86,19 +92,6 @@ public class Level_Controller : MonoBehaviour
         {
             GameObject g = Instantiate(letter_square);
             g.transform.GetComponentInChildren<TextMeshProUGUI>().SetText(title[i].ToString().ToUpper());
-            /*
-            int rnd = Random.Range(0, length-1);
-            if (letters_t[rnd] == null)
-            {
-                letters_t[rnd] = g;
-                Debug.Log("Nuevo weon dentro");
-            }
-            else
-            {
-                letters_t[Random.Range(0, length-1)] = g;
-                Debug.Log("Nuevo weon dentrox2");
-            }   */
-
             FillArrayRandomly(letters_t, g);
         }
 
@@ -148,7 +141,92 @@ public class Level_Controller : MonoBehaviour
     }
 
 
+    public void DeleteLetter()
+    {
+        if (last_letter_count > 0)
+        {
+            Transform lastLetter_t = Grid_Empty_Letter_Squares.transform.GetChild(last_letter_count - 1);
+            string lastLetter = lastLetter_t.GetComponentInChildren<TextMeshProUGUI>().text;
 
+            lastLetter_t.GetComponentInChildren<TextMeshProUGUI>().text = "";
+            last_letter_count--;
+
+            GameObject newLetterSquare = Instantiate(letter_square);
+            newLetterSquare.transform.GetComponentInChildren<TextMeshProUGUI>().text = lastLetter;
+            newLetterSquare.transform.SetParent(Grid_Letter_Squares.transform);
+            newLetterSquare.SetActive(true);
+        }
+        else
+        {
+            Debug.Log("There is no letter placed");
+        }
+
+        ResetResult();
+
+    }
+
+    public void DeleteAllLetters()
+    {
+        for (int i = 0; i < last_letter_count; i++)
+        {
+            if (last_letter_count > 0)
+            {
+                Transform lastLetter_t = Grid_Empty_Letter_Squares.transform.GetChild(i);
+                string lastLetter = lastLetter_t.GetComponentInChildren<TextMeshProUGUI>().text;
+
+                lastLetter_t.GetComponentInChildren<TextMeshProUGUI>().text = "";
+                
+
+                GameObject newLetterSquare = Instantiate(letter_square);
+                newLetterSquare.transform.GetComponentInChildren<TextMeshProUGUI>().text = lastLetter;
+                newLetterSquare.transform.SetParent(Grid_Letter_Squares.transform);
+                newLetterSquare.SetActive(true);
+            }
+            else
+            {
+                Debug.Log("There is no letter placed");
+            }
+        }
+        last_letter_count = 0;
+        ResetResult();
+    }
+
+    public void ResetResult()
+    {
+        correct_img.SetActive(false);
+        wrong_img.SetActive(false);
+        deleteAll_Button.SetActive(false);
+    }
+
+    public void CheckTitle()
+    {
+        if (last_letter_count == length)
+        {
+            string check_title = "";
+            for (int i = 0; i < last_letter_count; i++)
+            {
+                check_title += Grid_Empty_Letter_Squares.transform.GetChild(i).GetComponentInChildren<TextMeshProUGUI>().text;
+            }
+
+            if (check_title.ToUpper() == title.ToUpper())
+            {
+                Debug.Log("IS CORRECT");
+                correct_img.SetActive(true);
+            }
+            else
+            {
+                Debug.Log("IS WRONG");
+                wrong_img.SetActive(true);
+            }
+
+            deleteAll_Button.SetActive(true);
+        }
+    }
+
+    public void BackButton()
+    {
+        SceneManager.LoadScene(1);
+    }
 
 
 }

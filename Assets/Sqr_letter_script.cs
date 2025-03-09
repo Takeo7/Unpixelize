@@ -14,5 +14,7 @@ public class Sqr_letter_script : MonoBehaviour
         lc.Grid_Empty_Letter_Squares.transform.GetChild(lc.last_letter_count).GetComponentInChildren<TextMeshProUGUI>().SetText(l.GetComponentInChildren<TextMeshProUGUI>().text);
         lc.last_letter_count++;
         gameObject.SetActive(false);
+        lc.CheckTitle();
+        Destroy(gameObject);
     }
 }

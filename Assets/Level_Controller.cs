@@ -23,6 +23,10 @@ public class Level_Controller : MonoBehaviour
         }
     }
 
+    [Space]
+    public Movie_Selector ms;
+
+    [Space]
     public string title;
     public int length;
 
@@ -43,10 +47,10 @@ public class Level_Controller : MonoBehaviour
     public GameObject wrong_img;
     public GameObject deleteAll_Button;
 
-
-
-    private void Start()
+    public void SetMovieData()
     {
+        title = ms.movieName;
+        
         CleanTitle();
         SetEmptySquares();
         SetLetterSquares();
@@ -225,6 +229,7 @@ public class Level_Controller : MonoBehaviour
 
     public void BackButton()
     {
+        SetPixelice(15);
         SceneManager.LoadScene(1);
     }
 

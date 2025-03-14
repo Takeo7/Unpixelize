@@ -265,6 +265,7 @@ GameObject:
   m_Component:
   - component: {fileID: 79508206}
   - component: {fileID: 79508205}
+  - component: {fileID: 79508207}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -284,6 +285,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f048029cebffc7e4c8385ab40d15a6c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ms: {fileID: 79508207}
   title: Forest Gump
   length: 0
   Grid_Empty_Letter_Squares: {fileID: 185931619}
@@ -310,6 +312,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &79508207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79508204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5086f3e71719841a4cea95c8f054e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 1813195597}
+  movieName: 
 --- !u!1 &185931619
 GameObject:
   m_ObjectHideFlags: 0

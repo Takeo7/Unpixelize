@@ -9,6 +9,8 @@ public class PlayerInfoController : MonoBehaviour
     public int currentLevel;
     public int currentMovie;
 
+
+
     #endregion
     public static PlayerInfoController Player_Instance { get; private set; }
 
@@ -28,14 +30,14 @@ public class PlayerInfoController : MonoBehaviour
 
         #endregion
 
-
+        PlayerData mockData = MockDataGenerator.GetMockPlayerData();
+        PlayerInfoController.Player_Instance.LoadPlayerData(mockData);
     }
 
 
     void Start()
     {
-        PlayerData mockData = MockDataGenerator.GetMockPlayerData();
-        PlayerInfoController.Player_Instance.LoadPlayerData(mockData);
+        
     }
 
     public void LoadPlayerData(PlayerData data)
@@ -61,7 +63,8 @@ public class LevelProgress
 {
     public int levelId; // ID del nivel (1, 2, 3...)
     public string levelName;
-
+    public bool solved;
+    public bool unlocked;
     // Lista de subniveles con su estado e información
     public List<SubLevelData> subLevels = new List<SubLevelData>();
 }
@@ -89,7 +92,7 @@ public static class MockDataGenerator
             levelsProgress = new List<LevelProgress>()
         };
 
-        for (int levelId = 1; levelId <= 3; levelId++)
+        for (int levelId = 1; levelId <= 9; levelId++)
         {
             LevelProgress level = new LevelProgress
             {
@@ -98,14 +101,32 @@ public static class MockDataGenerator
                 subLevels = new List<SubLevelData>()
             };
 
+            int completedCount = 0;
+
             for (int subIndex = 0; subIndex < 9; subIndex++)
             {
+                bool isCompleted = Random.value > 0.5f;
+                if (isCompleted) completedCount++;
+
                 level.subLevels.Add(new SubLevelData
                 {
                     subLevelIndex = subIndex,
-                    imageUrl = $"https://placehold.co/200x200?text=N{levelId}-S{subIndex + 1}", // Imagen de prueba
-                    isCompleted = Random.value > 0.5f // Aleatoriamente completado
+                    imageUrl = $"https://placehold.co/200x200.png?text=N{levelId}-S{subIndex + 1}&format=png",
+                    isCompleted = isCompleted
                 });
+            }
+
+            level.solved = (completedCount == 9);
+
+            // Nivel 1 y 2 siempre desbloqueados, el resto depende del anterior
+            if (levelId <= 2)
+            {
+                level.unlocked = true;
+            }
+            else
+            {
+                bool previousSolved = playerData.levelsProgress[levelId - 2].solved;
+                level.unlocked = previousSolved;
             }
 
             playerData.levelsProgress.Add(level);
@@ -114,6 +135,10 @@ public static class MockDataGenerator
         return playerData;
     }
 }
+
+
+
+
 
 
 #endregion

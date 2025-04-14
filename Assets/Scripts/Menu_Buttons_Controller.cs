@@ -9,18 +9,24 @@ public class Menu_Buttons_Controller : MonoBehaviour
     [Space]
     public PlayerData pd;
 
+    [Space]
+    public Scene_Controller sc;
+
     void Start()
     {
-        
+        pd = PlayerInfoController.Player_Instance.playerData;
+        LoadLevels();
     }
 
     public void LoadLevels()
     {
         int length = pd.levelsProgress.Count;
+        Debug.Log("Loaded " + length + " Levels");
         for (int i = 0; i < length; i++)
         {
             GameObject temp = Instantiate(level_prefab, level_parent);
-            temp.GetComponent<LevelInfo_Button>().LoadLevelID(pd.levelsProgress[i].levelId);
+            temp.GetComponent<LevelInfo_Button>().LoadLevelID(pd.levelsProgress[i].levelId, pd.levelsProgress[i].unlocked);
+            temp.GetComponent<LevelInfo_Button>().sc = sc;
         }
     }
 

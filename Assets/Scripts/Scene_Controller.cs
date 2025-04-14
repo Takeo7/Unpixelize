@@ -15,9 +15,17 @@ public class Scene_Controller : MonoBehaviour
         
     }
 
-    public void ChangeScene(int scene)
+    public void ChangeScene(Scenes scene)
     {
-        SceneManager.LoadScene(scene);
+        SceneManager.LoadScene(scene.ToString());
 
+    }
+
+    public enum Scenes
+    {
+        MainMenu,
+        LevelSelector,
+        MovieSelector,
+        MovieGuess
     }
 }

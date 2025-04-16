@@ -124,11 +124,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2187818864541372311}
         m_TargetAssemblyTypeName: Sqr_letter_script, Assembly-CSharp
-        m_MethodName: LetterClick
-        m_Mode: 2
+        m_MethodName: OnClick
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 5315303585921894926}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -146,6 +146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f95a73618ebfe0d4da635cf66d967782, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  letter: 
 --- !u!1 &6620954736224134887
 GameObject:
   m_ObjectHideFlags: 0

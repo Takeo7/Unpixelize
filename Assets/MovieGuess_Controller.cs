@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEditor.Experimental.GraphView;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 
 public class MovieGuess_Controller : MonoBehaviour
 {
@@ -33,12 +32,16 @@ public class MovieGuess_Controller : MonoBehaviour
     [Space]
     public MovieGuess_LettersController mg_lc;
     [Space]
+    public Scene_Controller sc;
+    [Space]
 
     [Space]
     public TitleLanguage tit_lang;
     public string title;
     public int length;
 
+    [Space]
+    int fakeLetters = 4;
     [Space]
     public GameObject correct_img;
     public GameObject wrong_img;
@@ -58,7 +61,7 @@ public class MovieGuess_Controller : MonoBehaviour
     {
         CleanTitle();
         mg_lc.SetEmptySquares(length);
-        mg_lc.SetLetterSquares(length, title);
+        mg_lc.SetLetterSquares(length, title, fakeLetters);
 
         //Video Controller
 
@@ -104,7 +107,7 @@ public class MovieGuess_Controller : MonoBehaviour
     public void BackButton()
     {
         mg_vc.SetPixelice(15);
-        SceneManager.LoadScene(1);
+        sc.ChangeScene(Scene_Controller.Scenes.MovieSelector);
     }
 
 }

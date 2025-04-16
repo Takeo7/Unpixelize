@@ -3,18 +3,18 @@ using UnityEngine;
 
 public class Sqr_letter_script : MonoBehaviour
 {
-    Level_Controller lc;
+    MovieGuess_Controller lc;
 
     private void Start()
     {
-        lc = Level_Controller.Instance;
+        lc = MovieGuess_Controller.MovieGuess_instance;
     }
     public void LetterClick(GameObject l)
     {
-        lc.Grid_Empty_Letter_Squares.transform.GetChild(lc.last_letter_count).GetComponentInChildren<TextMeshProUGUI>().SetText(l.GetComponentInChildren<TextMeshProUGUI>().text);
-        lc.last_letter_count++;
+        lc.mg_lc.Grid_Empty_Letter_Squares.transform.GetChild(lc.mg_lc.last_letter_count).GetComponentInChildren<TextMeshProUGUI>().SetText(l.GetComponentInChildren<TextMeshProUGUI>().text);
+        lc.mg_lc.last_letter_count++;
         gameObject.SetActive(false);
-        lc.CheckTitle();
+        lc.mg_lc.CheckTitle(lc.length, lc.title);
         Destroy(gameObject);
     }
 }

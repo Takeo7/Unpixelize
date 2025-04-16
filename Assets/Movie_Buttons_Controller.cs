@@ -31,9 +31,9 @@ public class Movie_Buttons_Controller : MonoBehaviour
         {
             GameObject temp = Instantiate(movie_prefab, movies_parent);
             temp.GetComponent<MovieInfo_Button>().LoadMovieID(
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel].subLevels[i].subLevelIndex,
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel].subLevels[i].isCompleted,
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel].subLevels[i].imageUrl);
+                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel].subLevels[i].sublevel_id,
+                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel].subLevels[i].solved,
+                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel].subLevels[i].film.path_to_photo);
             temp.GetComponent<MovieInfo_Button>().sc = sc;
         }
     }

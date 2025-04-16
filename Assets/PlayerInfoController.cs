@@ -72,10 +72,79 @@ public class LevelProgress
 [System.Serializable]
 public class SubLevelData
 {
-    public int subLevelIndex; // 0 - 8
-    public string imageUrl;   // URL de la imagen para mostrar
-    public bool isCompleted;  // ¿Está completado este subnivel?
+    public int sublevel_id;
+    public Film film;
+    public HelpData help;
+    public bool solved;
 }
+
+[System.Serializable]
+public class Film
+{
+    public int id;
+    public string director;
+    public string actor;
+    public int year;
+    public string platform;
+    public string path_to_video;
+    public string path_to_photo;
+    public FilmName names;
+}
+
+[System.Serializable]
+public class FilmName
+{
+    public int id;
+    public int film_id;
+    public string en;
+    public string es;
+}
+
+[System.Serializable]
+public class HelpData
+{
+    public HelpPixel help_pixel;
+    public List<HelpClue> help_clues;
+    public HelpBomb help_bombs;
+}
+
+[System.Serializable]
+public class HelpPixel
+{
+    public int id;
+    public int user_id;
+    public int film_id;
+    public int level_id;
+    public int sublevel_id;
+    public int pixel_count;
+    public string created_at;
+    public string updated_at;
+}
+
+[System.Serializable]
+public class HelpClue
+{
+    public int id;
+    public int user_id;
+    public int film_id;
+    public int level_id;
+    public int sublevel_id;
+    public string type;
+    public string created_at;
+    public string updated_at;
+}
+
+[System.Serializable]
+public class HelpBomb
+{
+    public int id;
+    public int user_id;
+    public int level_id;
+    public int sublevel_id;
+    public string created_at;
+    public string updated_at;
+}
+
 
 #endregion
 
@@ -105,20 +174,69 @@ public static class MockDataGenerator
 
             for (int subIndex = 0; subIndex < 9; subIndex++)
             {
-                bool isCompleted = Random.value > 0.5f;
-                if (isCompleted) completedCount++;
+                int filmId = (levelId - 1) * 9 + subIndex + 1;
+                bool isSolved = Random.value > 0.5f;
+                if (isSolved) completedCount++;
 
-                level.subLevels.Add(new SubLevelData
+                SubLevelData subLevel = new SubLevelData
                 {
-                    subLevelIndex = subIndex,
-                    imageUrl = $"https://placehold.co/200x200.png?text=N{levelId}-S{subIndex + 1}&format=png",
-                    isCompleted = isCompleted
-                });
+                    sublevel_id = subIndex + 1,
+                    solved = isSolved,
+                    film = new Film
+                    {
+                        id = filmId,
+                        director = $"Director {filmId}",
+                        actor = $"Actor {filmId}",
+                        year = 2000 + filmId % 20,
+                        platform = "Netflix",
+                        path_to_video = $"videos/video_{filmId}.mp4",
+                        path_to_photo = $"https://placehold.co/200x200.png?text=Film+{filmId}&format=png",
+
+
+                        names = new FilmName
+                            {
+                                id = filmId,
+                                film_id = filmId,
+                                en = $"Film {filmId}",
+                                es = $"Película {filmId}"
+                            }
+                    },
+                    help = new HelpData
+                    {
+                        help_pixel = new HelpPixel
+                        {
+                            id = filmId,
+                            user_id = 1,
+                            film_id = filmId,
+                            level_id = levelId,
+                            sublevel_id = subIndex + 1,
+                            pixel_count = Random.Range(1, 6),
+                            created_at = System.DateTime.UtcNow.ToString("o"),
+                            updated_at = System.DateTime.UtcNow.ToString("o")
+                        },
+                        help_clues = new List<HelpClue>
+                        {
+                            new HelpClue
+                            {
+                                id = filmId,
+                                user_id = 1,
+                                film_id = filmId,
+                                level_id = levelId,
+                                sublevel_id = subIndex + 1,
+                                type = "director",
+                                created_at = System.DateTime.UtcNow.ToString("o"),
+                                updated_at = System.DateTime.UtcNow.ToString("o")
+                            }
+                        },
+                        help_bombs = null
+                    }
+                };
+
+                level.subLevels.Add(subLevel);
             }
 
-            level.solved = (completedCount == 9);
+            level.solved = completedCount == 9;
 
-            // Nivel 1 y 2 siempre desbloqueados, el resto depende del anterior
             if (levelId <= 2)
             {
                 level.unlocked = true;
@@ -135,6 +253,7 @@ public static class MockDataGenerator
         return playerData;
     }
 }
+
 
 
 

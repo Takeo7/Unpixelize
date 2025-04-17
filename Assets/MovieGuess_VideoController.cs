@@ -1,3 +1,4 @@
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
@@ -11,12 +12,16 @@ public class MovieGuess_VideoController : MonoBehaviour
     public VideoPlayer videoPlayer;
 
     [Space]
-    // Aqu� puedes poner la URL de tu servidor en producci�n m�s adelante
+    // Aquí puedes poner la URL de tu servidor en producción más adelante
     public string videoURL = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+    public VideoClip fallbackVideoClip;
+    public float timeoutSeconds = 5f;   // Tiempo máximo de espera para cargar el video remoto
+
+    private bool videoLoaded = false;
 
     void Start()
     {
-        //PlayVideoFromURL(videoURL);
+        PlayVideoFromURL(videoURL);
     }
 
     public void PlayVideoFromURL(string url)
@@ -24,16 +29,61 @@ public class MovieGuess_VideoController : MonoBehaviour
         videoPlayer.source = VideoSource.Url;
         videoPlayer.url = url;
 
-        videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+        videoPlayer.audioOutputMode = VideoAudioOutputMode.None; // 🔇 Silenciar el video
 
         videoPlayer.prepareCompleted += OnVideoPrepared;
-        videoPlayer.Prepare(); // Prepara el video antes de reproducirlo
+        videoPlayer.errorReceived += OnVideoError;
+
+        videoPlayer.Prepare();
+
+        StartCoroutine(CheckVideoTimeout());
+    }
+
+    IEnumerator CheckVideoTimeout()
+    {
+        float timer = 0f;
+        while (!videoLoaded && timer < timeoutSeconds)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        if (!videoLoaded)
+        {
+            Debug.LogWarning("⏱️ Timeout al preparar el video. Usamos fallback.");
+            PlayFallbackVideo();
+        }
     }
 
     void OnVideoPrepared(VideoPlayer vp)
     {
+        videoLoaded = true;
         rawImage.texture = vp.texture;
         vp.Play();
+        Debug.Log("✅ Video cargado desde URL.");
+    }
+
+    void OnVideoError(VideoPlayer vp, string message)
+    {
+        Debug.LogWarning("❌ Error cargando video por URL: " + message);
+        PlayFallbackVideo();
+    }
+
+    void PlayFallbackVideo()
+    {
+        videoLoaded = true;
+
+        videoPlayer.prepareCompleted -= OnVideoPrepared;
+        videoPlayer.errorReceived -= OnVideoError;
+
+        videoPlayer.Stop();
+        videoPlayer.source = VideoSource.VideoClip;
+        videoPlayer.clip = fallbackVideoClip;
+
+        videoPlayer.audioOutputMode = VideoAudioOutputMode.None; // 🔇 También en fallback
+
+        videoPlayer.Prepare();
+        videoPlayer.prepareCompleted += OnVideoPrepared;
     }
 
     public void UnPixelice(int incremental)

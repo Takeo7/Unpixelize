@@ -104,6 +104,15 @@ public class MovieGuess_Controller : MonoBehaviour
         return count;
     }
 
+    #region PowerButtons
+
+    public void AddNewLetter()
+    {
+        mg_lc.AutoPlaceNextCorrectLetter(title);
+    }
+
+    #endregion
+
     public void BackButton()
     {
         mg_vc.SetPixelice(15);

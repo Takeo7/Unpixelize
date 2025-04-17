@@ -136,20 +136,66 @@ public class MovieGuess_LettersController : MonoBehaviour
 
     public Transform GetAvailableGridSlot()
     {
-        // Recorremos de derecha a izquierda para simular volver a la última posición libre
-        /*for (int i = Grid_Letter_Squares.transform.childCount - 1; i >= 0; i--)
-        {
-            Transform slot = Grid_Letter_Squares.transform.GetChild(i);
-            if (slot.childCount == 0)
-                return slot;
-        }
-        return null;*/
-
         return Grid_Letter_Squares.transform;
     }
 
     #endregion
 
+    #region Add New Letter Func
+
+    public void AutoPlaceNextCorrectLetter(string title)
+    {
+        Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
+        Transform letterGrid = Grid_Letter_Squares.transform;
+        Debug.Log("Empezamos a buscar letra para colocar aleatoriamente");
+
+        // Paso 1: Buscar huecos vacíos
+        List<int> huecosLibres = new List<int>();
+        for (int i = 0; i < title.Length; i++)
+        {
+            Transform targetSlot = emptyGrid.GetChild(i);
+            if (targetSlot.childCount == 0)
+            {
+                huecosLibres.Add(i);
+            }
+        }
+
+        if (huecosLibres.Count == 0)
+        {
+            Debug.Log("No quedan huecos vacíos.");
+            return;
+        }
+
+        // Paso 2: Elegir uno al azar
+        int randomIndex = huecosLibres[Random.Range(0, huecosLibres.Count)];
+        Transform randomSlot = emptyGrid.GetChild(randomIndex);
+        string targetLetter = title[randomIndex].ToString().ToUpper();
+
+        Debug.Log($"Hueco aleatorio elegido: {randomIndex}, letra buscada: {targetLetter}");
+
+        // Paso 3: Buscar una letra disponible en el grid principal
+        for (int j = 0; j < letterGrid.childCount; j++)
+        {
+            Transform letterSlot = letterGrid.GetChild(j);
+            Sqr_letter_script letterScript = letterSlot.GetComponent<Sqr_letter_script>();
+
+            if (letterScript != null && letterScript.letter == targetLetter)
+            {
+                Debug.Log("Letra encontrada, la colocamos.");
+                letterSlot.SetParent(randomSlot, false);
+                letterSlot.localPosition = Vector3.zero;
+                return;
+            }
+            else
+            {
+                Debug.Log("No es la letra correcta.");
+            }
+        }
+
+        Debug.Log("No se encontró ninguna letra disponible para colocar.");
+    }
+
+    #endregion
 
     public bool CheckTitle(string title)
     {

@@ -21,6 +21,7 @@ public class MovieInfo_Button : MonoBehaviour
 
     public void LoadMovieID(int id, bool sol, string url)
     {
+        Debug.Log("Load Movie Info: " + id);
         movie_id = id;
 
         solved = sol;

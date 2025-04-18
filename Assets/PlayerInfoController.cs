@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -30,8 +30,8 @@ public class PlayerInfoController : MonoBehaviour
 
         #endregion
 
-        PlayerData mockData = MockDataGenerator.GetMockPlayerData();
-        PlayerInfoController.Player_Instance.LoadPlayerData(mockData);
+        //PlayerData mockData = MockDataGenerator.GetMockPlayerData();
+        //PlayerInfoController.Player_Instance.LoadPlayerData(mockData);
     }
 
 
@@ -53,6 +53,7 @@ public class PlayerData
 {
     public string playerId;
     public string playerName;
+    public string authToken; // ← Aquí se guardará el token
 
     // Lista de niveles con progreso del jugador
     public List<LevelProgress> levelsProgress = new List<LevelProgress>();
@@ -65,7 +66,7 @@ public class LevelProgress
     public string levelName;
     public bool solved;
     public bool unlocked;
-    // Lista de subniveles con su estado e informaci�n
+    // Lista de subniveles con su estado e información
     public List<SubLevelData> subLevels = new List<SubLevelData>();
 }
 
@@ -88,7 +89,9 @@ public class Film
     public string platform;
     public string path_to_video;
     public string path_to_photo;
-    public FilmName names;
+
+    public List<FilmName> names; // ← usado al deserializar del JSON
+    public FilmName name; // para uso interno
 }
 
 [System.Serializable]
@@ -113,7 +116,6 @@ public class HelpPixel
 {
     public int id;
     public int user_id;
-    public int film_id;
     public int level_id;
     public int sublevel_id;
     public int pixel_count;
@@ -146,9 +148,10 @@ public class HelpBomb
 }
 
 
+
 #endregion
 
-#region Player Mock Data
+/*#region Player Mock Data
 
 public static class MockDataGenerator
 {
@@ -198,7 +201,7 @@ public static class MockDataGenerator
                                 id = filmId,
                                 film_id = filmId,
                                 en = $"Film {filmId}",
-                                es = $"Pel�cula {filmId}"
+                                es = $"Película {filmId}"
                             }
                     },
                     help = new HelpData
@@ -261,4 +264,4 @@ public static class MockDataGenerator
 
 
 #endregion
-
+*/

@@ -21,7 +21,7 @@ public class MovieGuess_VideoController : MonoBehaviour
 
     void Start()
     {
-        PlayVideoFromURL(videoURL);
+        PlayFallbackVideo();
     }
 
     public void PlayVideoFromURL(string url)

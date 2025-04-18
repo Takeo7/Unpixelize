@@ -29,11 +29,12 @@ public class Movie_Buttons_Controller : MonoBehaviour
         
         for (int i = 0; i < length; i++)
         {
+            Debug.Log("Current Level: " + PlayerInfoController.Player_Instance.currentLevel);
             GameObject temp = Instantiate(movie_prefab, movies_parent);
             temp.GetComponent<MovieInfo_Button>().LoadMovieID(
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel].subLevels[i].sublevel_id,
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel].subLevels[i].solved,
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel].subLevels[i].film.path_to_photo);
+                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].sublevel_id,
+                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].solved,
+                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].film.path_to_photo);
             temp.GetComponent<MovieInfo_Button>().sc = sc;
         }
     }

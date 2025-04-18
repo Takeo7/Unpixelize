@@ -73,13 +73,13 @@ public class MovieGuess_Controller : MonoBehaviour
         switch (tit_lang)
         {
             case TitleLanguage.es:
-                title = pic.playerData.levelsProgress[pic.currentLevel].subLevels[pic.currentMovie].film.names.es;
+                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie].film.name.es;
                 break;
             case TitleLanguage.en:
-                title = pic.playerData.levelsProgress[pic.currentLevel].subLevels[pic.currentMovie].film.names.en;
+                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie].film.name.en;
                 break;
             default:
-                title = pic.playerData.levelsProgress[pic.currentLevel].subLevels[pic.currentMovie].film.names.en;
+                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie].film.name.en;
                 break;
         }
 

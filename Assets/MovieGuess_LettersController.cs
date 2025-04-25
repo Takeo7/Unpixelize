@@ -38,6 +38,9 @@ public class MovieGuess_LettersController : MonoBehaviour
     public List<GameObject> fakeLetters = new List<GameObject>();
     public List<GameObject> allLetters = new List<GameObject>();
 
+    [Space]
+    bool tnt;
+
 
     #region SetLetters
 
@@ -68,6 +71,11 @@ public class MovieGuess_LettersController : MonoBehaviour
         fakeLetters.Clear();
         allLetters.Clear();
 
+        foreach (Transform child in Grid_Letter_Squares.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
         // Crear letras correctas
         for (int i = 0; i < correctLetterCount; i++)
         {
@@ -79,20 +87,26 @@ public class MovieGuess_LettersController : MonoBehaviour
             originalLetters.Add(g);
         }
 
-        // Crear letras falsas
-        for (int i = 0; i < fakeLetterCount; i++)
-        {
-            GameObject g = Instantiate(letter_square);
-            string randomLetter = GetRandomLetter();
-            g.GetComponentInChildren<Sqr_letter_script>().letter = randomLetter;
-            g.GetComponentInChildren<TextMeshProUGUI>().SetText(randomLetter);
-
-            fakeLetters.Add(g);
-        }
-
-        // Unir y mezclar todas
         allLetters.AddRange(originalLetters);
-        allLetters.AddRange(fakeLetters);
+
+        // Crear letras falsas
+        if (tnt == false)
+        {
+            for (int i = 0; i < fakeLetterCount; i++)
+            {
+                GameObject g = Instantiate(letter_square);
+                string randomLetter = GetRandomLetter();
+                g.GetComponentInChildren<Sqr_letter_script>().letter = randomLetter;
+                g.GetComponentInChildren<TextMeshProUGUI>().SetText(randomLetter);
+
+                fakeLetters.Add(g);
+            }
+
+            allLetters.AddRange(fakeLetters);
+        }
+        
+
+        // Unir y mezclar todas       
         ShuffleList(allLetters);
 
         // Asignar al grid
@@ -254,5 +268,7 @@ public class MovieGuess_LettersController : MonoBehaviour
         }
 
         fakeLetters.Clear();
+
+        tnt = true;
     }
 }

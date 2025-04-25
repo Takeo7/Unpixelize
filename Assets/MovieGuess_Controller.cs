@@ -39,6 +39,7 @@ public class MovieGuess_Controller : MonoBehaviour
     public TitleLanguage tit_lang;
     public string title;
     public int length;
+    public int pixelice;
 
     [Space]
     int fakeLetters = 4;
@@ -49,6 +50,7 @@ public class MovieGuess_Controller : MonoBehaviour
     private void Start()
     {
         pic = PlayerInfoController.Player_Instance;
+        pixelice = 15;
     }
 
     public enum TitleLanguage
@@ -57,6 +59,22 @@ public class MovieGuess_Controller : MonoBehaviour
         en
     }
 
+    public void ChangeLanguage()
+    {
+        switch (tit_lang)
+        {
+            case TitleLanguage.es:
+                tit_lang = TitleLanguage.en;
+                break;
+            case TitleLanguage.en:
+                tit_lang = TitleLanguage.es;
+                break;
+            default:
+                break;
+        }
+
+        SetMovieData();
+    }
     public void SetMovieData()
     {
         CleanTitle();
@@ -65,7 +83,7 @@ public class MovieGuess_Controller : MonoBehaviour
 
         //Video Controller
 
-        mg_vc.SetPixelice(15);
+        mg_vc.SetPixelice(pixelice);
     }
 
     public void CleanTitle()
@@ -73,13 +91,12 @@ public class MovieGuess_Controller : MonoBehaviour
         switch (tit_lang)
         {
             case TitleLanguage.es:
-                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie].film.name.es;
+                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.name.es;
                 break;
             case TitleLanguage.en:
-                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie].film.name.en;
+                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.name.en;
                 break;
             default:
-                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie].film.name.en;
                 break;
         }
 

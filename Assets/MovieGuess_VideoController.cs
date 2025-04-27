@@ -1,89 +1,117 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using System.Collections;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class MovieGuess_VideoController : MonoBehaviour
 {
-
     [Space]
-
-    public RawImage rawImage;         // Solo si usas UI
+    public RawImage rawImage;
     public VideoPlayer videoPlayer;
 
     [Space]
-    // Aquí puedes poner la URL de tu servidor en producción más adelante
-    public string videoURL = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-    public VideoClip fallbackVideoClip;
-    public float timeoutSeconds = 5f;   // Tiempo máximo de espera para cargar el video remoto
+    public AssetReference fallbackVideoReference; // Fallback como Addressable
+    public float timeoutSeconds = 5f;
 
     private bool videoLoaded = false;
+    private RenderTexture renderTexture;
 
     void Start()
     {
         PlayFallbackVideo();
     }
 
-    public void PlayVideoFromURL(string url)
+    public void PlayVideoFromAddressables(string address)
     {
-        videoPlayer.source = VideoSource.Url;
-        videoPlayer.url = url;
+        Debug.Log("🔍 Buscando video en Addressables: " + address);
 
-        videoPlayer.audioOutputMode = VideoAudioOutputMode.None; // 🔇 Silenciar el video
+        PrepareVideoPlayer();
 
-        videoPlayer.prepareCompleted += OnVideoPrepared;
-        videoPlayer.errorReceived += OnVideoError;
-
-        videoPlayer.Prepare();
-
-        StartCoroutine(CheckVideoTimeout());
+        Addressables.LoadAssetAsync<VideoClip>(address).Completed += (AsyncOperationHandle<VideoClip> handle) =>
+        {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                Debug.Log("✅ Video encontrado y cargado: " + address);
+                videoPlayer.clip = handle.Result;
+                StartCoroutine(PrepareAndPlay());
+            }
+            else
+            {
+                Debug.LogWarning("❌ No se encontró el video: " + address + ". Usamos fallback.");
+                PlayFallbackVideo();
+            }
+        };
     }
 
-    IEnumerator CheckVideoTimeout()
+    private void PrepareVideoPlayer()
     {
-        float timer = 0f;
-        while (!videoLoaded && timer < timeoutSeconds)
+        if (videoPlayer != null)
         {
-            timer += Time.deltaTime;
+            Destroy(videoPlayer);
+        }
+
+        videoPlayer = gameObject.AddComponent<VideoPlayer>();
+        videoPlayer.playOnAwake = false;
+        videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+
+        if (renderTexture == null)
+        {
+            renderTexture = new RenderTexture(512, 512, 0);
+            renderTexture.Create();
+        }
+
+        videoPlayer.targetTexture = renderTexture;
+        rawImage.texture = renderTexture;
+
+        videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
+        videoPlayer.source = VideoSource.VideoClip;
+    }
+
+    private IEnumerator PrepareAndPlay()
+    {
+        videoPlayer.Prepare();
+
+        float timeout = timeoutSeconds;
+        while (!videoPlayer.isPrepared && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
             yield return null;
         }
 
-        if (!videoLoaded)
+        if (videoPlayer.isPrepared)
         {
-            Debug.LogWarning("⏱️ Timeout al preparar el video. Usamos fallback.");
+            Debug.Log($"🎬 Video preparado correctamente: {videoPlayer.clip?.name}");
+
+            videoLoaded = true;
+            videoPlayer.Play();
+        }
+        else
+        {
+            Debug.LogError("❌ No se pudo preparar el VideoClip. Usamos fallback.");
             PlayFallbackVideo();
         }
     }
 
-    void OnVideoPrepared(VideoPlayer vp)
+    public void PlayFallbackVideo()
     {
-        videoLoaded = true;
-        rawImage.texture = vp.texture;
-        vp.Play();
-        Debug.Log("✅ Video cargado desde URL.");
-    }
+        Debug.Log("⚠️ Activamos fallback video.");
 
-    void OnVideoError(VideoPlayer vp, string message)
-    {
-        Debug.LogWarning("❌ Error cargando video por URL: " + message);
-        PlayFallbackVideo();
-    }
+        PrepareVideoPlayer();
 
-    void PlayFallbackVideo()
-    {
-        videoLoaded = true;
-
-        videoPlayer.prepareCompleted -= OnVideoPrepared;
-        videoPlayer.errorReceived -= OnVideoError;
-
-        videoPlayer.Stop();
-        videoPlayer.source = VideoSource.VideoClip;
-        videoPlayer.clip = fallbackVideoClip;
-
-        videoPlayer.audioOutputMode = VideoAudioOutputMode.None; // 🔇 También en fallback
-
-        videoPlayer.Prepare();
-        videoPlayer.prepareCompleted += OnVideoPrepared;
+        fallbackVideoReference.LoadAssetAsync<VideoClip>().Completed += (AsyncOperationHandle<VideoClip> handle) =>
+        {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                videoPlayer.clip = handle.Result;
+                StartCoroutine(PrepareAndPlay());
+            }
+            else
+            {
+                Debug.LogError("❌ No se pudo cargar el fallback video.");
+            }
+        };
     }
 
     public void UnPixelice(int incremental)

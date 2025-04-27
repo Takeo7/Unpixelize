@@ -2,6 +2,7 @@
 using TMPro;
 using System.Collections.Generic;
 using System.Text;
+using System.Collections;
 
 public class MovieGuess_LettersController : MonoBehaviour
 {
@@ -41,11 +42,21 @@ public class MovieGuess_LettersController : MonoBehaviour
     [Space]
     bool tnt;
 
+    [Space]
+    public Dictionary<int, string> buyedLetters_es = new Dictionary<int, string>();
+    public Dictionary<int, string> buyedLetters_en = new Dictionary<int, string>();
+
 
     #region SetLetters
 
-    public void SetEmptySquares(int length)
+    public void SetAllLetters(int length, int correctLetterCount, string title, int fakeLetterCount)
     {
+        Debug.Log("Set All letters");
+        SetEmptySquares(length, correctLetterCount, title, fakeLetterCount);
+    }
+    public void SetEmptySquares(int length, int correctLetterCount, string title, int fakeLetterCount)
+    {
+        Debug.Log("Set Empty Letters");
         // Limpiar si ya hay algo
         foreach (Transform child in Grid_Empty_Letter_Squares.transform)
         {
@@ -63,10 +74,13 @@ public class MovieGuess_LettersController : MonoBehaviour
             // Guardar referencia al slot
             emptySlots.Add(g.transform);
         }
+
+        SetLetterSquares(correctLetterCount, title, fakeLetterCount);
     }
 
     public void SetLetterSquares(int correctLetterCount, string title, int fakeLetterCount)
     {
+        Debug.Log("Set Letters");
         originalLetters.Clear();
         fakeLetters.Clear();
         allLetters.Clear();
@@ -115,6 +129,8 @@ public class MovieGuess_LettersController : MonoBehaviour
             g.transform.SetParent(Grid_Letter_Squares.transform, false);
             g.SetActive(true);
         }
+
+        PlaceBuyedLetters();
     }
 
     private string GetRandomLetter()
@@ -160,10 +176,8 @@ public class MovieGuess_LettersController : MonoBehaviour
     public void AutoPlaceNextCorrectLetter(string title)
     {
         Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
-        Transform letterGrid = Grid_Letter_Squares.transform;
-        Debug.Log("Empezamos a buscar letra para colocar aleatoriamente");
 
-        // Paso 1: Buscar huecos vacíos
+        //Buscar huecos vacíos
         List<int> huecosLibres = new List<int>();
         for (int i = 0; i < title.Length; i++)
         {
@@ -176,38 +190,125 @@ public class MovieGuess_LettersController : MonoBehaviour
 
         if (huecosLibres.Count == 0)
         {
-            Debug.Log("No quedan huecos vacíos.");
             return;
         }
 
-        // Paso 2: Elegir uno al azar
+        //Elegir uno al azar
         int randomIndex = huecosLibres[Random.Range(0, huecosLibres.Count)];
-        Transform randomSlot = emptyGrid.GetChild(randomIndex);
         string targetLetter = title[randomIndex].ToString().ToUpper();
+
+
 
         Debug.Log($"Hueco aleatorio elegido: {randomIndex}, letra buscada: {targetLetter}");
 
-        // Paso 3: Buscar una letra disponible en el grid principal
+        PlaceBuyedLetter(targetLetter, randomIndex, MovieGuess_Controller.MovieGuess_instance.tit_lang);
+        
+    }
+
+    public void PlaceBuyedLetter(string letter, int place, MovieGuess_Controller.TitleLanguage lang)
+    {
+        StartCoroutine(MoverLetraConDelay(letter, place, lang));
+    }
+
+    public void PlaceBuyedLetters()
+    {
+        Debug.Log("Place Buyed Letters");
+        switch (MovieGuess_Controller.MovieGuess_instance.tit_lang)
+        {
+            case MovieGuess_Controller.TitleLanguage.es:
+                Debug.Log("Buyed Español");
+                foreach (var item in buyedLetters_es)
+                {
+                    StartCoroutine(MoverLetraConDelay(item.Value, item.Key, MovieGuess_Controller.TitleLanguage.es));
+
+                }
+
+                break;
+            case MovieGuess_Controller.TitleLanguage.en:
+                Debug.Log("Buyed English");
+                foreach (var item in buyedLetters_en)
+                {
+                    StartCoroutine(MoverLetraConDelay(item.Value, item.Key, MovieGuess_Controller.TitleLanguage.en));
+
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    public IEnumerator MoverLetraConDelay(string letter, int place, MovieGuess_Controller.TitleLanguage lang)
+    {
+        yield return null; // Esperar un frame para asegurarnos de que todo esté instanciado
+
+        Debug.Log($"[MoverLetraConDelay] Letra: {letter} --- Place: {place} --- Lang: {lang}");
+
+        Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
+        Transform letterGrid = Grid_Letter_Squares.transform;
+
+        if (emptyGrid == null || letterGrid == null)
+        {
+            Debug.LogError("❌ Grid_Empty_Letter_Squares o Grid_Letter_Squares es NULL.");
+            yield break;
+        }
+
+        if (place < 0 || place >= emptyGrid.childCount)
+        {
+            Debug.LogError("❌ Índice de place fuera de rango: " + place);
+            yield break;
+        }
+
+        Transform slot = emptyGrid.GetChild(place);
+
+        // Buscar una letra disponible en el grid principal
         for (int j = 0; j < letterGrid.childCount; j++)
         {
             Transform letterSlot = letterGrid.GetChild(j);
-            Sqr_letter_script letterScript = letterSlot.GetComponent<Sqr_letter_script>();
+            if (letterSlot == null)
+                continue;
 
-            if (letterScript != null && letterScript.letter == targetLetter)
+            Sqr_letter_script letterScript = letterSlot.GetComponent<Sqr_letter_script>();
+            if (letterScript == null)
+                continue;
+
+            // Comparación segura
+            if (letterScript.letter.Trim().ToUpper() == letter.Trim().ToUpper())
             {
-                Debug.Log("Letra encontrada, la colocamos.");
-                letterSlot.SetParent(randomSlot, false);
+                Debug.Log("Letra encontrada, la colocamos.", letterSlot.gameObject);
+
+                letterSlot.SetParent(slot, false);
                 letterSlot.localPosition = Vector3.zero;
-                return;
-            }
-            else
-            {
-                Debug.Log("No es la letra correcta.");
+
+                Debug.Log("Slot destino:", slot.gameObject);
+
+                // Guardar en diccionario según idioma
+                switch (lang)
+                {
+                    case MovieGuess_Controller.TitleLanguage.es:
+                        if (!buyedLetters_es.ContainsKey(place))
+                        {
+                            buyedLetters_es.Add(place, letter);
+                            Debug.Log("✅ Letra añadida al español: " + letter + " en posición " + place);
+                        }
+                        break;
+
+                    case MovieGuess_Controller.TitleLanguage.en:
+                        if (!buyedLetters_en.ContainsKey(place))
+                        {
+                            buyedLetters_en.Add(place, letter);
+                            Debug.Log("✅ Letra añadida al inglés: " + letter + " en posición " + place);
+                        }
+                        break;
+                }
+
+                yield break; // Salimos tras colocar una letra
             }
         }
 
-        Debug.Log("No se encontró ninguna letra disponible para colocar.");
+        Debug.LogWarning("⚠️ No se encontró ninguna letra disponible para colocar.");
     }
+
+
 
     #endregion
 

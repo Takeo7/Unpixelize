@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 using System.Collections.Generic;
 
 public class MovieGuess_Controller : MonoBehaviour
@@ -51,6 +50,8 @@ public class MovieGuess_Controller : MonoBehaviour
     {
         pic = PlayerInfoController.Player_Instance;
         pixelice = 15;
+        SetMovieData();
+        SetVideo();
     }
 
     public enum TitleLanguage
@@ -69,21 +70,24 @@ public class MovieGuess_Controller : MonoBehaviour
             case TitleLanguage.en:
                 tit_lang = TitleLanguage.es;
                 break;
-            default:
-                break;
         }
 
         SetMovieData();
     }
     public void SetMovieData()
     {
+        Debug.Log("SetMovieData");
         CleanTitle();
-        mg_lc.SetEmptySquares(length);
-        mg_lc.SetLetterSquares(length, title, fakeLetters);
+        mg_lc.SetAllLetters(length, length, title, fakeLetters);
 
         //Video Controller
 
         mg_vc.SetPixelice(pixelice);
+    }
+
+    public void SetVideo()
+    {
+        mg_vc.PlayVideoFromAddressables("Videos/"+RemoveVoids(pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].film.name.en).ToLower());
     }
 
     public void CleanTitle()

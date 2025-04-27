@@ -10,7 +10,7 @@ public class Movie_Selector : MonoBehaviour
     
     private void Start()
     {
-        MovieGuess_Controller.MovieGuess_instance.SetMovieData();
+        //MovieGuess_Controller.MovieGuess_instance.SetMovieData();
         //LoadVideoById(MovieID_Persistant.Movie_ID._movieID);
     }
 
@@ -28,7 +28,7 @@ public class Movie_Selector : MonoBehaviour
                 movieName = file.name.Split('_')[0]; // Extrae el nombre antes del ID
                 videoPlayer.clip = file; // Asigna el video al VideoPlayer
                 Debug.Log($"Video encontrado: {movieName} (Archivo: {file.name})");
-                MovieGuess_Controller.MovieGuess_instance.SetMovieData();
+                //MovieGuess_Controller.MovieGuess_instance.SetMovieData();
                 return;
             }
         }

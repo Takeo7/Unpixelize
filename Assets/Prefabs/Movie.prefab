@@ -150,6 +150,7 @@ GameObject:
   - component: {fileID: 2894801260394011657}
   - component: {fileID: 7342510129327514951}
   - component: {fileID: -2150234218046767580}
+  - component: {fileID: 6325597389616675247}
   m_Layer: 5
   m_Name: Movie
   m_TagString: Untagged
@@ -285,10 +286,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movie_id: 0
   solved: 0
-  movie_img: 
+  movie_video_path: 
   sc: {fileID: -2150234218046767580}
   movie_bt: {fileID: 2894801260394011657}
-  default_img: {fileID: 1516990888105668342, guid: d1bc14346208cc443b6830bf28332b4b, type: 3}
+  videoDisplay: {fileID: 0}
+  renderTextureSize: {x: 512, y: 512}
+  videoMaterial: {fileID: 2100000, guid: 593ab4d00dce3f3428ab103a11dd6248, type: 2}
 --- !u!114 &-2150234218046767580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,3 +304,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c503186b2b6ea6142adf0a30a06c16eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6325597389616675247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6785128242363120986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1

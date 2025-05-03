@@ -33,6 +33,11 @@ public class ApiClient : MonoBehaviour
         StartCoroutine(LoginCoroutine(email, password, onSuccess, onError));
     }
 
+    public void Logout(System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(LogoutCoroutine(onSuccess, onError));
+    }
+
     public void GetLevels(System.Action<string> onSuccess, System.Action<string> onError)
     {
         StartCoroutine(GetLevelsCoroutine(onSuccess, onError));
@@ -41,6 +46,36 @@ public class ApiClient : MonoBehaviour
     public void GetLevel(int levelId, System.Action<string> onSuccess, System.Action<string> onError)
     {
         StartCoroutine(GetLevelCoroutine(levelId, onSuccess, onError));
+    }
+
+    public void UseHelpPixel(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(PutRequest($"/help/pixel/{levelId}/{subLevelId}", onSuccess, onError));
+    }
+
+    public void UseHelpClue(int levelId, int subLevelId, string clueType, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(PostRequest($"/help/clue/{levelId}/{subLevelId}/{clueType}", onSuccess, onError));
+    }
+
+    public void UseHelpBomb(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(PostRequest($"/help/bomb/{levelId}/{subLevelId}", onSuccess, onError));
+    }
+
+    public void UseHelpKey(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(PostRequest($"/help/key/{levelId}/{subLevelId}", onSuccess, onError));
+    }
+
+    public void UseHelpLetter(int levelId, int subLevelId, string lang, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(PutRequest($"/help/letter/{levelId}/{subLevelId}/{lang}", onSuccess, onError));
+    }
+
+    public void MarkSubLevelSolved(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(PostRequest($"/solved_sublevel/{levelId}/{subLevelId}", onSuccess, onError));
     }
 
     private IEnumerator LoginCoroutine(string email, string password, System.Action<string> onSuccess, System.Action<string> onError)
@@ -54,6 +89,26 @@ public class ApiClient : MonoBehaviour
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            onSuccess?.Invoke(request.downloadHandler.text);
+        }
+        else
+        {
+            onError?.Invoke(request.error);
+        }
+    }
+
+    private IEnumerator LogoutCoroutine(System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        string url = baseUrl + "/logout";
+
+        UnityWebRequest request = UnityWebRequest.PostWwwForm(url, "");
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
 
         yield return request.SendWebRequest();
 
@@ -154,6 +209,46 @@ public class ApiClient : MonoBehaviour
         {
             string fixedJson = request.downloadHandler.text;
             onSuccess?.Invoke(fixedJson);
+        }
+        else
+        {
+            onError?.Invoke(request.error);
+        }
+    }
+
+    private IEnumerator PostRequest(string endpoint, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        string url = baseUrl + endpoint;
+
+        UnityWebRequest request = UnityWebRequest.PostWwwForm(url, "");
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            onSuccess?.Invoke(request.downloadHandler.text);
+        }
+        else
+        {
+            onError?.Invoke(request.error);
+        }
+    }
+
+    private IEnumerator PutRequest(string endpoint, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        string url = baseUrl + endpoint;
+
+        UnityWebRequest request = UnityWebRequest.Put(url, "");
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            onSuccess?.Invoke(request.downloadHandler.text);
         }
         else
         {

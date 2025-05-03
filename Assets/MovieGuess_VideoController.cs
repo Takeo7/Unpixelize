@@ -12,15 +12,21 @@ public class MovieGuess_VideoController : MonoBehaviour
     public VideoPlayer videoPlayer;
 
     [Space]
-    public AssetReference fallbackVideoReference; // Fallback como Addressable
-    public float timeoutSeconds = 5f;
-
     private bool videoLoaded = false;
     private RenderTexture renderTexture;
+    private Coroutine currentPreparation;
 
-    void Start()
+    void OnDestroy()
     {
-        PlayFallbackVideo();
+        if (currentPreparation != null)
+        {
+            StopCoroutine(currentPreparation);
+        }
+
+        if (videoPlayer != null)
+        {
+            videoPlayer.Stop();
+        }
     }
 
     public void PlayVideoFromAddressables(string address)
@@ -35,12 +41,12 @@ public class MovieGuess_VideoController : MonoBehaviour
             {
                 Debug.Log("✅ Video encontrado y cargado: " + address);
                 videoPlayer.clip = handle.Result;
-                StartCoroutine(PrepareAndPlay());
+                currentPreparation = StartCoroutine(PrepareAndPlayUntilSuccess());
             }
             else
             {
-                Debug.LogWarning("❌ No se encontró el video: " + address + ". Usamos fallback.");
-                PlayFallbackVideo();
+                Debug.LogWarning("❌ No se encontró el video: " + address + ". Mostramos fallback visual rojo.");
+                SetRawImageToRed();
             }
         };
     }
@@ -55,6 +61,7 @@ public class MovieGuess_VideoController : MonoBehaviour
         videoPlayer = gameObject.AddComponent<VideoPlayer>();
         videoPlayer.playOnAwake = false;
         videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+        videoPlayer.isLooping = true; // 🔁 Repetir video
 
         if (renderTexture == null)
         {
@@ -69,49 +76,26 @@ public class MovieGuess_VideoController : MonoBehaviour
         videoPlayer.source = VideoSource.VideoClip;
     }
 
-    private IEnumerator PrepareAndPlay()
+    private IEnumerator PrepareAndPlayUntilSuccess()
     {
         videoPlayer.Prepare();
 
-        float timeout = timeoutSeconds;
-        while (!videoPlayer.isPrepared && timeout > 0f)
+        while (!videoPlayer.isPrepared)
         {
-            timeout -= Time.deltaTime;
             yield return null;
         }
 
-        if (videoPlayer.isPrepared)
-        {
-            Debug.Log($"🎬 Video preparado correctamente: {videoPlayer.clip?.name}");
-
-            videoLoaded = true;
-            videoPlayer.Play();
-        }
-        else
-        {
-            Debug.LogError("❌ No se pudo preparar el VideoClip. Usamos fallback.");
-            PlayFallbackVideo();
-        }
+        Debug.Log($"🎬 Video preparado correctamente: {videoPlayer.clip?.name}");
+        videoLoaded = true;
+        videoPlayer.Play();
     }
 
-    public void PlayFallbackVideo()
+    private void SetRawImageToRed()
     {
-        Debug.Log("⚠️ Activamos fallback video.");
-
-        PrepareVideoPlayer();
-
-        fallbackVideoReference.LoadAssetAsync<VideoClip>().Completed += (AsyncOperationHandle<VideoClip> handle) =>
-        {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                videoPlayer.clip = handle.Result;
-                StartCoroutine(PrepareAndPlay());
-            }
-            else
-            {
-                Debug.LogError("❌ No se pudo cargar el fallback video.");
-            }
-        };
+        Texture2D redTex = new Texture2D(1, 1);
+        redTex.SetPixel(0, 0, Color.red);
+        redTex.Apply();
+        rawImage.texture = redTex;
     }
 
     public void UnPixelice(int incremental)

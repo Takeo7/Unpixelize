@@ -34,8 +34,13 @@ public class Movie_Buttons_Controller : MonoBehaviour
             temp.GetComponent<MovieInfo_Button>().LoadMovieID(
                 pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].sublevel_id,
                 pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].solved,
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].film.path_to_photo);
+                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].film.name.en);
             temp.GetComponent<MovieInfo_Button>().sc = sc;
         }
+    }
+
+    public void BackScene()
+    {
+        sc.ChangeScene(Scene_Controller.Scenes.LevelSelector);
     }
 }

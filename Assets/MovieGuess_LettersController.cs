@@ -3,6 +3,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
+using UnityEngine.UI;
 
 public class MovieGuess_LettersController : MonoBehaviour
 {
@@ -208,6 +209,7 @@ public class MovieGuess_LettersController : MonoBehaviour
     public void PlaceBuyedLetter(string letter, int place, MovieGuess_Controller.TitleLanguage lang)
     {
         StartCoroutine(MoverLetraConDelay(letter, place, lang));
+        CheckTitle(MovieGuess_Controller.MovieGuess_instance.title);
     }
 
     public void PlaceBuyedLetters()
@@ -236,6 +238,40 @@ public class MovieGuess_LettersController : MonoBehaviour
                 break;
         }
     }
+
+    public void AutoPlaceAllCorrectLetters(string title)
+    {
+        Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
+        Transform letterGrid = Grid_Letter_Squares.transform;
+
+        Debug.Log("🔠 Colocando todas las letras correctas automáticamente...");
+
+        for (int i = 0; i < title.Length; i++)
+        {
+            string targetLetter = title[i].ToString().ToUpper();
+            Transform targetSlot = emptyGrid.GetChild(i);
+
+            // Saltar si ya tiene una letra colocada
+            if (targetSlot.childCount > 0)
+                continue;
+
+            for (int j = 0; j < letterGrid.childCount; j++)
+            {
+                Transform letterSlot = letterGrid.GetChild(j);
+                Sqr_letter_script script = letterSlot.GetComponent<Sqr_letter_script>();
+
+                if (script != null && script.letter == targetLetter)
+                {
+                    letterSlot.SetParent(targetSlot, false);
+                    letterSlot.localPosition = Vector3.zero;
+
+                    Debug.Log($"✅ Letra '{targetLetter}' colocada en posición {i}", letterSlot.gameObject);
+                    break;
+                }
+            }
+        }
+    }
+
 
     public IEnumerator MoverLetraConDelay(string letter, int place, MovieGuess_Controller.TitleLanguage lang)
     {
@@ -300,7 +336,7 @@ public class MovieGuess_LettersController : MonoBehaviour
                         }
                         break;
                 }
-
+                CheckTitle(MovieGuess_Controller.MovieGuess_instance.title);
                 yield break; // Salimos tras colocar una letra
             }
         }
@@ -312,14 +348,14 @@ public class MovieGuess_LettersController : MonoBehaviour
 
     #endregion
 
-    public bool CheckTitle(string title)
+    public void CheckTitle(string title)
     {
         Transform grid = Grid_Empty_Letter_Squares.transform;
 
         if (grid.childCount != title.Length)
         {
             Debug.LogError("ERROR: cantidad de casillas no coincide con la longitud del título.");
-            return false;
+            return;
         }
 
         StringBuilder checkTitle = new StringBuilder();
@@ -331,7 +367,7 @@ public class MovieGuess_LettersController : MonoBehaviour
             if (slot.childCount == 0)
             {
                 Debug.Log("ERROR: hay casillas vacías.");
-                return false;
+                return;
             }
 
             TextMeshProUGUI textComponent = slot.GetComponentInChildren<TextMeshProUGUI>();
@@ -342,21 +378,38 @@ public class MovieGuess_LettersController : MonoBehaviour
             else
             {
                 Debug.Log("ERROR: no se encontró el texto en una letra.");
-                return false;
+                return;
             }
         }
 
         if (checkTitle.ToString() == title.ToUpper())
         {
             Debug.Log("✅ Title check: IS CORRECT");
-            return true;
+            MovieGuess_Controller.MovieGuess_instance.IsCorrectTitle(true);
+            return;
         }
         else
         {
             Debug.Log("❌ Title check: IS WRONG");
-            return false;
+            MovieGuess_Controller.MovieGuess_instance.IsIncorrectTitle(true);
+            return;
         }
     }
+
+    public void DisableEmptyLetterSquares()
+    {
+        foreach (Transform child in Grid_Empty_Letter_Squares.transform)
+        {
+            Button btn = child.GetComponentInChildren<Button>();
+            if (btn != null)
+            {
+                btn.interactable = false;
+            }
+        }
+
+        Debug.Log("🛑 Letras del grid de respuesta desactivadas");
+    }
+
 
     public void EliminarLetrasFalsas()
     {

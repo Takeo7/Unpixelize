@@ -9,6 +9,7 @@ public class Sqr_letter_script : MonoBehaviour
 
     public void OnClick()
     {
+        MovieGuess_Controller.MovieGuess_instance.IsIncorrectTitle(false);
         Debug.Log("Letra " + letter + ". En EmptySlot: "+inEmptySlot);
         if (!inEmptySlot)
         {
@@ -19,6 +20,7 @@ public class Sqr_letter_script : MonoBehaviour
                 transform.SetParent(emptySlot, false);
                 transform.localPosition = Vector3.zero;
                 inEmptySlot = true;
+                MovieGuess_LettersController.MovieGuessLetters_instance.CheckTitle(MovieGuess_Controller.MovieGuess_instance.title);
             }
         }
         else

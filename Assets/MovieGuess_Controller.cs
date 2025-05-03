@@ -46,12 +46,26 @@ public class MovieGuess_Controller : MonoBehaviour
     public GameObject correct_img;
     public GameObject wrong_img;
 
+    [Space]
+    public GameObject correctView;
+    public TextMeshProUGUI correctTextPlatform;
+
+    [Space]
+    public GameObject powerButtons;
+
+    [Space]
+    public List<TextMeshProUGUI> tips_text = new List<TextMeshProUGUI>();
+
     private void Start()
     {
         pic = PlayerInfoController.Player_Instance;
         pixelice = 15;
         SetMovieData();
         SetVideo();
+        if (pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].solved)
+        {
+            IsCorrectTitle(false);
+        }
     }
 
     public enum TitleLanguage
@@ -62,6 +76,7 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void ChangeLanguage()
     {
+        IsIncorrectTitle(false);
         switch (tit_lang)
         {
             case TitleLanguage.es:
@@ -76,20 +91,19 @@ public class MovieGuess_Controller : MonoBehaviour
     }
     public void SetMovieData()
     {
+        IsIncorrectTitle(false);
         Debug.Log("SetMovieData");
         CleanTitle();
         mg_lc.SetAllLetters(length, length, title, fakeLetters);
-
+        SetTips();
         //Video Controller
 
         mg_vc.SetPixelice(pixelice);
     }
-
     public void SetVideo()
     {
         mg_vc.PlayVideoFromAddressables("Videos/"+RemoveVoids(pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].film.name.en).ToLower());
     }
-
     public void CleanTitle()
     {
         switch (tit_lang)
@@ -108,7 +122,6 @@ public class MovieGuess_Controller : MonoBehaviour
 
         length = Calculatelength(title);
     }
-
     public string RemoveVoids(string s)
     {
         int length = s.Length;
@@ -117,7 +130,6 @@ public class MovieGuess_Controller : MonoBehaviour
 
         return s_final;
     }
-
     public int Calculatelength(string s)
     {
         int count = s.Length;
@@ -125,11 +137,65 @@ public class MovieGuess_Controller : MonoBehaviour
         return count;
     }
 
+    public void IsCorrectTitle(bool y)
+    {
+        correct_img.gameObject.SetActive(true);
+
+        if (y)
+        {
+            //Post Completed
+            ApiClient.Instance.MarkSubLevelSolved(pic.currentLevel, pic.currentMovie,
+                onSuccess: response =>
+                {
+                    Debug.Log("Post Correct Movie SUCCESS: " + response);
+                },
+                onError: error =>
+                {
+                    Debug.LogError("Post Correct Movie fallido: " + error);
+
+                });
+        }
+        
+
+        mg_lc.DisableEmptyLetterSquares();
+
+        correctView.SetActive(true);
+        correctTextPlatform.text = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.platform;
+
+        powerButtons.SetActive(false);
+    }
+
+    public void IsIncorrectTitle(bool n)
+    {
+        wrong_img.gameObject.SetActive(n);
+    }
+
     #region PowerButtons
 
     public void AddNewLetter()
     {
         mg_lc.AutoPlaceNextCorrectLetter(title);
+    }
+
+    public void AutoSolveMovie()
+    {
+        mg_lc.AutoPlaceAllCorrectLetters(title);
+        IsCorrectTitle(true);
+    }
+
+    public void SetTips()
+    {
+        List<string> movieClues = new List<string>();
+        movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.actor);
+        movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.director);
+        movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.year.ToString());
+
+        foreach (var item in tips_text)
+        {
+            int rand = Random.Range(0, movieClues.Count);
+            item.text = movieClues[rand];
+            movieClues.RemoveAt(rand);
+        }
     }
 
     #endregion

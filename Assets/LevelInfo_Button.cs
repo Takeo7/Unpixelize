@@ -10,6 +10,13 @@ public class LevelInfo_Button : MonoBehaviour
     public Scene_Controller sc;
     [Space]
     public Button lvl_bt;
+    [Space]
+    public GameObject unlocked_ui;
+    public GameObject locked_ui;
+    [Space]
+    public Color unlockedColor;
+    public Color lockedColor;
+
 
     public void LoadLevelID(int id, bool un)
     {
@@ -23,6 +30,18 @@ public class LevelInfo_Button : MonoBehaviour
     public void UpdateLevel()
     {
         lvl_bt.interactable = unlocked;
+        if (unlocked)
+        {
+            locked_ui.SetActive(false);
+            unlocked_ui.SetActive(true);
+            transform.GetComponentInChildren<TextMeshProUGUI>().color = unlockedColor;
+        }
+        else
+        {
+            locked_ui.SetActive(true);
+            unlocked_ui.SetActive(false);
+            transform.GetComponentInChildren<TextMeshProUGUI>().color = unlockedColor;
+        }
     }
 
     public void EnterLevel()

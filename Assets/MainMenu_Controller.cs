@@ -19,7 +19,8 @@ public class MainMenu_Controller : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        //sc.PrepareScene(Scene_Controller.Scenes.LevelSelector);
+        StartLogin();
     }
 
 

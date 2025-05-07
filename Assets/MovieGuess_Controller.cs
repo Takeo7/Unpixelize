@@ -118,7 +118,7 @@ public class MovieGuess_Controller : MonoBehaviour
                 break;
         }
 
-        title = RemoveVoids(title);
+        //title = RemoveVoids(title);
 
         length = Calculatelength(title);
     }

@@ -75,8 +75,28 @@ public class MovieGuess_LettersController : MonoBehaviour
             // Guardar referencia al slot
             emptySlots.Add(g.transform);
         }
-
+        HideEmptySquaresForSpaces(title);
         SetLetterSquares(correctLetterCount, title, fakeLetterCount);
+    }
+
+    public void HideEmptySquaresForSpaces(string title)
+    {
+        Transform grid = Grid_Empty_Letter_Squares.transform;
+
+        for (int i = 0; i < title.Length && i < grid.childCount; i++)
+        {
+            if (title[i] == ' ')
+            {
+                Transform slot = grid.GetChild(i);
+                Image image = slot.GetComponent<Image>();
+                if (image != null)
+                {
+                    image.enabled = false;
+                }
+            }
+        }
+
+        Debug.Log("🔲 Ocultadas las casillas correspondientes a espacios en el título.");
     }
 
     public void SetLetterSquares(int correctLetterCount, string title, int fakeLetterCount)
@@ -96,10 +116,14 @@ public class MovieGuess_LettersController : MonoBehaviour
         {
             GameObject g = Instantiate(letter_square);
             string letter = title[i].ToString().ToUpper();
-            g.GetComponentInChildren<Sqr_letter_script>().letter = letter;
-            g.GetComponentInChildren<TextMeshProUGUI>().SetText(letter);
+            if (letter != " ")
+            {
+                g.GetComponentInChildren<Sqr_letter_script>().letter = letter;
+                g.GetComponentInChildren<TextMeshProUGUI>().SetText(letter);
 
-            originalLetters.Add(g);
+                originalLetters.Add(g);
+            }
+            
         }
 
         allLetters.AddRange(originalLetters);
@@ -157,10 +181,16 @@ public class MovieGuess_LettersController : MonoBehaviour
 
     public Transform GetNextEmptySlot()
     {
-        foreach (Transform slot in emptySlots)
+        string title = MovieGuess_Controller.MovieGuess_instance.title;
+
+        for (int i = 0; i < emptySlots.Count; i++)
         {
-            if (slot.childCount == 0)
-                return slot;
+            // Saltar si el título tiene un espacio en esa posición
+            if (title[i] == ' ')
+                continue;
+
+            if (emptySlots[i].childCount == 0)
+                return emptySlots[i];
         }
         return null;
     }
@@ -182,6 +212,10 @@ public class MovieGuess_LettersController : MonoBehaviour
         List<int> huecosLibres = new List<int>();
         for (int i = 0; i < title.Length; i++)
         {
+            // Ignorar los espacios
+            if (title[i] == ' ')
+                continue;
+
             Transform targetSlot = emptyGrid.GetChild(i);
             if (targetSlot.childCount == 0)
             {
@@ -282,6 +316,12 @@ public class MovieGuess_LettersController : MonoBehaviour
         Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
         Transform letterGrid = Grid_Letter_Squares.transform;
 
+        if (letter == " ")
+        {
+            Debug.Log("❌ Saltamos colocación de espacio en la posición " + place);
+            yield break;
+        }
+
         if (emptyGrid == null || letterGrid == null)
         {
             Debug.LogError("❌ Grid_Empty_Letter_Squares o Grid_Letter_Squares es NULL.");
@@ -366,20 +406,33 @@ public class MovieGuess_LettersController : MonoBehaviour
 
             if (slot.childCount == 0)
             {
-                Debug.Log("ERROR: hay casillas vacías.");
-                return;
-            }
+                if (title[i] == ' ')
+                {
+                    checkTitle.Append(" ");
 
-            TextMeshProUGUI textComponent = slot.GetComponentInChildren<TextMeshProUGUI>();
-            if (textComponent != null)
-            {
-                checkTitle.Append(textComponent.text.ToUpper());
+                }
+                else
+                {
+                    Debug.Log("ERROR: hay casillas vacías.");
+                    return;
+                }
+
             }
             else
             {
-                Debug.Log("ERROR: no se encontró el texto en una letra.");
-                return;
+                TextMeshProUGUI textComponent = slot.GetComponentInChildren<TextMeshProUGUI>();
+                if (textComponent != null)
+                {
+                    checkTitle.Append(textComponent.text.ToUpper());
+                }
+                else
+                {
+                    Debug.Log("ERROR: no se encontró el texto en una letra.");
+                    return;
+                }
             }
+
+            
         }
 
         if (checkTitle.ToString() == title.ToUpper())

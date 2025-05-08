@@ -40,7 +40,7 @@ public class LevelInfo_Button : MonoBehaviour
         {
             locked_ui.SetActive(true);
             unlocked_ui.SetActive(false);
-            transform.GetComponentInChildren<TextMeshProUGUI>().color = unlockedColor;
+            transform.GetComponentInChildren<TextMeshProUGUI>().color = lockedColor;
         }
     }
 

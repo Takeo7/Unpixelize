@@ -351,7 +351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25ce3a5799ad50548b454c6b5e48c349, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  level_prefab: {fileID: 7973590143205396853, guid: 0ffe4842b619a964784bcc208ce116c7, type: 3}
+  level_prefab: {fileID: 3476963171381335695, guid: 7b452a7ff75384ed496cd5536b25206a, type: 3}
   level_parent: {fileID: 946340137}
   pd:
     playerId: 
@@ -815,8 +815,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281769944
-  m_fontColor: {r: 0.84705883, g: 0.62352943, b: 0.21176471, a: 1}
+    rgba: 4280787179
+  m_fontColor: {r: 0.92156863, g: 0.627451, b: 0.15294118, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

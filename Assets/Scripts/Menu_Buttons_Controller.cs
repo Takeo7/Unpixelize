@@ -7,6 +7,9 @@ public class Menu_Buttons_Controller : MonoBehaviour
     public Transform level_parent;
 
     [Space]
+    public GameObject loadingScreen;
+
+    [Space]
     public PlayerData pd;
 
     [Space]
@@ -15,7 +18,21 @@ public class Menu_Buttons_Controller : MonoBehaviour
     void Start()
     {
         pd = PlayerInfoController.Player_Instance.playerData;
-        LoadLevels();
+
+        ApiClient.Instance.GetLevels(
+            onSuccess: response =>
+            {
+                loadingScreen.SetActive(false);
+                LoadLevels();
+            },
+            onError: error =>
+            {
+                Debug.LogError("Error cargando niveles: " + error);
+            }
+
+            );
+
+        
     }
 
     public void LoadLevels()

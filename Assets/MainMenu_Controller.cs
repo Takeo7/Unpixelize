@@ -52,6 +52,7 @@ public class MainMenu_Controller : MonoBehaviour
             errorText.color = Color.green;
             errorText.text = "Login exitoso, cargando info";
 
+            /*
             ApiClient.Instance.GetLevels(
                 levelsResponse => 
                 { 
@@ -59,6 +60,9 @@ public class MainMenu_Controller : MonoBehaviour
                     NextScene();
                 },
                 error => Debug.LogError("Error cargando niveles: " + error));
+            */
+
+            NextScene();
         },
         onError: error =>
         {

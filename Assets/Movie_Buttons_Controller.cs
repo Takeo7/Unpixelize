@@ -8,6 +8,9 @@ public class Movie_Buttons_Controller : MonoBehaviour
     public Transform movies_parent;
 
     [Space]
+    public GameObject loadingScreen;
+
+    [Space]
     public PlayerData pd;
 
     [Space]
@@ -20,7 +23,21 @@ public class Movie_Buttons_Controller : MonoBehaviour
     {
         pd = PlayerInfoController.Player_Instance.playerData;
         level_name.text = "Level " + PlayerInfoController.Player_Instance.currentLevel;
-        LoadMovies();
+
+        ApiClient.Instance.GetLevel(PlayerInfoController.Player_Instance.currentLevel,
+            onSuccess: response =>
+            {
+                loadingScreen.SetActive(false);
+                LoadMovies();
+            },
+            onError: error =>
+            {
+                Debug.LogError("Error cargando niveles: " + error);
+            }
+
+            );
+
+        
     }
 
     public void LoadMovies()

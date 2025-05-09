@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -145,45 +145,9 @@ public class ApiClient : MonoBehaviour
                     levelName = $"Nivel {level.level}",
                     unlocked = level.unlocked,
                     solved = false,
-                    subLevels = new List<SubLevelData>()
+                    subLevels = new List<SubLevelData>() // vacío aquí, se cargará después en GetLevel
                 };
 
-                yield return GetLevelCoroutine(level.level, levelJson =>
-                {
-                    Debug.Log($"[Raw JSON Level {level.level}] {levelJson}");
-                    string fixedJson = JsonHelper.FixJsonArray(levelJson);
-                    Debug.Log($"[Fixed JSON Level {level.level}] {fixedJson}");
-
-                    try
-                    {
-                        SubLevelData[] sublevels = JsonHelper.FromJson<SubLevelData>(fixedJson);
-                        if (sublevels != null)
-                        {
-                            foreach (var sub in sublevels)
-                            {
-                                if (sub != null)
-                                {
-                                    if (sub.film != null && sub.film.names != null && sub.film.names.Count > 0)
-                                    {
-                                        sub.film.name = sub.film.names[0];
-                                    }
-
-                                    Debug.Log($"[Parsed SubLevel] Nivel {level.level}, SubLevel {sub.sublevel_id}, Film ID: {sub.film?.id}, Solved: {sub.solved}");
-                                    levelProgress.subLevels.Add(sub);
-                                }
-                            }
-                        }
-                    }
-                    catch (System.Exception e)
-                    {
-                        Debug.LogError($"[ERROR deserializando subniveles nivel {level.level}] {e.Message}");
-                    }
-                }, error =>
-                {
-                    Debug.LogError("Error al cargar subniveles del nivel " + level.level + ": " + error);
-                });
-
-                Debug.Log($"[Level Complete] Nivel {level.level} con {levelProgress.subLevels.Count} subniveles cargados.");
                 levelsProgress.Add(levelProgress);
             }
 
@@ -207,8 +171,34 @@ public class ApiClient : MonoBehaviour
 
         if (request.result == UnityWebRequest.Result.Success)
         {
-            string fixedJson = request.downloadHandler.text;
-            onSuccess?.Invoke(fixedJson);
+            string fixedJson = JsonHelper.FixJsonArray(request.downloadHandler.text);
+            try
+            {
+                SubLevelData[] sublevels = JsonHelper.FromJson<SubLevelData>(fixedJson);
+                var level = PlayerInfoController.Player_Instance.playerData.levelsProgress.Find(l => l.levelId == levelId);
+
+                if (level != null)
+                {
+                    level.subLevels.Clear();
+                    foreach (var sub in sublevels)
+                    {
+                        if (sub.film != null && sub.film.name != null)
+                        {
+                            // Asignar FilmName si viene como objeto
+                            sub.film.names = new List<FilmName> { sub.film.name };
+                        }
+                        level.subLevels.Add(sub);
+                    }
+                }
+
+                Debug.Log($"✅ Subniveles del nivel {levelId} cargados: {sublevels.Length}");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[ERROR deserializando subniveles nivel {levelId}] {e.Message}");
+            }
+
+            onSuccess?.Invoke(request.downloadHandler.text);
         }
         else
         {

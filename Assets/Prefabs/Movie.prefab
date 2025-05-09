@@ -291,8 +291,8 @@ MonoBehaviour:
   movie_bt: {fileID: 2894801260394011657}
   videoDisplay: {fileID: 0}
   renderTextureSize: {x: 512, y: 512}
-  videoMaterial: {fileID: 2100000, guid: 593ab4d00dce3f3428ab103a11dd6248, type: 2}
-  scaleMultiplier: 1.2
+  scaleMultiplier: 2
+  pixelBlockSize: 20
 --- !u!114 &-2150234218046767580
 MonoBehaviour:
   m_ObjectHideFlags: 0

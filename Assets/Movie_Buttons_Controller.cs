@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class Movie_Buttons_Controller : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class Movie_Buttons_Controller : MonoBehaviour
 
     [Space]
     public GameObject loadingScreen;
+    public int loadedImages = 0;
 
     [Space]
     public PlayerData pd;
@@ -27,33 +29,58 @@ public class Movie_Buttons_Controller : MonoBehaviour
         ApiClient.Instance.GetLevel(PlayerInfoController.Player_Instance.currentLevel,
             onSuccess: response =>
             {
-                loadingScreen.SetActive(false);
-                LoadMovies();
+                
+                StartCoroutine(LoadMoviesSequentially());
             },
             onError: error =>
             {
                 Debug.LogError("Error cargando niveles: " + error);
             }
+        );
+    }
 
-            );
+    public void MovieLoaded()
+    {
+        loadedImages++;
+        if (loadedImages >= 9)
+        {
+            LoadingScreenSwitch();
+        }
+    }
+
+    private IEnumerator LoadMoviesSequentially()
+    {
+        int currentLevelIndex = PlayerInfoController.Player_Instance.currentLevel - 1;
+
+        if (currentLevelIndex < 0 || currentLevelIndex >= pd.levelsProgress.Count)
+        {
+            Debug.LogError("Nivel inválido: " + currentLevelIndex);
+            yield break;
+        }
+
+        var levelData = pd.levelsProgress[currentLevelIndex];
+
+        for (int i = 0; i < levelData.subLevels.Count; i++)
+        {
+            GameObject temp = Instantiate(movie_prefab, movies_parent);
+            var button = temp.GetComponent<MovieInfo_Button>();
+            button.mbc = this;
+
+            button.LoadMovieID(
+                levelData.subLevels[i].sublevel_id,
+                levelData.subLevels[i].solved,
+                levelData.subLevels[i].film.name.en);
+            button.sc = sc;
+
+            yield return null; // o yield return new WaitForSeconds(0.05f); para suavizar más
+        }
 
         
     }
 
-    public void LoadMovies()
+    public void LoadingScreenSwitch()
     {
-        int length = 9;
-        
-        for (int i = 0; i < length; i++)
-        {
-            Debug.Log("Current Level: " + PlayerInfoController.Player_Instance.currentLevel);
-            GameObject temp = Instantiate(movie_prefab, movies_parent);
-            temp.GetComponent<MovieInfo_Button>().LoadMovieID(
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].sublevel_id,
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].solved,
-                pd.levelsProgress[PlayerInfoController.Player_Instance.currentLevel-1].subLevels[i].film.name.en);
-            temp.GetComponent<MovieInfo_Button>().sc = sc;
-        }
+        loadingScreen.SetActive(false);
     }
 
     public void BackScene()

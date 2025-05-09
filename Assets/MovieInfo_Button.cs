@@ -14,12 +14,13 @@ public class MovieInfo_Button : MonoBehaviour
     [Space]
     public Scene_Controller sc;
     public Button movie_bt;
+    public Movie_Buttons_Controller mbc;
 
     [Header("Visual Settings")]
     public RawImage videoDisplay;
-    public Vector2 renderTextureSize = new Vector2(512, 512);
-    public Material videoMaterial;
+    public Vector2Int renderTextureSize = new Vector2Int(512, 512);
     public float scaleMultiplier = 1.2f;
+    public int pixelBlockSize = 8;
 
     private VideoPlayer videoPlayer;
 
@@ -66,20 +67,15 @@ public class MovieInfo_Button : MonoBehaviour
             rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = Vector2.zero;
 
-            // Aplicar RectMask2D como máscara
+            // Aplicar máscara
             if (this.GetComponent<RectMask2D>() == null)
                 this.gameObject.AddComponent<RectMask2D>();
 
             if (this.GetComponent<Image>() == null)
             {
                 Image bg = this.gameObject.AddComponent<Image>();
-                bg.color = Color.black; // El color puede ser oscuro para enmascarar bien
+                bg.color = Color.black;
             }
-        }
-
-        if (videoMaterial != null)
-        {
-            videoDisplay.material = videoMaterial;
         }
 
         if (videoPlayer == null)
@@ -91,10 +87,9 @@ public class MovieInfo_Button : MonoBehaviour
             videoPlayer.source = VideoSource.VideoClip;
         }
 
-        RenderTexture rtTex = new RenderTexture((int)renderTextureSize.x, (int)renderTextureSize.y, 0);
+        RenderTexture rtTex = new RenderTexture(renderTextureSize.x, renderTextureSize.y, 0);
         rtTex.Create();
         videoPlayer.targetTexture = rtTex;
-        videoDisplay.texture = rtTex;
     }
 
     private void LoadAndPrepareVideo(string address)
@@ -123,9 +118,19 @@ public class MovieInfo_Button : MonoBehaviour
             yield return null;
 
         videoPlayer.Play();
+        yield return new WaitForSeconds(0.1f); // Asegura que un frame se ha renderizado
+
+        Texture2D snapshot = new Texture2D(renderTextureSize.x, renderTextureSize.y, TextureFormat.RGB24, false);
+        RenderTexture.active = videoPlayer.targetTexture;
+        snapshot.ReadPixels(new Rect(0, 0, renderTextureSize.x, renderTextureSize.y), 0, 0);
+        snapshot.Apply();
+        RenderTexture.active = null;
+
         videoPlayer.Pause();
 
-        Debug.Log($"🖼️ Primer frame preparado: {videoPlayer.clip?.name}");
+        Texture2D pixelated = PixelateTexture(snapshot, pixelBlockSize);
+        videoDisplay.texture = pixelated;
+        videoDisplay.material = null;
 
         AdjustRawImageScaleToAspect(videoPlayer.clip);
 
@@ -133,12 +138,39 @@ public class MovieInfo_Button : MonoBehaviour
         {
             SetGreenBorder(true);
         }
+
+        mbc.MovieLoaded();
+    }
+
+    private Texture2D PixelateTexture(Texture2D original, int blockSize)
+    {
+        int width = original.width;
+        int height = original.height;
+        Texture2D pixelated = new Texture2D(width, height);
+
+        for (int y = 0; y < height; y += blockSize)
+        {
+            for (int x = 0; x < width; x += blockSize)
+            {
+                Color avgColor = original.GetPixel(x, y);
+                for (int dy = 0; dy < blockSize && y + dy < height; dy++)
+                {
+                    for (int dx = 0; dx < blockSize && x + dx < width; dx++)
+                    {
+                        pixelated.SetPixel(x + dx, y + dy, avgColor);
+                    }
+                }
+            }
+        }
+
+        pixelated.Apply();
+        return pixelated;
     }
 
     private void AdjustRawImageScaleToAspect(VideoClip clip)
     {
         float videoAspect = (float)clip.width / clip.height;
-        float renderAspect = renderTextureSize.x / renderTextureSize.y;
+        float renderAspect = (float)renderTextureSize.x / renderTextureSize.y;
 
         RectTransform rt = videoDisplay.rectTransform;
         if (videoAspect > renderAspect)

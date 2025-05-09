@@ -11,7 +11,7 @@ public class ApiClient : MonoBehaviour
     public static ApiClient Instance;
 
     [Header("API Settings")]
-    public string baseUrl = "https://unpixelize-api.onrender.com/api";
+    public string baseUrl = "http://13.61.154.102/api";
     public string authToken;
     public bool Testing;
 
@@ -26,6 +26,8 @@ public class ApiClient : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        baseUrl = "http://13.61.154.102/api";
     }
 
     public void Login(string email, string password, System.Action<string> onSuccess, System.Action<string> onError)
@@ -90,7 +92,10 @@ public class ApiClient : MonoBehaviour
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
 
+        Stopwatch sw = Stopwatch.StartNew();
         yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] Login completado en {sw.ElapsedMilliseconds} ms"+ "--- URL: "+url);
 
         if (request.result == UnityWebRequest.Result.Success)
         {
@@ -110,7 +115,10 @@ public class ApiClient : MonoBehaviour
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Authorization", "Bearer " + authToken);
 
+        Stopwatch sw = Stopwatch.StartNew();
         yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] Logout completado en {sw.ElapsedMilliseconds} ms");
 
         if (request.result == UnityWebRequest.Result.Success)
         {
@@ -129,7 +137,10 @@ public class ApiClient : MonoBehaviour
         UnityWebRequest request = UnityWebRequest.Get(url);
         request.SetRequestHeader("Authorization", "Bearer " + authToken);
 
+        Stopwatch sw = Stopwatch.StartNew();
         yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] GetLevels completado en {sw.ElapsedMilliseconds} ms");
 
         if (request.result == UnityWebRequest.Result.Success)
         {
@@ -145,7 +156,7 @@ public class ApiClient : MonoBehaviour
                     levelName = $"Nivel {level.level}",
                     unlocked = level.unlocked,
                     solved = false,
-                    subLevels = new List<SubLevelData>() // vacío aquí, se cargará después en GetLevel
+                    subLevels = new List<SubLevelData>()
                 };
 
                 levelsProgress.Add(levelProgress);
@@ -167,7 +178,10 @@ public class ApiClient : MonoBehaviour
         UnityWebRequest request = UnityWebRequest.Get(url);
         request.SetRequestHeader("Authorization", "Bearer " + authToken);
 
+        Stopwatch sw = Stopwatch.StartNew();
         yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] GetLevel {levelId} completado en {sw.ElapsedMilliseconds} ms");
 
         if (request.result == UnityWebRequest.Result.Success)
         {
@@ -184,7 +198,6 @@ public class ApiClient : MonoBehaviour
                     {
                         if (sub.film != null && sub.film.name != null)
                         {
-                            // Asignar FilmName si viene como objeto
                             sub.film.names = new List<FilmName> { sub.film.name };
                         }
                         level.subLevels.Add(sub);
@@ -214,7 +227,10 @@ public class ApiClient : MonoBehaviour
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Authorization", "Bearer " + authToken);
 
+        Stopwatch sw = Stopwatch.StartNew();
         yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] POST {endpoint} completado en {sw.ElapsedMilliseconds} ms");
 
         if (request.result == UnityWebRequest.Result.Success)
         {
@@ -234,7 +250,10 @@ public class ApiClient : MonoBehaviour
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Authorization", "Bearer " + authToken);
 
+        Stopwatch sw = Stopwatch.StartNew();
         yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] PUT {endpoint} completado en {sw.ElapsedMilliseconds} ms");
 
         if (request.result == UnityWebRequest.Result.Success)
         {

@@ -156,6 +156,8 @@ public class MovieGuess_LettersController : MonoBehaviour
         }
 
         PlaceBuyedLetters();
+
+        MovieGuess_Controller.MovieGuess_instance.CheckIsAlreadySolved();
     }
 
     private string GetRandomLetter()

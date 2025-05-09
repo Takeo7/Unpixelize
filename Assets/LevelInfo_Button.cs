@@ -45,10 +45,18 @@ public class LevelInfo_Button : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        if (unlocked)
+        {
+            sc.PreloadScene(Scene_Controller.Scenes.MovieSelector.ToString());
+        }
+    }
+
     public void EnterLevel()
     {
         PlayerInfoController.Player_Instance.currentLevel = lvl_id;
-        
-        sc.ChangeScene(Scene_Controller.Scenes.MovieSelector);
+        sc.ActivatePreloadedScene();
     }
+
 }

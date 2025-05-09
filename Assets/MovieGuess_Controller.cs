@@ -62,10 +62,7 @@ public class MovieGuess_Controller : MonoBehaviour
         pixelice = 15;
         SetMovieData();
         SetVideo();
-        if (pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].solved)
-        {
-            IsCorrectTitle(false);
-        }
+       
     }
 
     public enum TitleLanguage
@@ -97,7 +94,7 @@ public class MovieGuess_Controller : MonoBehaviour
         mg_lc.SetAllLetters(length, length, title, fakeLetters);
         SetTips();
         //Video Controller
-
+        
         mg_vc.SetPixelice(pixelice);
     }
     public void SetVideo()
@@ -155,6 +152,10 @@ public class MovieGuess_Controller : MonoBehaviour
 
                 });
         }
+        else
+        {
+            
+        }
         
 
         mg_lc.DisableEmptyLetterSquares();
@@ -163,6 +164,16 @@ public class MovieGuess_Controller : MonoBehaviour
         correctTextPlatform.text = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.platform;
 
         powerButtons.SetActive(false);
+
+        mg_lc.AutoPlaceAllCorrectLetters(title);
+    }
+
+    public void CheckIsAlreadySolved()
+    {
+        if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].solved)
+        {
+            IsCorrectTitle(false);
+        }
     }
 
     public void IsIncorrectTitle(bool n)

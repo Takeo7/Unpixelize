@@ -24,6 +24,7 @@ public class Menu_Buttons_Controller : MonoBehaviour
             {
                 loadingScreen.SetActive(false);
                 LoadLevels();
+                sc.PreloadScene(Scene_Controller.Scenes.MovieSelector.ToString());
             },
             onError: error =>
             {

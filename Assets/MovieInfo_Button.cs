@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
-using UnityEngine.EventSystems;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections;
@@ -20,6 +19,7 @@ public class MovieInfo_Button : MonoBehaviour
     public RawImage videoDisplay;
     public Vector2 renderTextureSize = new Vector2(512, 512);
     public Material videoMaterial;
+    public float scaleMultiplier = 1.2f;
 
     private VideoPlayer videoPlayer;
 
@@ -31,27 +31,6 @@ public class MovieInfo_Button : MonoBehaviour
 
         string videoKey = GetVideoKeyFromPath(pathToVideo);
         UpdateMovie(videoKey);
-
-        
-    }
-
-    public void SetGreenBorder(bool enabled)
-    {
-        Outline outline = videoDisplay.GetComponentInParent<Outline>();
-
-        if (enabled)
-        {
-            if (outline == null)
-                outline = videoDisplay.GetComponentInParent<Outline>();
-
-            outline.effectColor = Color.green;
-            outline.effectDistance = new Vector2(5, 5); // Puedes ajustar el grosor aquí
-        }
-        else
-        {
-            if (outline != null)
-                Destroy(outline);
-        }
     }
 
     private void UpdateMovie(string videoKey)
@@ -80,10 +59,22 @@ public class MovieInfo_Button : MonoBehaviour
             GameObject displayGO = new GameObject("VideoPreview", typeof(RawImage));
             displayGO.transform.SetParent(this.transform, false);
             videoDisplay = displayGO.GetComponent<RawImage>();
-            videoDisplay.rectTransform.anchorMin = Vector2.zero;
-            videoDisplay.rectTransform.anchorMax = Vector2.one;
-            videoDisplay.rectTransform.offsetMin = Vector2.zero;
-            videoDisplay.rectTransform.offsetMax = Vector2.zero;
+
+            RectTransform rt = videoDisplay.rectTransform;
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
+
+            // Aplicar RectMask2D como máscara
+            if (this.GetComponent<RectMask2D>() == null)
+                this.gameObject.AddComponent<RectMask2D>();
+
+            if (this.GetComponent<Image>() == null)
+            {
+                Image bg = this.gameObject.AddComponent<Image>();
+                bg.color = Color.black; // El color puede ser oscuro para enmascarar bien
+            }
         }
 
         if (videoMaterial != null)
@@ -100,10 +91,10 @@ public class MovieInfo_Button : MonoBehaviour
             videoPlayer.source = VideoSource.VideoClip;
         }
 
-        RenderTexture rt = new RenderTexture((int)renderTextureSize.x, (int)renderTextureSize.y, 0);
-        rt.Create();
-        videoPlayer.targetTexture = rt;
-        videoDisplay.texture = rt;
+        RenderTexture rtTex = new RenderTexture((int)renderTextureSize.x, (int)renderTextureSize.y, 0);
+        rtTex.Create();
+        videoPlayer.targetTexture = rtTex;
+        videoDisplay.texture = rtTex;
     }
 
     private void LoadAndPrepareVideo(string address)
@@ -120,7 +111,7 @@ public class MovieInfo_Button : MonoBehaviour
             else
             {
                 Debug.LogWarning($"❌ No se encontró el video '{address}' para Movie ID {movie_id}.");
-                SetRawImageColor(Color.red); // Fallback visual
+                SetRawImageColor(Color.red);
             }
         };
     }
@@ -128,16 +119,54 @@ public class MovieInfo_Button : MonoBehaviour
     private IEnumerator PrepareAndDisplayFirstFrame()
     {
         videoPlayer.Prepare();
-
         while (!videoPlayer.isPrepared)
             yield return null;
 
         videoPlayer.Play();
-        videoPlayer.Pause(); // Muestra el primer frame
+        videoPlayer.Pause();
+
         Debug.Log($"🖼️ Primer frame preparado: {videoPlayer.clip?.name}");
+
+        AdjustRawImageScaleToAspect(videoPlayer.clip);
+
         if (solved)
         {
-            SetGreenBorder(solved);
+            SetGreenBorder(true);
+        }
+    }
+
+    private void AdjustRawImageScaleToAspect(VideoClip clip)
+    {
+        float videoAspect = (float)clip.width / clip.height;
+        float renderAspect = renderTextureSize.x / renderTextureSize.y;
+
+        RectTransform rt = videoDisplay.rectTransform;
+        if (videoAspect > renderAspect)
+        {
+            rt.sizeDelta = new Vector2(renderTextureSize.x * scaleMultiplier, renderTextureSize.y * (renderAspect / videoAspect) * scaleMultiplier);
+        }
+        else
+        {
+            rt.sizeDelta = new Vector2(renderTextureSize.x * (videoAspect / renderAspect) * scaleMultiplier, renderTextureSize.y * scaleMultiplier);
+        }
+    }
+
+    public void SetGreenBorder(bool enabled)
+    {
+        Outline outline = videoDisplay.GetComponentInParent<Outline>();
+
+        if (enabled)
+        {
+            if (outline == null)
+                outline = videoDisplay.GetComponentInParent<Outline>();
+
+            outline.effectColor = Color.green;
+            outline.effectDistance = new Vector2(5, 5);
+        }
+        else
+        {
+            if (outline != null)
+                Destroy(outline);
         }
     }
 
@@ -147,18 +176,12 @@ public class MovieInfo_Button : MonoBehaviour
             return string.Empty;
 
         string filename = System.IO.Path.GetFileNameWithoutExtension(pathToVideo);
-        filename = RemoveVoidsAndLower(filename);
-        return $"Videos/{filename}";
+        return $"Videos/{RemoveVoidsAndLower(filename)}";
     }
+
     public string RemoveVoidsAndLower(string s)
     {
-        int length = s.Length;
-
-        string s_final = s.Replace(" ", "");
-
-        s_final = s_final.ToLower();
-
-        return s_final;
+        return s.Replace(" ", "").ToLower();
     }
 
     private void SetRawImageColor(Color color)

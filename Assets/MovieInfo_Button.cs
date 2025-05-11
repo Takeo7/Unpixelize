@@ -16,6 +16,11 @@ public class MovieInfo_Button : MonoBehaviour
     public Button movie_bt;
     public Movie_Buttons_Controller mbc;
 
+    [Space]
+    public GameObject solved_img;
+    public GameObject mask_img;
+    public GameObject shadow_img;
+
     [Header("Visual Settings")]
     public RawImage videoDisplay;
     public Vector2Int renderTextureSize = new Vector2Int(512, 512);
@@ -58,7 +63,8 @@ public class MovieInfo_Button : MonoBehaviour
         if (videoDisplay == null)
         {
             GameObject displayGO = new GameObject("VideoPreview", typeof(RawImage));
-            displayGO.transform.SetParent(this.transform, false);
+            displayGO.transform.SetParent(mask_img.transform, false);
+            displayGO.transform.SetSiblingIndex(0);
             videoDisplay = displayGO.GetComponent<RawImage>();
 
             RectTransform rt = videoDisplay.rectTransform;
@@ -68,8 +74,8 @@ public class MovieInfo_Button : MonoBehaviour
             rt.anchoredPosition = Vector2.zero;
 
             // Aplicar máscara
-            if (this.GetComponent<RectMask2D>() == null)
-                this.gameObject.AddComponent<RectMask2D>();
+            if (mask_img.GetComponent<Mask>() == null)
+                mask_img.gameObject.AddComponent<Mask>();
 
             if (this.GetComponent<Image>() == null)
             {
@@ -136,7 +142,9 @@ public class MovieInfo_Button : MonoBehaviour
 
         if (solved)
         {
-            SetGreenBorder(true);
+            //SetGreenBorder(true);
+            solved_img.SetActive(true);
+            shadow_img.SetActive(false);
         }
 
         mbc.MovieLoaded();

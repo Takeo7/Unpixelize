@@ -458,6 +458,8 @@ MonoBehaviour:
   - {fileID: 1947840398}
   - {fileID: 195705743}
   - {fileID: 2104600939}
+  loading_screen: {fileID: 1321141030}
+  _api: {fileID: 0}
 --- !u!4 &79508206
 Transform:
   m_ObjectHideFlags: 0
@@ -499,6 +501,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff65446eddc97d6409c0247759f96f6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mgc: {fileID: 0}
   Grid_Empty_Letter_Squares: {fileID: 1816722317}
   empty_letter_square: {fileID: 841840965193090137, guid: 6cf2f107d266c944e9ac75f0e8bbcab7, type: 3}
   emptySlots: []
@@ -1230,6 +1233,7 @@ GameObject:
   - component: {fileID: 371660561}
   - component: {fileID: 371660560}
   - component: {fileID: 371660559}
+  - component: {fileID: 371660562}
   m_Layer: 5
   m_Name: Buy_Tip
   m_TagString: Untagged
@@ -1313,6 +1317,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: BuyTip
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 371660562}
+          m_ObjectArgumentAssemblyTypeName: Tip_info, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &371660560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1351,6 +1367,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 371660557}
   m_CullTransparentMesh: 1
+--- !u!114 &371660562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 371660557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19a4d279ec55d1c45af7815cc0ed2661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tip_Type: 
 --- !u!1 &385422961
 GameObject:
   m_ObjectHideFlags: 0
@@ -3245,6 +3274,7 @@ GameObject:
   - component: {fileID: 783654792}
   - component: {fileID: 783654791}
   - component: {fileID: 783654790}
+  - component: {fileID: 783654793}
   m_Layer: 5
   m_Name: Buy_Tip
   m_TagString: Untagged
@@ -3328,6 +3358,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: BuyTip
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 783654793}
+          m_ObjectArgumentAssemblyTypeName: Tip_info, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &783654791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3366,6 +3408,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 783654788}
   m_CullTransparentMesh: 1
+--- !u!114 &783654793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 783654788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19a4d279ec55d1c45af7815cc0ed2661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tip_Type: 
 --- !u!1 &810048282
 GameObject:
   m_ObjectHideFlags: 0
@@ -5274,6 +5329,117 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1320543627}
   m_CullTransparentMesh: 1
+--- !u!1001 &1321141028
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1748227001}
+    m_Modifications:
+    - target: {fileID: 4850003213214966335, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_Name
+      value: LoadingScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 4850003213214966335, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+--- !u!224 &1321141029 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+  m_PrefabInstance: {fileID: 1321141028}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1321141030 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4850003213214966335, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+  m_PrefabInstance: {fileID: 1321141028}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1327183968
 GameObject:
   m_ObjectHideFlags: 0
@@ -6320,10 +6486,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 79508209}
-        m_TargetAssemblyTypeName: MovieGuess_VideoController, Assembly-CSharp
-        m_MethodName: UnPixelice
-        m_Mode: 3
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: Unpixelice
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -7691,6 +7857,7 @@ RectTransform:
   - {fileID: 1243990414}
   - {fileID: 1434880097}
   - {fileID: 1100956333}
+  - {fileID: 1321141029}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -9544,6 +9711,7 @@ GameObject:
   - component: {fileID: 2078343037}
   - component: {fileID: 2078343036}
   - component: {fileID: 2078343035}
+  - component: {fileID: 2078343038}
   m_Layer: 5
   m_Name: Buy_Tip
   m_TagString: Untagged
@@ -9627,6 +9795,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: BuyTip
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 2078343038}
+          m_ObjectArgumentAssemblyTypeName: Tip_info, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2078343036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9665,6 +9845,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2078343033}
   m_CullTransparentMesh: 1
+--- !u!114 &2078343038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2078343033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19a4d279ec55d1c45af7815cc0ed2661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tip_Type: 
 --- !u!1 &2104600937
 GameObject:
   m_ObjectHideFlags: 0

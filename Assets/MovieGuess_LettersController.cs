@@ -26,6 +26,9 @@ public class MovieGuess_LettersController : MonoBehaviour
     #endregion
 
     [Space]
+    public MovieGuess_Controller mgc;
+
+    [Space]
     public GameObject Grid_Empty_Letter_Squares;
     public GameObject empty_letter_square;
     public List<Transform> emptySlots = new List<Transform>();
@@ -66,6 +69,7 @@ public class MovieGuess_LettersController : MonoBehaviour
 
         emptySlots.Clear();
 
+        
         for (int i = 0; i < length; i++)
         {
             GameObject g = Instantiate(empty_letter_square);
@@ -75,7 +79,7 @@ public class MovieGuess_LettersController : MonoBehaviour
             // Guardar referencia al slot
             emptySlots.Add(g.transform);
         }
-        HideEmptySquaresForSpaces(title);
+        ShowEmptySquaresWithoutSpacesDeferred(title);
         SetLetterSquares(correctLetterCount, title, fakeLetterCount);
     }
 
@@ -91,13 +95,82 @@ public class MovieGuess_LettersController : MonoBehaviour
                 Image image = slot.GetComponent<Image>();
                 if (image != null)
                 {
+                    Debug.Log("Espacio en: " + i);
                     image.enabled = false;
+                    Debug.Log("Image disabled");
                 }
+                
             }
         }
 
         Debug.Log("🔲 Ocultadas las casillas correspondientes a espacios en el título.");
     }
+
+    public void HideEmptySquaresForSpacesDeferred(string title)
+    {
+        StartCoroutine(WaitAndHideSpaces(title));
+    }
+
+    private IEnumerator WaitAndHideSpaces(string title)
+    {
+        yield return null; // espera 1 frame
+
+        Transform grid = Grid_Empty_Letter_Squares.transform;
+
+        for (int i = 0; i < title.Length && i < grid.childCount; i++)
+        {
+            if (title[i] == ' ')
+            {
+                Transform slot = grid.GetChild(i);
+                Image image = slot.GetComponent<Image>();
+                if (image != null)
+                {
+                    image.enabled = false;
+                    Debug.Log($"✅ Image ocultada en slot {i}: {slot.name}");
+                }
+                else
+                {
+                    Debug.LogWarning($"❌ No se encontró Image en slot {i}: {slot.name}");
+                }
+            }
+        }
+
+        Debug.Log("🔲 Espacios ocultados tras un frame.");
+    }
+
+    public void ShowEmptySquaresWithoutSpacesDeferred(string title)
+    {
+        StartCoroutine(WaitAndShowSpaces(title));
+    }
+
+    private IEnumerator WaitAndShowSpaces(string title)
+    {
+        yield return null; // Espera 1 frame
+
+        Transform grid = Grid_Empty_Letter_Squares.transform;
+
+        for (int i = 0; i < title.Length && i < grid.childCount; i++)
+        {
+            if (title[i] != ' ')
+            {
+                Transform slot = grid.GetChild(i);
+                Image image = slot.GetComponent<Image>();
+                if (image != null)
+                {
+                    image.enabled = true;
+                    //Debug.Log($"✅ Image activado en slot {i}: {slot.name}");
+                }
+                else
+                {
+                    //Debug.LogWarning($"❌ No se encontró Image en slot {i}: {slot.name}");
+                }
+            }
+        }
+
+        //Debug.Log("🟩 Activadas casillas sin espacios tras esperar un frame.");
+    }
+
+
 
     public void SetLetterSquares(int correctLetterCount, string title, int fakeLetterCount)
     {
@@ -237,6 +310,8 @@ public class MovieGuess_LettersController : MonoBehaviour
 
 
         Debug.Log($"Hueco aleatorio elegido: {randomIndex}, letra buscada: {targetLetter}");
+
+        mgc.PostAddNewLetter_API(randomIndex, targetLetter, mgc.tit_lang);
 
         PlaceBuyedLetter(targetLetter, randomIndex, MovieGuess_Controller.MovieGuess_instance.tit_lang);
         
@@ -465,7 +540,7 @@ public class MovieGuess_LettersController : MonoBehaviour
         Debug.Log("🛑 Letras del grid de respuesta desactivadas");
     }
 
-
+    #region tnt
     public void EliminarLetrasFalsas()
     {
         foreach (GameObject fake in fakeLetters)
@@ -479,5 +554,17 @@ public class MovieGuess_LettersController : MonoBehaviour
         fakeLetters.Clear();
 
         tnt = true;
+
+        mgc._api.UseHelpBomb(mgc.pic.currentLevel, mgc.pic.currentMovie,
+            onSuccess: response =>
+            {
+                Debug.Log("Post TNT Movie SUCCESS: " + response);
+            },
+                onError: error =>
+                {
+                    Debug.LogError("Post TNT Movie fallido: " + error);
+
+                });
     }
+    #endregion
 }

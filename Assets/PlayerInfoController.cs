@@ -34,12 +34,6 @@ public class PlayerInfoController : MonoBehaviour
         //PlayerInfoController.Player_Instance.LoadPlayerData(mockData);
     }
 
-
-    void Start()
-    {
-        
-    }
-
     public void LoadPlayerData(PlayerData data)
     {
         playerData = data;

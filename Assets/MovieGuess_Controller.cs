@@ -56,12 +56,18 @@ public class MovieGuess_Controller : MonoBehaviour
     [Space]
     public List<TextMeshProUGUI> tips_text = new List<TextMeshProUGUI>();
 
+    [Space]
+    public GameObject loading_screen;
+
+    [Space]
+    public ApiClient _api;
+
     private void Start()
     {
         pic = PlayerInfoController.Player_Instance;
         pixelice = 15;
         SetMovieData();
-        SetVideo();
+        
        
     }
 
@@ -88,14 +94,21 @@ public class MovieGuess_Controller : MonoBehaviour
     }
     public void SetMovieData()
     {
+
+        _api = ApiClient.Instance;
+
+        //Get Helpers
+
         IsIncorrectTitle(false);
         Debug.Log("SetMovieData");
         CleanTitle();
         mg_lc.SetAllLetters(length, length, title, fakeLetters);
         SetTips();
-        //Video Controller
-        
+
+        SetVideo();
         mg_vc.SetPixelice(pixelice);
+        Debug.Log("Traza LC");
+        loading_screen.SetActive(false);
     }
     public void SetVideo()
     {
@@ -141,7 +154,7 @@ public class MovieGuess_Controller : MonoBehaviour
         if (y)
         {
             //Post Completed
-            ApiClient.Instance.MarkSubLevelSolved(pic.currentLevel, pic.currentMovie,
+            _api.MarkSubLevelSolved(pic.currentLevel, pic.currentMovie,
                 onSuccess: response =>
                 {
                     Debug.Log("Post Correct Movie SUCCESS: " + response);
@@ -183,31 +196,105 @@ public class MovieGuess_Controller : MonoBehaviour
 
     #region PowerButtons
 
+    #region Add New Letter
     public void AddNewLetter()
     {
         mg_lc.AutoPlaceNextCorrectLetter(title);
     }
 
+    public void PostAddNewLetter_API(int index, string letter, TitleLanguage lang)
+    {
+        Debug.LogWarning("Falta llamada de Add new letter a la API");
+    }
+    #endregion
+
+    #region Key Helper
     public void AutoSolveMovie()
     {
         mg_lc.AutoPlaceAllCorrectLetters(title);
         IsCorrectTitle(true);
+        PostAutosolveMovie();
     }
 
+    public void PostAutosolveMovie()
+    {
+        _api.UseHelpKey(pic.currentLevel, pic.currentMovie,
+            onSuccess: response =>
+            {
+                Debug.Log("Post Key Helper Movie SUCCESS: " + response);
+            },
+                onError: error =>
+                {
+                    Debug.LogError("Post Key Helper Movie fallido: " + error);
+
+                });
+    }
+
+    #endregion
+
+    #region Tips
     public void SetTips()
     {
         List<string> movieClues = new List<string>();
+        List<string> clueType = new List<string>();
         movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.actor);
+        clueType.Add("actor");
         movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.director);
+        clueType.Add("director");
         movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.year.ToString());
+        clueType.Add("year");
 
         foreach (var item in tips_text)
         {
             int rand = Random.Range(0, movieClues.Count);
             item.text = movieClues[rand];
+            item.transform.parent.GetChild(1).GetComponent<Tip_info>().tip_Type = clueType[rand];
+            if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_clues != null)
+            {
+                for (int i = 0; i < pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_clues.Count; i++)
+                {
+                    if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_clues[i].type == clueType[rand])
+                    {
+                        item.transform.parent.GetChild(1).gameObject.SetActive(false);
+                    }
+                }
+            }
+                      
             movieClues.RemoveAt(rand);
+            clueType.RemoveAt(rand);
         }
     }
+
+
+    public void BuyTip(Tip_info ti)
+    {
+        _api.UseHelpClue(pic.currentLevel, pic.currentMovie, ti.tip_Type,
+             onSuccess: response =>
+             {
+                 Debug.Log("Post Clue "+ti.tip_Type+" Movie SUCCESS: " + response);
+             },
+                onError: error =>
+                {
+                    Debug.LogError("Post Clue " + ti.tip_Type + " Movie fallido: " + error);
+
+                });
+    }
+    #endregion
+
+    #region TNT
+
+    //Lo hace MG_LC
+
+    #endregion
+
+    #region Unpixelice
+
+    public void Unpixelice()
+    {
+        mg_vc.UnPixelice(10);
+    }
+
+    #endregion
 
     #endregion
 

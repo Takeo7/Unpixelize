@@ -74,6 +74,11 @@ public class PlayerInfoController : MonoBehaviour
         }
     }
 
+    public void SetPopcorns(Win_Type wt)
+    {
+        popcorns += win_amount[(int)wt];
+    }
+
 
     public enum Purchase_Type
     {
@@ -83,8 +88,20 @@ public class PlayerInfoController : MonoBehaviour
         clue,
         key
     }
-
     public List<int> prices = new List<int> {50, 100, 10, 50, 500};
+
+    public enum Win_Type
+    {
+        movie_solved,
+        level_unlocked
+    }
+    public List<int> win_amount = new List<int> { 500, 1000 };
+
+
+    public void OpenReferral()
+    {
+        Application.OpenURL(playerData.levelsProgress[currentLevel-1].subLevels[currentMovie-1].film.referral.link);
+    }
 }
 
 
@@ -127,12 +144,16 @@ public class Film
     public string director;
     public string actor;
     public int year;
-    public string platform;
-    public string path_to_video;
-    public string path_to_photo;
+    public Referral referral;
 
     public List<FilmName> names; // ← usado al deserializar del JSON
     public FilmName name; // para uso interno
+}
+
+[System.Serializable]
+public class Referral
+{
+    public string link;
 }
 
 [System.Serializable]

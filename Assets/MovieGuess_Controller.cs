@@ -113,6 +113,9 @@ public class MovieGuess_Controller : MonoBehaviour
 
     }
 
+
+    #region Language
+
     public enum TitleLanguage
     {
         es,
@@ -134,6 +137,11 @@ public class MovieGuess_Controller : MonoBehaviour
 
         SetMovieData();
     }
+
+    #endregion
+
+
+
     public void SetMovieData()
     {
 
@@ -199,6 +207,8 @@ public class MovieGuess_Controller : MonoBehaviour
             _api.MarkSubLevelSolved(pic.currentLevel, pic.currentMovie,
                 onSuccess: response =>
                 {
+                    pic.SetPopcorns(PlayerInfoController.Win_Type.movie_solved);
+                    LoadPopcornsText_mgc();
                     Debug.Log("Post Correct Movie SUCCESS: " + response);
                 },
                 onError: error =>
@@ -216,8 +226,8 @@ public class MovieGuess_Controller : MonoBehaviour
         mg_lc.DisableEmptyLetterSquares();
 
         correctView.SetActive(true);
-        correctTextPlatform.text = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.platform;
-
+        //correctTextPlatform.text = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.platform;
+        correctTextPlatform.text = "PRIME VIDEO";
         powerButtons.SetActive(false);
 
         mg_lc.AutoPlaceAllCorrectLetters(title);
@@ -301,7 +311,7 @@ public class MovieGuess_Controller : MonoBehaviour
         List<string> movieClues = new List<string>();
         List<string> clueType = new List<string>();
         movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.actor);
-        clueType.Add("actor");
+        clueType.Add("cast");
         movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.director);
         clueType.Add("director");
         movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.year.ToString());
@@ -388,6 +398,11 @@ public class MovieGuess_Controller : MonoBehaviour
     #endregion
 
     #endregion
+
+    public void OpenReferralLink()
+    {
+        pic.OpenReferral();
+    }
 
     public void BackButton()
     {

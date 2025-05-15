@@ -13,6 +13,7 @@ public class Movie_Buttons_Controller : MonoBehaviour
     public int loadedImages = 0;
 
     [Space]
+    public PlayerInfoController pic;
     public PlayerData pd;
 
     [Space]
@@ -21,9 +22,14 @@ public class Movie_Buttons_Controller : MonoBehaviour
     [Space]
     public TextMeshProUGUI level_name;
 
+    [Space]
+    [Header("Popcorn Text")]
+    public TextMeshProUGUI pop_text;
+
     void Start()
     {
-        pd = PlayerInfoController.Player_Instance.playerData;
+        pic = PlayerInfoController.Player_Instance;
+        pd = pic.playerData;
         level_name.text = "Level " + PlayerInfoController.Player_Instance.currentLevel;
 
         ApiClient.Instance.GetLevel(PlayerInfoController.Player_Instance.currentLevel,
@@ -37,6 +43,8 @@ public class Movie_Buttons_Controller : MonoBehaviour
                 Debug.LogError("Error cargando niveles: " + error);
             }
         );
+
+        pic.LoadPopcornsText(pop_text);
     }
 
     public void MovieLoaded()

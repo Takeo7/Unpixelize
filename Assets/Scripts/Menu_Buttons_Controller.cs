@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class Menu_Buttons_Controller : MonoBehaviour
 {
@@ -10,14 +11,20 @@ public class Menu_Buttons_Controller : MonoBehaviour
     public GameObject loadingScreen;
 
     [Space]
+    public PlayerInfoController pic;
     public PlayerData pd;
 
     [Space]
     public Scene_Controller sc;
 
+    [Space]
+    [Header("Popcorn Text")]
+    public TextMeshProUGUI pop_text;
+
     void Start()
     {
-        pd = PlayerInfoController.Player_Instance.playerData;
+        pic = PlayerInfoController.Player_Instance;
+        pd = pic.playerData;
 
         ApiClient.Instance.GetLevels(
             onSuccess: response =>
@@ -33,6 +40,8 @@ public class Menu_Buttons_Controller : MonoBehaviour
 
             );
 
+
+        pic.LoadPopcornsText(pop_text);
         
     }
 

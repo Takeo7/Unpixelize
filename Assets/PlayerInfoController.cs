@@ -9,7 +9,7 @@ public class PlayerInfoController : MonoBehaviour
     public int currentLevel;
     public int currentMovie;
 
-
+    public int popcorns=1000;
 
     #endregion
     public static PlayerInfoController Player_Instance { get; private set; }
@@ -34,10 +34,57 @@ public class PlayerInfoController : MonoBehaviour
         //PlayerInfoController.Player_Instance.LoadPlayerData(mockData);
     }
 
+    private void Start()
+    {
+        popcorns = 1000;
+    }
+
     public void LoadPlayerData(PlayerData data)
     {
         playerData = data;
     }
+
+    public int GetPopcorns()
+    {
+        return popcorns;
+    }
+
+    public void LoadPopcornsText(TMPro.TextMeshProUGUI text)
+    {
+        Debug.Log("LoadPopcornsText: "+popcorns);
+        text.text = popcorns.ToString();
+    }
+
+    public void LoadHelpersText(TMPro.TextMeshProUGUI text, Purchase_Type type)
+    {
+        text.text = prices[(int)type].ToString();
+    }
+
+    public bool SetPopcorns(Purchase_Type pt)
+    {
+        if (prices[(int)pt] <= popcorns)
+        {
+            popcorns -= prices[(int)pt];
+            //Llamada para updatear popcorns
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    public enum Purchase_Type
+    {
+        newLetter,
+        tnt,
+        pixel,
+        clue,
+        key
+    }
+
+    public List<int> prices = new List<int> {50, 100, 10, 50, 500};
 }
 
 

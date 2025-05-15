@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Collections;
 
 public class MovieGuess_Controller : MonoBehaviour
 {
@@ -62,13 +63,54 @@ public class MovieGuess_Controller : MonoBehaviour
     [Space]
     public ApiClient _api;
 
+    [Space]
+    [Header("Popcorns Text")]
+    public TextMeshProUGUI pop_text;
+    [Space]
+    public TextMeshProUGUI letterPrice_text;
+    public TextMeshProUGUI tntPrice_text;
+    public TextMeshProUGUI PXPrice_text;
+    public TextMeshProUGUI TipsPrice_text;
+    public TextMeshProUGUI KeyPrice_text;
+    [Space]
+    public GameObject poor_msg;
+
     private void Start()
     {
         pic = PlayerInfoController.Player_Instance;
         pixelice = 15;
         SetMovieData();
-        
-       
+
+        LoadPopcornsText_mgc();
+        LoadHelpersTexts();
+    }
+
+
+    public void LoadPopcornsText_mgc()
+    {
+        pic.LoadPopcornsText(pop_text);
+    }
+    public void LoadHelpersTexts()
+    {
+        pic.LoadHelpersText(letterPrice_text, PlayerInfoController.Purchase_Type.newLetter);
+        pic.LoadHelpersText(tntPrice_text, PlayerInfoController.Purchase_Type.tnt);
+        pic.LoadHelpersText(PXPrice_text, PlayerInfoController.Purchase_Type.pixel);
+        pic.LoadHelpersText(TipsPrice_text, PlayerInfoController.Purchase_Type.clue);
+        pic.LoadHelpersText(KeyPrice_text, PlayerInfoController.Purchase_Type.key);
+    }
+
+    public void CantPurchase()
+    {
+        poor_msg.SetActive(true);
+        StartCoroutine(Cantbuy_Coroutine());
+        Debug.Log("This can not be purchased... poor scum");
+    }
+
+    private IEnumerator Cantbuy_Coroutine()
+    {
+        yield return new WaitForSecondsRealtime(3f);
+        poor_msg.SetActive(false);
+
     }
 
     public enum TitleLanguage
@@ -199,7 +241,18 @@ public class MovieGuess_Controller : MonoBehaviour
     #region Add New Letter
     public void AddNewLetter()
     {
-        mg_lc.AutoPlaceNextCorrectLetter(title);
+        
+        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.newLetter))
+        {
+            mg_lc.AutoPlaceNextCorrectLetter(title);
+            LoadPopcornsText_mgc();
+        }
+        else
+        {
+            CantPurchase();
+        }
+        
+        
     }
 
     public void PostAddNewLetter_API(int index, string letter, TitleLanguage lang)
@@ -211,9 +264,19 @@ public class MovieGuess_Controller : MonoBehaviour
     #region Key Helper
     public void AutoSolveMovie()
     {
-        mg_lc.AutoPlaceAllCorrectLetters(title);
-        IsCorrectTitle(true);
-        PostAutosolveMovie();
+        
+        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.key))
+        {
+            LoadPopcornsText_mgc();
+            mg_lc.AutoPlaceAllCorrectLetters(title);
+            IsCorrectTitle(true);
+            PostAutosolveMovie();
+        }
+        else
+        {
+            CantPurchase();
+        }
+        
     }
 
     public void PostAutosolveMovie()
@@ -268,22 +331,42 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void BuyTip(Tip_info ti)
     {
-        _api.UseHelpClue(pic.currentLevel, pic.currentMovie, ti.tip_Type,
-             onSuccess: response =>
-             {
-                 Debug.Log("Post Clue "+ti.tip_Type+" Movie SUCCESS: " + response);
-             },
-                onError: error =>
-                {
-                    Debug.LogError("Post Clue " + ti.tip_Type + " Movie fallido: " + error);
+        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.clue))
+        {
+            _api.UseHelpClue(pic.currentLevel, pic.currentMovie, ti.tip_Type,
+            onSuccess: response =>
+            {
+                Debug.Log("Post Clue " + ti.tip_Type + " Movie SUCCESS: " + response);
+            },
+               onError: error =>
+               {
+                   Debug.LogError("Post Clue " + ti.tip_Type + " Movie fallido: " + error);
 
-                });
+               });
+            LoadPopcornsText_mgc();
+        }
+        else
+        {
+            CantPurchase();
+        }
+       
     }
     #endregion
 
     #region TNT
 
-    //Lo hace MG_LC
+    public void TntFakeWords()
+    {
+        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.tnt))
+        {
+            mg_lc.EliminarLetrasFalsas();
+            LoadPopcornsText_mgc();
+        }
+        else
+        {
+            CantPurchase();
+        }
+    }
 
     #endregion
 
@@ -291,7 +374,15 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void Unpixelice()
     {
-        mg_vc.UnPixelice(10);
+        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.pixel))
+        {
+            mg_vc.UnPixelice(10);
+            LoadPopcornsText_mgc();
+        }
+        else
+        {
+            CantPurchase();
+        }       
     }
 
     #endregion

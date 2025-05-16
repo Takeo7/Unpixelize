@@ -30,18 +30,29 @@ public class PlayerInfoController : MonoBehaviour
 
         #endregion
 
+        if (LoadPlayerDataFromDisk())
+        {
+
+        }
+        else
+        {
+
+        }
+
         //PlayerData mockData = MockDataGenerator.GetMockPlayerData();
         //PlayerInfoController.Player_Instance.LoadPlayerData(mockData);
     }
 
-    private void Start()
-    {
-        popcorns = 1000;
-    }
+   
 
     public void LoadPlayerData(PlayerData data)
     {
         playerData = data;
+    }
+
+    public void SetPopcorns(int pop)
+    {
+        popcorns = pop;
     }
 
     public int GetPopcorns()
@@ -102,6 +113,50 @@ public class PlayerInfoController : MonoBehaviour
     {
         Application.OpenURL(playerData.levelsProgress[currentLevel-1].subLevels[currentMovie-1].film.referral.link);
     }
+
+
+    public void SavePlayerDataToDisk()
+    {
+        string json = JsonUtility.ToJson(playerData);
+        string path = Application.persistentDataPath + "/playerdata.json";
+        System.IO.File.WriteAllText(path, json);
+        Debug.Log($"💾 PlayerData guardado en: {path}");
+    }
+
+    private void OnApplicationQuit()
+    {
+        SavePlayerDataToDisk();
+        Debug.Log("💾 Datos guardados al cerrar la aplicación.");
+    }
+
+    private void OnApplicationPause(bool pause)
+    {
+        if (pause)
+        {
+            SavePlayerDataToDisk();
+            Debug.Log("💾 Datos guardados al ir al segundo plano.");
+        }
+    }
+
+    public bool LoadPlayerDataFromDisk()
+    {
+        string path = Application.persistentDataPath + "/playerdata.json";
+
+        if (System.IO.File.Exists(path))
+        {
+            string json = System.IO.File.ReadAllText(path);
+            PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json);
+            LoadPlayerData(loadedData);
+            Debug.Log("📂 PlayerData cargado desde archivo.");
+            return true;
+        }
+        else
+        {
+            Debug.LogWarning("❌ No se encontró archivo de PlayerData.");
+            return false;
+        }
+    }
+
 }
 
 
@@ -112,6 +167,7 @@ public class PlayerData
     public string playerId;
     public string playerName;
     public string authToken; // ← Aquí se guardará el token
+    public int amount;
 
     // Lista de niveles con progreso del jugador
     public List<LevelProgress> levelsProgress = new List<LevelProgress>();

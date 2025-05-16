@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
@@ -62,7 +62,16 @@ public class MainMenu_Controller : MonoBehaviour
                 error => Debug.LogError("Error cargando niveles: " + error));
             */
 
-            NextScene();
+            ApiClient.Instance.GetPlayerInfo(
+            onSuccess: info => {
+                Debug.Log("✅ Amount actualizado correctamente."+ info.amount);
+                PlayerInfoController.Player_Instance.SetPopcorns(info.amount);
+                NextScene();
+            },
+             onError: err => {
+                Debug.LogWarning("⚠️ No se pudo obtener amount: " + err);
+                });
+            
         },
         onError: error =>
         {

@@ -80,6 +80,102 @@ public class ApiClient : MonoBehaviour
         StartCoroutine(PostRequest($"/solved_sublevel/{levelId}/{subLevelId}", onSuccess, onError));
     }
 
+    public void GetPlayerAmount(System.Action<int> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(GetAmountCoroutine(onSuccess, onError));
+    }
+
+
+    public void GetPlayerInfo(System.Action<InfoResponse> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(GetPlayerInfoCoroutine(onSuccess, onError));
+    }
+
+    private IEnumerator GetPlayerInfoCoroutine(System.Action<InfoResponse> onSuccess, System.Action<string> onError)
+    {
+        string url = baseUrl + "/info";
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+        Stopwatch sw = Stopwatch.StartNew();
+        yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] GetInfo completado en {sw.ElapsedMilliseconds} ms");
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            try
+            {
+                InfoResponse response = JsonUtility.FromJson<InfoResponse>(request.downloadHandler.text);
+
+                // Asignar en PlayerInfoController
+                var pic = PlayerInfoController.Player_Instance;
+                pic.playerData.amount = response.amount;
+                pic.prices = new List<int>
+            {
+                response.help_prices.letter,
+                response.help_prices.bomb,
+                response.help_prices.unpixel,
+                response.help_prices.clues,
+                response.help_prices.key
+            };
+                pic.win_amount = new List<int>
+            {
+                response.rewards.resolved_sublevel,
+                response.rewards.resolved_level
+            };
+
+                Debug.Log($"✅ Info actualizada: amount={response.amount}");
+
+                onSuccess?.Invoke(response);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("❌ Error al parsear /info: " + e.Message);
+                onError?.Invoke("Parse error");
+            }
+        }
+        else
+        {
+            onError?.Invoke(request.error);
+        }
+    }
+
+
+    private IEnumerator GetAmountCoroutine(System.Action<int> onSuccess, System.Action<string> onError)
+    {
+        string url = baseUrl + "/amount";
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+        Stopwatch sw = Stopwatch.StartNew();
+        yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] GetAmount completado en {sw.ElapsedMilliseconds} ms");
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            try
+            {
+                AmountResponse response = JsonUtility.FromJson<AmountResponse>(request.downloadHandler.text);
+                PlayerInfoController.Player_Instance.playerData.amount = response.amount;
+                Debug.Log($"💰 Amount recibido: {response.amount}");
+                onSuccess?.Invoke(response.amount);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"❌ Error al parsear GetAmount: {e.Message}");
+                onError?.Invoke("Parse error");
+            }
+        }
+        else
+        {
+            onError?.Invoke(request.error);
+        }
+    }
+
     private IEnumerator LoginCoroutine(string email, string password, System.Action<string> onSuccess, System.Action<string> onError)
     {
         string url = baseUrl + "/login";
@@ -279,6 +375,41 @@ public class ApiClient : MonoBehaviour
         public int level;
         public bool unlocked;
     }
+
+    [System.Serializable]
+    public class AmountResponse
+    {
+        public int amount;
+    }
+
+
+    [System.Serializable]
+    public class InfoResponse
+    {
+        public int amount;
+        public int limit_pixel;
+        public HelpPrices help_prices;
+        public Rewards rewards;
+    }
+
+    [System.Serializable]
+    public class HelpPrices
+    {
+        public int key;
+        public int clues;
+        public int bomb;
+        public int unpixel;
+        public int letter;
+    }
+
+    [System.Serializable]
+    public class Rewards
+    {
+        public int resolved_sublevel;
+        public int resolved_level;
+    }
+
+
 }
 
 public static class JsonHelper

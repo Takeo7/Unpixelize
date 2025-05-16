@@ -384,15 +384,22 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void Unpixelice()
     {
-        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.pixel))
-        {
-            mg_vc.UnPixelice(10);
-            LoadPopcornsText_mgc();
-        }
-        else
-        {
-            CantPurchase();
-        }       
+        ApiClient.Instance.UseHelpPixel(pic.currentLevel, pic.currentMovie,
+            onSuccess: info => {
+                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.pixel))
+                {
+                    mg_vc.UnPixelice(10);
+                    LoadPopcornsText_mgc();
+                }
+                else
+                {
+                    CantPurchase();
+                }
+            },
+             onError: err => {
+                 CantPurchase();
+             });
+               
     }
 
     #endregion

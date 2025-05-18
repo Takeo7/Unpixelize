@@ -168,6 +168,7 @@ public class PlayerData
     public string playerName;
     public string authToken; // ← Aquí se guardará el token
     public int amount;
+    public int px_limit;
 
     // Lista de niveles con progreso del jugador
     public List<LevelProgress> levelsProgress = new List<LevelProgress>();
@@ -227,6 +228,8 @@ public class HelpData
     public HelpPixel help_pixel;
     public List<HelpClue> help_clues;
     public HelpBomb help_bombs;
+    public HelpLetters helpLetters_es;
+    public HelpLetters helpLetters_en;
 }
 
 [System.Serializable]
@@ -265,121 +268,12 @@ public class HelpBomb
     public string updated_at;
 }
 
-
-
-#endregion
-
-/*#region Player Mock Data
-
-public static class MockDataGenerator
+[System.Serializable]
+public class HelpLetters
 {
-    public static PlayerData GetMockPlayerData()
-    {
-        PlayerData playerData = new PlayerData
-        {
-            playerId = "test123",
-            playerName = "Tester",
-            levelsProgress = new List<LevelProgress>()
-        };
-
-        for (int levelId = 1; levelId <= 9; levelId++)
-        {
-            LevelProgress level = new LevelProgress
-            {
-                levelId = levelId,
-                levelName = $"Nivel {levelId}",
-                subLevels = new List<SubLevelData>()
-            };
-
-            int completedCount = 0;
-
-            for (int subIndex = 0; subIndex < 9; subIndex++)
-            {
-                int filmId = (levelId - 1) * 9 + subIndex + 1;
-                bool isSolved = Random.value > 0.5f;
-                if (isSolved) completedCount++;
-
-                SubLevelData subLevel = new SubLevelData
-                {
-                    sublevel_id = subIndex + 1,
-                    solved = isSolved,
-                    film = new Film
-                    {
-                        id = filmId,
-                        director = $"Director {filmId}",
-                        actor = $"Actor {filmId}",
-                        year = 2000 + filmId % 20,
-                        platform = "Netflix",
-                        path_to_video = $"videos/video_{filmId}.mp4",
-                        path_to_photo = $"https://placehold.co/200x200.png?text=Film+{filmId}&format=png",
-
-
-                        names = new FilmName
-                            {
-                                id = filmId,
-                                film_id = filmId,
-                                en = $"Film {filmId}",
-                                es = $"Película {filmId}"
-                            }
-                    },
-                    help = new HelpData
-                    {
-                        help_pixel = new HelpPixel
-                        {
-                            id = filmId,
-                            user_id = 1,
-                            film_id = filmId,
-                            level_id = levelId,
-                            sublevel_id = subIndex + 1,
-                            pixel_count = Random.Range(1, 6),
-                            created_at = System.DateTime.UtcNow.ToString("o"),
-                            updated_at = System.DateTime.UtcNow.ToString("o")
-                        },
-                        help_clues = new List<HelpClue>
-                        {
-                            new HelpClue
-                            {
-                                id = filmId,
-                                user_id = 1,
-                                film_id = filmId,
-                                level_id = levelId,
-                                sublevel_id = subIndex + 1,
-                                type = "director",
-                                created_at = System.DateTime.UtcNow.ToString("o"),
-                                updated_at = System.DateTime.UtcNow.ToString("o")
-                            }
-                        },
-                        help_bombs = null
-                    }
-                };
-
-                level.subLevels.Add(subLevel);
-            }
-
-            level.solved = completedCount == 9;
-
-            if (levelId <= 2)
-            {
-                level.unlocked = true;
-            }
-            else
-            {
-                bool previousSolved = playerData.levelsProgress[levelId - 2].solved;
-                level.unlocked = previousSolved;
-            }
-
-            playerData.levelsProgress.Add(level);
-        }
-
-        return playerData;
-    }
+    public int letters;
 }
 
-
-
-
-
-
-
 #endregion
-*/
+
+

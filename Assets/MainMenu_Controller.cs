@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Networking;
+using System.Collections;
+
 
 public class MainMenu_Controller : MonoBehaviour
 {
@@ -16,13 +19,60 @@ public class MainMenu_Controller : MonoBehaviour
     [Space]
     public TextMeshProUGUI errorText;
 
+    [Space]
+    public bool deleteData;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //sc.PrepareScene(Scene_Controller.Scenes.LevelSelector);
-        StartLogin();
+
+        if (deleteData)
+        {
+            PlayerPrefs.DeleteAll();
+        }
+
+        StartCoroutine(CheckInternetConnection(isConnected =>
+        {
+            if (isConnected)
+            {
+                if (PlayerPrefs.HasKey("REGISTERED_EMAIL"))
+                {
+                    StartLogin();
+                }
+                else
+                {
+                    StartRegister();
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Sin conexión a internet.");
+                errorText.text = "NO INTERNET";
+            }
+        }));
+        
+        
+
+
+        
+
+
     }
 
+    public IEnumerator CheckInternetConnection(System.Action<bool> callback)
+    {
+        UnityWebRequest request = new UnityWebRequest("https://www.google.com");
+        request.method = UnityWebRequest.kHttpVerbHEAD; // Más rápido, sin descargar datos
+        request.timeout = 5; // segundos
+
+        yield return request.SendWebRequest();
+
+        bool isConnected = !request.result.Equals(UnityWebRequest.Result.ConnectionError) &&
+                           !request.result.Equals(UnityWebRequest.Result.ProtocolError);
+
+        Debug.Log($"🌐 Conexión a internet: {(isConnected ? "Disponible" : "No disponible")}");
+        callback?.Invoke(isConnected);
+    }
 
     public void StartLogin()
     {
@@ -31,16 +81,12 @@ public class MainMenu_Controller : MonoBehaviour
         {
             email_t = "test@example.com";
             password_t = "password";
-        }else if (email.text == null)
+        }else 
         {
-            email_t = "test@example.com";
-            password_t = "password";
+            email_t = PlayerPrefs.GetString("REGISTERED_EMAIL");
+            password_t = PlayerPrefs.GetString("password");
         }
-        else
-        {
-            email_t = email.text;
-            password_t = password.text;
-        }
+
         ApiClient.Instance.Login(email_t, password_t,
         onSuccess: response =>
         {
@@ -85,7 +131,27 @@ public class MainMenu_Controller : MonoBehaviour
     }
 
     
+    public void StartRegister()
+    {
+        ApiClient.Instance.Register(
+    onSuccess: res => {
+        Debug.Log("Registro exitoso: " + res);
+        ApiClient.Instance.GetPlayerInfo(
+            onSuccess: info => {
+                Debug.Log("✅ Amount actualizado correctamente." + info.amount);
+                PlayerInfoController.Player_Instance.SetPopcorns(info.amount);
+                NextScene();
+            },
+             onError: err => {
+                 Debug.LogWarning("⚠️ No se pudo obtener amount: " + err);
+             });
+    }
+    ,
+    onError: err => Debug.LogError("❌ Registro fallido: " + err)
+);
+    }
 
+    
     
 
     [System.Serializable]

@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 using System.Text;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using System.Security.Cryptography;
+using System;
 
 public class ApiClient : MonoBehaviour
 {
@@ -28,6 +30,86 @@ public class ApiClient : MonoBehaviour
         }
 
         baseUrl = "http://13.61.154.102/api";
+        PlayerPrefs.SetString("auth_secret", "VISIBLE_CHECK_123");
+        PlayerPrefs.Save();
+    }
+
+    public string GetPersistentUserId()
+    {
+        if (PlayerPrefs.HasKey("user_uuid"))
+        {
+            return PlayerPrefs.GetString("user_uuid");
+        }
+        else
+        {
+            //first time
+            string newId = SystemInfo.deviceUniqueIdentifier;
+
+            // Fallback si el identificador no es confiable
+            if (string.IsNullOrEmpty(newId) || newId == "00000000000000000000000000000000")
+            {
+                newId = System.Guid.NewGuid().ToString();
+            }
+
+            PlayerPrefs.SetString("user_uuid", newId);
+            PlayerPrefs.Save();
+            return newId;
+        }
+            
+
+        
+    }
+
+    public string GenerateSignature(string uuid, string secret)
+    {
+        using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret)))
+        {
+            byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(uuid));
+            return System.BitConverter.ToString(hash).Replace("-", "").ToLower();
+        }
+    }
+
+    public static class PasswordGenerator
+    {
+        private static System.Random rng = new System.Random();
+
+        public static string GeneratePassword(int length = 10)
+        {
+            if (length < 8) length = 8;
+
+            const string lower = "abcdefghijklmnopqrstuvwxyz";
+            const string upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string digits = "0123456789";
+            const string all = lower + upper + digits;
+
+            StringBuilder password = new StringBuilder();
+
+            // Añadir al menos 2 mayúsculas
+            for (int i = 0; i < 2; i++)
+                password.Append(upper[rng.Next(upper.Length)]);
+
+            // Añadir al menos 1 número
+            password.Append(digits[rng.Next(digits.Length)]);
+
+            // Rellenar el resto
+            while (password.Length < length)
+                password.Append(all[rng.Next(all.Length)]);
+
+            // Mezclar los caracteres para que no queden las mayúsculas al principio
+            return ShuffleString(password.ToString());
+        }
+
+        private static string ShuffleString(string input)
+        {
+            char[] array = input.ToCharArray();
+            int n = array.Length;
+            for (int i = 0; i < n; i++)
+            {
+                int j = rng.Next(i, n);
+                (array[i], array[j]) = (array[j], array[i]);
+            }
+            return new string(array);
+        }
     }
 
     public void Login(string email, string password, System.Action<string> onSuccess, System.Action<string> onError)
@@ -91,6 +173,160 @@ public class ApiClient : MonoBehaviour
         StartCoroutine(GetPlayerInfoCoroutine(onSuccess, onError));
     }
 
+    public void GetHelpData(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(GetHelpDataCoroutine(levelId, subLevelId, onSuccess, onError));
+    }
+    public void Register(System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(RegisterCoroutine(onSuccess, onError));
+    }
+
+    private IEnumerator RegisterCoroutine(System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        string uuid = GetPersistentUserId();
+        Debug.Log("UUID: " + uuid);
+        string password = PasswordGenerator.GeneratePassword(10);
+        PlayerPrefs.SetString("password", password);
+        Debug.Log("Password: " + password);
+        string secret = PlayerPrefs.GetString("auth_secret");
+        Debug.Log("SECRET: " + secret);
+
+        // Generar HMAC SHA256
+        byte[] keyBytes = Encoding.UTF8.GetBytes(secret);
+        byte[] dataBytes = Encoding.UTF8.GetBytes(uuid);
+        string signature = GenerateSignature(uuid, secret);
+        Debug.Log("SIGNATURE1: " + signature);
+
+        using (var hmac = new System.Security.Cryptography.HMACSHA256(keyBytes))
+        {
+            byte[] hashBytes = hmac.ComputeHash(dataBytes);
+            signature = System.BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            Debug.Log("SIGNATURE2: " + signature);
+        }
+
+        RegisterRequest registerRequest = new RegisterRequest
+        {
+            device_uuid = uuid,
+            password = password,
+            signature = signature
+        };
+
+        string json = JsonUtility.ToJson(registerRequest);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        string url = baseUrl + "/auth/anonymous/register";
+        UnityWebRequest request = new UnityWebRequest(url, "POST");
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log("✅ Registro completado: " + request.downloadHandler.text);
+
+            RegisterResponse response = JsonUtility.FromJson<RegisterResponse>(request.downloadHandler.text);
+
+            // Guardar en PlayerPrefs
+            PlayerPrefs.SetString("REGISTERED_EMAIL", response.email);
+            Debug.Log("EMAIL: " + response.email);
+            authToken = response.token;
+            PlayerInfoController.Player_Instance.playerData.authToken = authToken;
+            PlayerPrefs.Save();
+
+            // Guardar en PlayerInfoController
+            PlayerInfoController.Player_Instance.playerData.authToken = response.token;
+            authToken = response.token;
+
+            onSuccess?.Invoke(response.email);
+        }
+        else
+        {
+
+            Debug.LogError("❌ Error en registro: " + request.downloadHandler.text);
+            onError?.Invoke(request.error);
+        }
+    }
+
+    [System.Serializable]
+    private class RegisterRequest
+    {
+        public string device_uuid;
+        public string signature;
+        public string password;
+    }
+
+    [System.Serializable]
+    private class RegisterResponse
+    {
+        public string email;
+        public string token;
+        public string message;
+    }
+
+
+    private IEnumerator GetHelpDataCoroutine(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        string url = $"{baseUrl}/helps/{levelId}/{subLevelId}";
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+        Stopwatch sw = Stopwatch.StartNew();
+        yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] GetHelps {levelId}/{subLevelId} completado en {sw.ElapsedMilliseconds} ms");
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            try
+            {
+                string jsonFixed = JsonHelper.FixJsonArray(request.downloadHandler.text);
+                HelpServerItem[] helps = JsonHelper.FromJson<HelpServerItem>(jsonFixed);
+
+                var levelData = PlayerInfoController.Player_Instance.playerData.levelsProgress
+                    .Find(l => l.levelId == levelId);
+                var subData = levelData?.subLevels.Find(s => s.sublevel_id == subLevelId);
+
+                if (subData != null && helps.Length > 0)
+                {
+                    HelpServerItem serverData = helps[0];
+                    subData.help.help_pixel = serverData.help_pixel;
+                    subData.help.help_clues = serverData.help_clues;
+                    subData.help.help_bombs = serverData.help_bombs;
+
+                    if (serverData.help_letters != null)
+                    {
+                        if (serverData.help_letters.lang == "es")
+                            subData.help.helpLetters_es = new HelpLetters { letters = serverData.help_letters.letter_count };
+                        else if (serverData.help_letters.lang == "en")
+                            subData.help.helpLetters_en = new HelpLetters { letters = serverData.help_letters.letter_count };
+                    }
+
+                    Debug.Log($"✅ Ayudas cargadas para L{levelId}-S{subLevelId}");
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ No se encontró SubLevelData para L{levelId}-S{subLevelId}");
+                }
+
+                onSuccess?.Invoke(request.result.ToString());
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"❌ Error parseando ayuda: {e.Message}");
+                onError?.Invoke("Parse error");
+            }
+        }
+        else
+        {
+            onError?.Invoke(request.error);
+        }
+    }
+
+
     private IEnumerator GetPlayerInfoCoroutine(System.Action<InfoResponse> onSuccess, System.Action<string> onError)
     {
         string url = baseUrl + "/info";
@@ -112,6 +348,7 @@ public class ApiClient : MonoBehaviour
                 // Asignar en PlayerInfoController
                 var pic = PlayerInfoController.Player_Instance;
                 pic.playerData.amount = response.amount;
+                pic.playerData.px_limit = response.limit_pixel;
                 pic.prices = new List<int>
             {
                 response.help_prices.letter,
@@ -199,6 +436,7 @@ public class ApiClient : MonoBehaviour
         }
         else
         {
+            Debug.LogError("❌ Error en Login: " + request.downloadHandler.text);
             onError?.Invoke(request.error);
         }
     }
@@ -409,6 +647,30 @@ public class ApiClient : MonoBehaviour
         public int resolved_level;
     }
 
+    [System.Serializable]
+    public class HelpLetterServerData
+    {
+        public int id;
+        public int user_id;
+        public int level_id;
+        public int sublevel_id;
+        public int letter_count;
+        public string lang;
+        public string created_at;
+        public string updated_at;
+    }
+
+    [System.Serializable]
+    public class HelpServerItem
+    {
+        public int id;
+        public int film_id;
+        public int level_id;
+        public HelpPixel help_pixel;
+        public List<HelpClue> help_clues;
+        public HelpBomb help_bombs;
+        public HelpLetterServerData help_letters;
+    }
 
 }
 

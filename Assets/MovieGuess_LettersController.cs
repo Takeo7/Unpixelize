@@ -228,8 +228,8 @@ public class MovieGuess_LettersController : MonoBehaviour
             g.SetActive(true);
         }
 
-        PlaceBuyedLetters();
-
+        //PlaceBuyedLetters();
+        RestoreBuyedLettersFromServer();
         MovieGuess_Controller.MovieGuess_instance.CheckIsAlreadySolved();
     }
 
@@ -313,9 +313,59 @@ public class MovieGuess_LettersController : MonoBehaviour
 
         mgc.PostAddNewLetter_API(randomIndex, targetLetter, mgc.tit_lang);
 
+
+        RestoreBuyedLettersFromServer();
         PlaceBuyedLetter(targetLetter, randomIndex, MovieGuess_Controller.MovieGuess_instance.tit_lang);
         
     }
+
+
+    public void RestoreBuyedLettersFromServer()
+    {
+        var title = MovieGuess_Controller.MovieGuess_instance.title;
+        var lang = MovieGuess_Controller.MovieGuess_instance.tit_lang;
+        var sublevel = PlayerInfoController.Player_Instance
+            .playerData.levelsProgress[PlayerInfoController.Player_Instance.currentLevel - 1]
+            .subLevels[PlayerInfoController.Player_Instance.currentMovie - 1];
+
+        HelpLetters helpLetters = lang == MovieGuess_Controller.TitleLanguage.es
+            ? sublevel.help.helpLetters_es
+            : sublevel.help.helpLetters_en;
+
+        Dictionary<int, string> targetDict = lang == MovieGuess_Controller.TitleLanguage.es
+            ? buyedLetters_es
+            : buyedLetters_en;
+
+        if (helpLetters != null && helpLetters.letters > 0 && targetDict.Count == 0)
+        {
+            Debug.Log($"♻️ Restaurando {helpLetters.letters} letras compradas del servidor...");
+
+            int placed = 0;
+
+            for (int i = 0; i < title.Length && placed < helpLetters.letters; i++)
+            {
+                if (title[i] == ' ') continue;
+
+                if (!targetDict.ContainsKey(i))
+                {
+                    string letter = title[i].ToString().ToUpper();
+                    targetDict.Add(i, letter);
+                    placed++;
+
+                    // 🔄 Colocar visualmente también
+                    StartCoroutine(MoverLetraConDelay(letter, i, lang));
+
+                    Debug.Log($"🔁 Letra restaurada y colocada: {letter} en posición {i}");
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("✅ Letras ya restauradas o no hay letras compradas desde servidor.");
+        }
+    }
+
+
 
     public void PlaceBuyedLetter(string letter, int place, MovieGuess_Controller.TitleLanguage lang)
     {
@@ -431,6 +481,14 @@ public class MovieGuess_LettersController : MonoBehaviour
 
                 letterSlot.SetParent(slot, false);
                 letterSlot.localPosition = Vector3.zero;
+
+                // 🔒 Desactivar botón para que no se pueda devolver
+                Button btn = letterSlot.GetComponentInChildren<Button>();
+                if (btn != null)
+                {
+                    btn.interactable = false;
+                    Debug.Log("🔒 Botón desactivado para letra comprada: " + letter);
+                }
 
                 Debug.Log("Slot destino:", slot.gameObject);
 

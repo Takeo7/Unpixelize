@@ -53,6 +53,7 @@ public class MovieGuess_Controller : MonoBehaviour
 
     [Space]
     public GameObject powerButtons;
+    public Button PX_Butt;
 
     [Space]
     public List<TextMeshProUGUI> tips_text = new List<TextMeshProUGUI>();
@@ -97,6 +98,10 @@ public class MovieGuess_Controller : MonoBehaviour
         pic.LoadHelpersText(PXPrice_text, PlayerInfoController.Purchase_Type.pixel);
         pic.LoadHelpersText(TipsPrice_text, PlayerInfoController.Purchase_Type.clue);
         pic.LoadHelpersText(KeyPrice_text, PlayerInfoController.Purchase_Type.key);
+        if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie].help.help_pixel.pixel_count > pic.playerData.px_limit)
+        {
+            PX_Butt.enabled = false;
+        }
     }
 
     public void CantPurchase()
@@ -122,7 +127,7 @@ public class MovieGuess_Controller : MonoBehaviour
         en
     }
 
-    public void ChangeLanguage()
+    public bool ChangeLanguage()
     {
         IsIncorrectTitle(false);
         switch (tit_lang)
@@ -136,6 +141,7 @@ public class MovieGuess_Controller : MonoBehaviour
         }
 
         SetMovieData();
+        return true;
     }
 
     #endregion
@@ -149,16 +155,25 @@ public class MovieGuess_Controller : MonoBehaviour
 
         //Get Helpers
 
-        IsIncorrectTitle(false);
-        Debug.Log("SetMovieData");
-        CleanTitle();
-        mg_lc.SetAllLetters(length, length, title, fakeLetters);
-        SetTips();
+        _api.GetHelpData(pic.currentLevel, pic.currentMovie,
+            onSuccess: response =>
+            {
+                IsIncorrectTitle(false);
+                Debug.Log("SetMovieData");
+                CleanTitle();
+                mg_lc.SetAllLetters(length, length, title, fakeLetters);
+                SetTips();
 
-        SetVideo();
-        mg_vc.SetPixelice(pixelice);
-        Debug.Log("Traza LC");
-        loading_screen.SetActive(false);
+                SetVideo();
+                mg_vc.SetPixelice(pixelice);
+                Debug.Log("Traza LC");
+                loading_screen.SetActive(false); 
+            },
+             onError: err => {
+                 Debug.Log("Get Help Data ERROR");
+             });
+
+        
     }
     public void SetVideo()
     {
@@ -251,16 +266,27 @@ public class MovieGuess_Controller : MonoBehaviour
     #region Add New Letter
     public void AddNewLetter()
     {
+        _api = ApiClient.Instance;
+
+        //Get Helpers
+
+        _api.UseHelpLetter(pic.currentLevel, pic.currentMovie, tit_lang.ToString(),
+            onSuccess: response =>
+            {
+                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.newLetter))
+                {
+                    mg_lc.AutoPlaceNextCorrectLetter(title);
+                    LoadPopcornsText_mgc();
+                }
+                else
+                {
+                    CantPurchase();
+                }
+            },
+             onError: err => {
+                 Debug.Log("Get Help New Letter ERROR");
+             });
         
-        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.newLetter))
-        {
-            mg_lc.AutoPlaceNextCorrectLetter(title);
-            LoadPopcornsText_mgc();
-        }
-        else
-        {
-            CantPurchase();
-        }
         
         
     }
@@ -384,12 +410,19 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void Unpixelice()
     {
-        ApiClient.Instance.UseHelpPixel(pic.currentLevel, pic.currentMovie,
+        if (pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie].help.help_pixel.pixel_count < pic.playerData.px_limit)
+        {
+            ApiClient.Instance.UseHelpPixel(pic.currentLevel, pic.currentMovie,
             onSuccess: info => {
                 if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.pixel))
                 {
+                    pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie].help.help_pixel.pixel_count++;
                     mg_vc.UnPixelice(10);
                     LoadPopcornsText_mgc();
+                    if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie].help.help_pixel.pixel_count > pic.playerData.px_limit)
+                    {
+                        PX_Butt.enabled = false;
+                    }
                 }
                 else
                 {
@@ -399,6 +432,8 @@ public class MovieGuess_Controller : MonoBehaviour
              onError: err => {
                  CantPurchase();
              });
+        }
+        
                
     }
 

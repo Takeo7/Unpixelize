@@ -88,6 +88,10 @@ public class ApiClient : MonoBehaviour
             for (int i = 0; i < 2; i++)
                 password.Append(upper[rng.Next(upper.Length)]);
 
+            // Añadir al menos 2 minusculas
+            for (int i = 0; i < 2; i++)
+                password.Append(lower[rng.Next(lower.Length)]);
+
             // Añadir al menos 1 número
             password.Append(digits[rng.Next(digits.Length)]);
 

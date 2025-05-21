@@ -304,8 +304,7 @@ public class MovieGuess_Controller : MonoBehaviour
         if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.key))
         {
             LoadPopcornsText_mgc();
-            mg_lc.AutoPlaceAllCorrectLetters(title);
-            IsCorrectTitle(true);
+            mg_lc.AutoPlaceAllCorrectLetters(title);            
             PostAutosolveMovie();
         }
         else
@@ -321,6 +320,7 @@ public class MovieGuess_Controller : MonoBehaviour
             onSuccess: response =>
             {
                 Debug.Log("Post Key Helper Movie SUCCESS: " + response);
+                IsCorrectTitle(false);
             },
                 onError: error =>
                 {

@@ -65,8 +65,9 @@ public class MovieGuess_Controller : MonoBehaviour
     public ApiClient _api;
 
     [Space]
-    [Header("Popcorns Text")]
+    [Header("Popcorns")]
     public TextMeshProUGUI pop_text;
+    public Popcorn_Controller pop_con;
     [Space]
     public TextMeshProUGUI letterPrice_text;
     public TextMeshProUGUI tntPrice_text;
@@ -222,7 +223,7 @@ public class MovieGuess_Controller : MonoBehaviour
             _api.MarkSubLevelSolved(pic.currentLevel, pic.currentMovie,
                 onSuccess: response =>
                 {
-                    pic.SetPopcorns(PlayerInfoController.Win_Type.movie_solved);
+                    pic.SetPopcorns(PlayerInfoController.Win_Type.movie_solved, pop_con);
                     LoadPopcornsText_mgc();
                     Debug.Log("Post Correct Movie SUCCESS: " + response);
                 },
@@ -273,7 +274,7 @@ public class MovieGuess_Controller : MonoBehaviour
         _api.UseHelpLetter(pic.currentLevel, pic.currentMovie, tit_lang.ToString(),
             onSuccess: response =>
             {
-                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.newLetter))
+                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.newLetter, pop_con))
                 {
                     mg_lc.AutoPlaceNextCorrectLetter(title);
                     LoadPopcornsText_mgc();
@@ -301,7 +302,7 @@ public class MovieGuess_Controller : MonoBehaviour
     public void AutoSolveMovie()
     {
         
-        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.key))
+        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.key, pop_con))
         {
             LoadPopcornsText_mgc();
             mg_lc.AutoPlaceAllCorrectLetters(title);            
@@ -367,11 +368,12 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void BuyTip(Tip_info ti)
     {
-        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.clue))
+        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.clue, pop_con))
         {
             _api.UseHelpClue(pic.currentLevel, pic.currentMovie, ti.tip_Type,
             onSuccess: response =>
             {
+                ti.gameObject.SetActive(false);
                 Debug.Log("Post Clue " + ti.tip_Type + " Movie SUCCESS: " + response);
             },
                onError: error =>
@@ -393,7 +395,7 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void TntFakeWords()
     {
-        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.tnt))
+        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.tnt, pop_con))
         {
             mg_lc.EliminarLetrasFalsas();
             LoadPopcornsText_mgc();
@@ -414,7 +416,7 @@ public class MovieGuess_Controller : MonoBehaviour
         {
             ApiClient.Instance.UseHelpPixel(pic.currentLevel, pic.currentMovie,
             onSuccess: info => {
-                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.pixel))
+                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.pixel, pop_con))
                 {
                     pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie].help.help_pixel.pixel_count++;
                     mg_vc.UnPixelice(10);

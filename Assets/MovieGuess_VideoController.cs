@@ -7,11 +7,14 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class MovieGuess_VideoController : MonoBehaviour
 {
-    [Space]
+    [Header("UI & Video")]
     public RawImage rawImage;
     public VideoPlayer videoPlayer;
 
-    [Space]
+    [Header("Render Texture Settings")]
+    public int defaultWidth = 1280;
+    public int defaultHeight = 720;
+
     private bool videoLoaded = false;
     private RenderTexture renderTexture;
     private Coroutine currentPreparation;
@@ -39,13 +42,13 @@ public class MovieGuess_VideoController : MonoBehaviour
         {
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
-                Debug.Log("✅ Video encontrado y cargado: " + address);
+                Debug.Log("✅ Video encontrado: " + address);
                 videoPlayer.clip = handle.Result;
                 currentPreparation = StartCoroutine(PrepareAndPlayUntilSuccess());
             }
             else
             {
-                Debug.LogWarning("❌ No se encontró el video: " + address + ". Mostramos fallback visual rojo.");
+                Debug.LogWarning("❌ No se encontró el video en Addressables: " + address);
                 SetRawImageToRed();
             }
         };
@@ -61,33 +64,60 @@ public class MovieGuess_VideoController : MonoBehaviour
         videoPlayer = gameObject.AddComponent<VideoPlayer>();
         videoPlayer.playOnAwake = false;
         videoPlayer.renderMode = VideoRenderMode.RenderTexture;
-        videoPlayer.isLooping = true; // 🔁 Repetir video
+        videoPlayer.isLooping = true;
+        videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
+        videoPlayer.source = VideoSource.VideoClip;
+        videoPlayer.aspectRatio = VideoAspectRatio.FitInside;
 
         if (renderTexture == null)
         {
-            renderTexture = new RenderTexture(512, 512, 0);
+            renderTexture = new RenderTexture(defaultWidth, defaultHeight, 0);
             renderTexture.Create();
         }
 
         videoPlayer.targetTexture = renderTexture;
         rawImage.texture = renderTexture;
 
-        videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
-        videoPlayer.source = VideoSource.VideoClip;
+        Debug.Log("🎥 VideoPlayer preparado con RenderTexture " + renderTexture.width + "x" + renderTexture.height);
     }
 
     private IEnumerator PrepareAndPlayUntilSuccess()
     {
         videoPlayer.Prepare();
+        Debug.Log("⌛ Esperando preparación del video...");
 
-        while (!videoPlayer.isPrepared)
+        float timeout = 5f;
+        while (!videoPlayer.isPrepared && timeout > 0f)
         {
+            timeout -= Time.deltaTime;
             yield return null;
         }
 
-        Debug.Log($"🎬 Video preparado correctamente: {videoPlayer.clip?.name}");
+        if (!videoPlayer.isPrepared)
+        {
+            Debug.LogError("❌ Error: el video no se preparó correctamente dentro del tiempo límite.");
+            SetRawImageToRed();
+            yield break;
+        }
+
+        Debug.Log("🎬 Video preparado: " + videoPlayer.clip.name);
+
         videoLoaded = true;
         videoPlayer.Play();
+
+        AdjustRawImageScale();
+    }
+
+    private void AdjustRawImageScale()
+    {
+        if (videoPlayer.clip == null || rawImage == null)
+        {
+            Debug.LogWarning("⚠️ No se pudo ajustar escala: video o imagen nulo.");
+            return;
+        }
+
+        float videoAspect = (float)videoPlayer.clip.width / videoPlayer.clip.height;
+
     }
 
     private void SetRawImageToRed()
@@ -100,12 +130,18 @@ public class MovieGuess_VideoController : MonoBehaviour
 
     public void UnPixelice(int incremental)
     {
-        float pixelsize = rawImage.material.GetFloat("_PixelSize");
-        rawImage.material.SetFloat("_PixelSize", pixelsize + incremental);
+        if (rawImage.material != null && rawImage.material.HasProperty("_PixelSize"))
+        {
+            float pixelsize = rawImage.material.GetFloat("_PixelSize");
+            rawImage.material.SetFloat("_PixelSize", pixelsize + incremental);
+        }
     }
 
     public void SetPixelice(int p)
     {
-        rawImage.material.SetFloat("_PixelSize", p);
+        if (rawImage.material != null && rawImage.material.HasProperty("_PixelSize"))
+        {
+            rawImage.material.SetFloat("_PixelSize", p);
+        }
     }
 }

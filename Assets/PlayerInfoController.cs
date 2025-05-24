@@ -71,12 +71,24 @@ public class PlayerInfoController : MonoBehaviour
         text.text = prices[(int)type].ToString();
     }
 
-    public bool SetPopcorns(Purchase_Type pt)
+    public bool SetPopcorns(Purchase_Type pt, Popcorn_Controller pop_con)
     {
         if (prices[(int)pt] <= popcorns)
         {
-            popcorns -= prices[(int)pt];
             //Llamada para updatear popcorns
+            ApiClient.Instance.GetPlayerAmount(
+               onSuccess: response =>
+               {
+                   SetPopcorns(playerData.amount);
+                   //popcorns -= prices[(int)pt];
+                   pop_con.ShowPopcornChange(prices[(int)pt], false);
+                   Debug.Log("Get amount SUCCESS: " + response);
+               },
+               onError: error =>
+               {
+                   Debug.LogError("Get amount fallido: " + error);
+
+               });
             return true;
         }
         else
@@ -85,9 +97,10 @@ public class PlayerInfoController : MonoBehaviour
         }
     }
 
-    public void SetPopcorns(Win_Type wt)
+    public void SetPopcorns(Win_Type wt, Popcorn_Controller pop_con)
     {
-        popcorns += win_amount[(int)wt];
+        pop_con.ShowPopcornChange(win_amount[(int)wt], false);
+        //popcorns += win_amount[(int)wt];
     }
 
 

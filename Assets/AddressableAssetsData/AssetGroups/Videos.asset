@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Videos
   m_GUID: 032ebe3be54bb26468aeabdecfab2fb3
   m_SerializeEntries:
+  - m_GUID: 0971550ca4c1a28448cacc96662cc71b
+    m_Address: Videos/tarzan
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 463f1976e678f4146ab83aed7a37a510
     m_Address: Videos/28dayslater
     m_ReadOnly: 0
@@ -22,11 +27,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 53df3d0a249b9c3409d72543e7be1cb0
     m_Address: Videos/theswordinthestone
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 55175e58aedcba049a4eb11fd9a64f9f
-    m_Address: Videos/tarzan
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

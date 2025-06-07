@@ -338,24 +338,40 @@ public class MovieGuess_LettersController : MonoBehaviour
 
         if (helpLetters != null && helpLetters.letters > 0 && targetDict.Count == 0)
         {
-            Debug.Log($"♻️ Restaurando {helpLetters.letters} letras compradas del servidor...");
+            Debug.Log($"♻️ Restaurando {helpLetters.letters} letras compradas del servidor (orden aleatorio)...");
 
-            int placed = 0;
-
-            for (int i = 0; i < title.Length && placed < helpLetters.letters; i++)
+            // 1. Obtener índices de letras no vacíos
+            List<int> posiblesIndices = new List<int>();
+            for (int i = 0; i < title.Length; i++)
             {
-                if (title[i] == ' ') continue;
-
-                if (!targetDict.ContainsKey(i))
+                if (title[i] != ' ')
                 {
-                    string letter = title[i].ToString().ToUpper();
-                    targetDict.Add(i, letter);
+                    posiblesIndices.Add(i);
+                }
+            }
+
+            // 2. Mezclar aleatoriamente los índices
+            for (int i = 0; i < posiblesIndices.Count; i++)
+            {
+                int randomIndex = Random.Range(i, posiblesIndices.Count);
+                int temp = posiblesIndices[i];
+                posiblesIndices[i] = posiblesIndices[randomIndex];
+                posiblesIndices[randomIndex] = temp;
+            }
+
+            // 3. Colocar letras compradas en los primeros X índices aleatorios
+            int placed = 0;
+            foreach (int index in posiblesIndices)
+            {
+                if (placed >= helpLetters.letters) break;
+
+                string letter = title[index].ToString().ToUpper();
+                if (!targetDict.ContainsKey(index))
+                {
+                    targetDict.Add(index, letter);
+                    StartCoroutine(MoverLetraConDelay(letter, index, lang));
+                    Debug.Log($"🔁 Letra aleatoria colocada: {letter} en posición {index}");
                     placed++;
-
-                    // 🔄 Colocar visualmente también
-                    StartCoroutine(MoverLetraConDelay(letter, i, lang));
-
-                    Debug.Log($"🔁 Letra restaurada y colocada: {letter} en posición {i}");
                 }
             }
         }
@@ -364,6 +380,7 @@ public class MovieGuess_LettersController : MonoBehaviour
             Debug.Log("✅ Letras ya restauradas o no hay letras compradas desde servidor.");
         }
     }
+
 
 
 
@@ -612,17 +629,6 @@ public class MovieGuess_LettersController : MonoBehaviour
         fakeLetters.Clear();
 
         tnt = true;
-
-        mgc._api.UseHelpBomb(mgc.pic.currentLevel, mgc.pic.currentMovie,
-            onSuccess: response =>
-            {
-                Debug.Log("Post TNT Movie SUCCESS: " + response);
-            },
-                onError: error =>
-                {
-                    Debug.LogError("Post TNT Movie fallido: " + error);
-
-                });
     }
     #endregion
 }

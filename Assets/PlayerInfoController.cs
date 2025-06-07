@@ -82,6 +82,7 @@ public class PlayerInfoController : MonoBehaviour
                    SetPopcorns(playerData.amount);
                    //popcorns -= prices[(int)pt];
                    pop_con.ShowPopcornChange(prices[(int)pt], false);
+                   MovieGuess_Controller.MovieGuess_instance.LoadPopcornsText_mgc();
                    Debug.Log("Get amount SUCCESS: " + response);
                },
                onError: error =>
@@ -99,7 +100,22 @@ public class PlayerInfoController : MonoBehaviour
 
     public void SetPopcorns(Win_Type wt, Popcorn_Controller pop_con)
     {
-        pop_con.ShowPopcornChange(win_amount[(int)wt], false);
+
+        //Llamada para updatear popcorns
+        ApiClient.Instance.GetPlayerAmount(
+           onSuccess: response =>
+           {
+               SetPopcorns(playerData.amount);
+
+               pop_con.ShowPopcornChange(win_amount[(int)wt], true);
+               MovieGuess_Controller.MovieGuess_instance.LoadPopcornsText_mgc();
+               Debug.Log("Get amount SUCCESS: " + response);
+           },
+           onError: error =>
+           {
+               Debug.LogError("Get amount fallido: " + error);
+
+           });
         //popcorns += win_amount[(int)wt];
     }
 

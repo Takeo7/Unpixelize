@@ -587,11 +587,13 @@ MonoBehaviour:
   correctTextPlatform: {fileID: 1508419521}
   powerButtons: {fileID: 1243990413}
   PX_Butt: {fileID: 776362452}
+  TNT_Butt: {fileID: 118638755}
   tips_text:
   - {fileID: 1947840398}
   - {fileID: 195705743}
   - {fileID: 2104600939}
   loading_screen: {fileID: 1321141030}
+  softLoadingScreen: {fileID: 1713420954}
   _api: {fileID: 0}
   pop_text: {fileID: 1598728557}
   pop_con: {fileID: 1598728560}
@@ -1118,7 +1120,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &283215625
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1126,18 +1128,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 283215624}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1633251897}
   - {fileID: 72966263}
-  m_Father: {fileID: 1984647332}
+  m_Father: {fileID: 1875755989}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -214.54468, y: -0.00068295}
+  m_AnchoredPosition: {x: 221.91525, y: -529.2598}
   m_SizeDelta: {x: 235.0893, y: 102.46}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &283215626
@@ -1555,6 +1557,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: ShowSoftLoadingScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 79508205}
         m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
         m_MethodName: BuyTip
@@ -3714,10 +3728,22 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 79508205}
         m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: ShowSoftLoadingScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
         m_MethodName: BuyTip
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 371660562}
+          m_ObjectArgument: {fileID: 783654793}
           m_ObjectArgumentAssemblyTypeName: Tip_info, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -4102,6 +4128,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: ShowSoftLoadingScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 79508205}
         m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
         m_MethodName: TntFakeWords
@@ -6644,6 +6682,18 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 79508205}
         m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: ShowSoftLoadingScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
         m_MethodName: Unpixelice
         m_Mode: 1
         m_Arguments:
@@ -8191,6 +8241,133 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706378516}
   m_CullTransparentMesh: 1
+--- !u!1001 &1713420952
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1748227001}
+    m_Modifications:
+    - target: {fileID: 2373205268902414523, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_Color.a
+      value: 0.7647059
+      objectReference: {fileID: 0}
+    - target: {fileID: 4850003213214966335, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_Name
+      value: SoftLoadingScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 4850003213214966335, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7152727633943457786, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: edb6215d4d3427546b72cb19c3f3f036, type: 2}
+    - target: {fileID: 7152727633943457786, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -3222523430014192086, guid: edb6215d4d3427546b72cb19c3f3f036, type: 2}
+    - target: {fileID: 7152727633943457786, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+--- !u!224 &1713420953 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+  m_PrefabInstance: {fileID: 1713420952}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1713420954 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4850003213214966335, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+  m_PrefabInstance: {fileID: 1713420952}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1748226997
 GameObject:
   m_ObjectHideFlags: 0
@@ -8296,6 +8473,7 @@ RectTransform:
   - {fileID: 1100956333}
   - {fileID: 1598728556}
   - {fileID: 1321141029}
+  - {fileID: 1713420953}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -8886,6 +9064,139 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1858640216}
+  m_CullTransparentMesh: 1
+--- !u!1 &1875755988
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1875755989}
+  - component: {fileID: 1875755992}
+  - component: {fileID: 1875755991}
+  - component: {fileID: 1875755990}
+  m_Layer: 5
+  m_Name: Panel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1875755989
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1875755988}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 283215625}
+  m_Father: {fileID: 1984647332}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: -381.84338, y: 478.03107}
+  m_SizeDelta: {x: 1169.1102, y: 2527}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1875755990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1875755988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1875755991}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1875755988}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1875755991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1875755988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1875755992
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1875755988}
   m_CullTransparentMesh: 1
 --- !u!1 &1916403358
 GameObject:
@@ -9509,6 +9820,18 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 79508205}
         m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: ShowSoftLoadingScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
         m_MethodName: AutoSolveMovie
         m_Mode: 1
         m_Arguments:
@@ -9739,7 +10062,7 @@ RectTransform:
   m_Children:
   - {fileID: 72480242}
   - {fileID: 443151145}
-  - {fileID: 283215625}
+  - {fileID: 1875755989}
   m_Father: {fileID: 1748227001}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -9791,7 +10114,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 283215624}
+      - m_Target: {fileID: 1875755988}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
@@ -9856,7 +10179,7 @@ MonoBehaviour:
   es_img: {fileID: 6142435790108328508, guid: a20947d8310e53d44a103798786a4264, type: 3}
   en_img: {fileID: 6593119257193699601, guid: 415851b7d40d636468039af08c475249, type: 3}
   butt_img: {fileID: 1984647334}
-  selector_lang: {fileID: 283215624}
+  selector_lang: {fileID: 1875755988}
 --- !u!1 &2014374293
 GameObject:
   m_ObjectHideFlags: 0
@@ -10096,6 +10419,18 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 79508205}
         m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: ShowSoftLoadingScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
         m_MethodName: AddNewLetter
         m_Mode: 1
         m_Arguments:
@@ -10242,10 +10577,22 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 79508205}
         m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
+        m_MethodName: ShowSoftLoadingScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 79508205}
+        m_TargetAssemblyTypeName: MovieGuess_Controller, Assembly-CSharp
         m_MethodName: BuyTip
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 371660562}
+          m_ObjectArgument: {fileID: 2078343038}
           m_ObjectArgumentAssemblyTypeName: Tip_info, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0

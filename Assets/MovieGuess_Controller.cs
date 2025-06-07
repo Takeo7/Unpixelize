@@ -54,12 +54,14 @@ public class MovieGuess_Controller : MonoBehaviour
     [Space]
     public GameObject powerButtons;
     public Button PX_Butt;
+    public Button TNT_Butt;
 
     [Space]
     public List<TextMeshProUGUI> tips_text = new List<TextMeshProUGUI>();
 
     [Space]
     public GameObject loading_screen;
+    public GameObject softLoadingScreen;
 
     [Space]
     public ApiClient _api;
@@ -80,7 +82,7 @@ public class MovieGuess_Controller : MonoBehaviour
     private void Start()
     {
         pic = PlayerInfoController.Player_Instance;
-        pixelice = 15;
+        pixelice = 15 + (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_pixel.pixel_count * 10);
         SetMovieData();
 
         LoadPopcornsText_mgc();
@@ -99,10 +101,9 @@ public class MovieGuess_Controller : MonoBehaviour
         pic.LoadHelpersText(PXPrice_text, PlayerInfoController.Purchase_Type.pixel);
         pic.LoadHelpersText(TipsPrice_text, PlayerInfoController.Purchase_Type.clue);
         pic.LoadHelpersText(KeyPrice_text, PlayerInfoController.Purchase_Type.key);
-        if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie].help.help_pixel.pixel_count > pic.playerData.px_limit)
-        {
-            PX_Butt.enabled = false;
-        }
+
+        CheckUnpixeliceButton();
+        CheckTNTButton();
     }
 
     public void CantPurchase()
@@ -147,6 +148,19 @@ public class MovieGuess_Controller : MonoBehaviour
 
     #endregion
 
+    #region Loading Screen
+
+    public void ShowSoftLoadingScreen()
+    {
+        softLoadingScreen.SetActive(true);
+    }
+
+    public void HideSoftLoadingScreen()
+    {
+        softLoadingScreen.SetActive(false);
+    }
+
+    #endregion
 
 
     public void SetMovieData()
@@ -215,6 +229,8 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void IsCorrectTitle(bool y)
     {
+        ShowSoftLoadingScreen();
+
         correct_img.gameObject.SetActive(true);
 
         if (y)
@@ -226,9 +242,11 @@ public class MovieGuess_Controller : MonoBehaviour
                     pic.SetPopcorns(PlayerInfoController.Win_Type.movie_solved, pop_con);
                     LoadPopcornsText_mgc();
                     Debug.Log("Post Correct Movie SUCCESS: " + response);
+                    HideSoftLoadingScreen();
                 },
                 onError: error =>
                 {
+                    HideSoftLoadingScreen();
                     Debug.LogError("Post Correct Movie fallido: " + error);
 
                 });
@@ -283,13 +301,15 @@ public class MovieGuess_Controller : MonoBehaviour
                 {
                     CantPurchase();
                 }
+                HideSoftLoadingScreen();
             },
              onError: err => {
                  Debug.Log("Get Help New Letter ERROR");
+                 HideSoftLoadingScreen();
              });
+
         
-        
-        
+
     }
 
     public void PostAddNewLetter_API(int index, string letter, TitleLanguage lang)
@@ -298,7 +318,7 @@ public class MovieGuess_Controller : MonoBehaviour
     }
     #endregion
 
-    #region Key Helper
+    #region Autosolve
     public void AutoSolveMovie()
     {
         
@@ -311,6 +331,7 @@ public class MovieGuess_Controller : MonoBehaviour
         else
         {
             CantPurchase();
+            HideSoftLoadingScreen();
         }
         
     }
@@ -322,12 +343,15 @@ public class MovieGuess_Controller : MonoBehaviour
             {
                 Debug.Log("Post Key Helper Movie SUCCESS: " + response);
                 IsCorrectTitle(false);
+                HideSoftLoadingScreen();
             },
                 onError: error =>
                 {
                     Debug.LogError("Post Key Helper Movie fallido: " + error);
+                    HideSoftLoadingScreen();
 
                 });
+        
     }
 
     #endregion
@@ -375,10 +399,12 @@ public class MovieGuess_Controller : MonoBehaviour
             {
                 ti.gameObject.SetActive(false);
                 Debug.Log("Post Clue " + ti.tip_Type + " Movie SUCCESS: " + response);
+                HideSoftLoadingScreen();
             },
                onError: error =>
                {
                    Debug.LogError("Post Clue " + ti.tip_Type + " Movie fallido: " + error);
+                   HideSoftLoadingScreen();
 
                });
             LoadPopcornsText_mgc();
@@ -386,8 +412,11 @@ public class MovieGuess_Controller : MonoBehaviour
         else
         {
             CantPurchase();
+            HideSoftLoadingScreen();
         }
-       
+
+        
+
     }
     #endregion
 
@@ -397,12 +426,36 @@ public class MovieGuess_Controller : MonoBehaviour
     {
         if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.tnt, pop_con))
         {
-            mg_lc.EliminarLetrasFalsas();
-            LoadPopcornsText_mgc();
+            _api.UseHelpBomb(pic.currentLevel, pic.currentMovie,
+            onSuccess: response =>
+            {
+                mg_lc.EliminarLetrasFalsas();
+                LoadPopcornsText_mgc();
+                Debug.Log("Post TNT Movie SUCCESS: " + response);
+            },
+                onError: error =>
+                {
+                    Debug.LogError("Post TNT Movie fallido: " + error);
+
+                });
+            
+            HideSoftLoadingScreen();
         }
         else
         {
             CantPurchase();
+            HideSoftLoadingScreen();
+        }
+
+        
+    }
+
+    public void CheckTNTButton()
+    {
+        if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_bombs.id != 0)
+        {
+            TNT_Butt.interactable = false;
+            mg_lc.EliminarLetrasFalsas();
         }
     }
 
@@ -412,31 +465,41 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void Unpixelice()
     {
-        if (pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie].help.help_pixel.pixel_count < pic.playerData.px_limit)
+        if (pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie - 1].help.help_pixel.pixel_count < pic.playerData.px_limit)
         {
             ApiClient.Instance.UseHelpPixel(pic.currentLevel, pic.currentMovie,
             onSuccess: info => {
                 if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.pixel, pop_con))
                 {
-                    pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie].help.help_pixel.pixel_count++;
-                    mg_vc.UnPixelice(10);
+                    pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_pixel.pixel_count++;
+                    pixelice += 10;
+                    mg_vc.SetPixelice(pixelice);
+
                     LoadPopcornsText_mgc();
-                    if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie].help.help_pixel.pixel_count > pic.playerData.px_limit)
-                    {
-                        PX_Butt.enabled = false;
-                    }
+                    CheckUnpixeliceButton();
                 }
                 else
                 {
                     CantPurchase();
                 }
+                HideSoftLoadingScreen();
             },
              onError: err => {
                  CantPurchase();
+                 HideSoftLoadingScreen();
              });
         }
+
         
-               
+
+    }
+
+    public void CheckUnpixeliceButton()
+    {
+        if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_pixel.pixel_count >= pic.playerData.px_limit)
+        {
+            PX_Butt.interactable = false;
+        }
     }
 
     #endregion

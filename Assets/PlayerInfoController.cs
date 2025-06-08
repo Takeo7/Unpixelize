@@ -138,9 +138,25 @@ public class PlayerInfoController : MonoBehaviour
     public List<int> win_amount = new List<int> { 500, 1000 };
 
 
+    public SubLevelData GetCurrentMovieData()
+    {
+        var sub = playerData.levelsProgress[currentLevel - 1]
+        .subLevels.Find(s => s.sublevel_id == currentMovie);
+
+        if (sub != null)
+        {
+            return sub;
+        }
+        else
+        {
+            Debug.LogError("❌ No se encontró el subnivel con ID: " + currentMovie);
+            return null;
+        }
+    }
+
     public void OpenReferral()
     {
-        Application.OpenURL(playerData.levelsProgress[currentLevel-1].subLevels[currentMovie-1].film.referral.link);
+        Application.OpenURL(GetCurrentMovieData().film.referral.link);
     }
 
 

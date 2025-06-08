@@ -216,7 +216,7 @@ public class MovieInfo_Button : MonoBehaviour
             return string.Empty;
 
         string filename = System.IO.Path.GetFileNameWithoutExtension(pathToVideo);
-        return $"Videos/{RemoveVoidsAndLower(filename)}";
+        return $"Videos/{filename}";
     }
 
     public string RemoveVoidsAndLower(string s)

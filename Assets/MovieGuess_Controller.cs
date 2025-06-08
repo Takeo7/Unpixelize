@@ -82,7 +82,7 @@ public class MovieGuess_Controller : MonoBehaviour
     private void Start()
     {
         pic = PlayerInfoController.Player_Instance;
-        pixelice = 15 + (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_pixel.pixel_count * 10);
+        pixelice = 15 + (pic.GetCurrentMovieData().help.help_pixel.pixel_count * 10);
         SetMovieData();
 
         LoadPopcornsText_mgc();
@@ -207,17 +207,17 @@ public class MovieGuess_Controller : MonoBehaviour
     }
     public void SetVideo()
     {
-        mg_vc.PlayVideoFromAddressables("Videos/"+RemoveVoids(pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].film.name.en).ToLower());
+        mg_vc.PlayVideoFromAddressables("Videos/"+ pic.GetCurrentMovieData().film.name.en);
     }
     public void CleanTitle()
     {
         switch (tit_lang)
         {
             case TitleLanguage.es:
-                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.name.es;
+                title = pic.GetCurrentMovieData().film.name.es;
                 break;
             case TitleLanguage.en:
-                title = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.name.en;
+                title = pic.GetCurrentMovieData().film.name.en;
                 break;
             default:
                 break;
@@ -284,9 +284,10 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void CheckIsAlreadySolved()
     {
-        if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].solved)
+        if (pic.GetCurrentMovieData().solved)
         {
             IsCorrectTitle(false);
+            HideSoftLoadingScreen();
         }
     }
 
@@ -376,11 +377,11 @@ public class MovieGuess_Controller : MonoBehaviour
     {
         List<string> movieClues = new List<string>();
         List<string> clueType = new List<string>();
-        movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.actor);
+        movieClues.Add(pic.GetCurrentMovieData().film.actor);
         clueType.Add("cast");
-        movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.director);
+        movieClues.Add(pic.GetCurrentMovieData().film.director);
         clueType.Add("director");
-        movieClues.Add(pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.year.ToString());
+        movieClues.Add(pic.GetCurrentMovieData().film.year.ToString());
         clueType.Add("year");
 
         foreach (var item in tips_text)
@@ -388,11 +389,11 @@ public class MovieGuess_Controller : MonoBehaviour
             int rand = Random.Range(0, movieClues.Count);
             item.text = movieClues[rand];
             item.transform.parent.GetChild(1).GetComponent<Tip_info>().tip_Type = clueType[rand];
-            if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_clues != null)
+            if (pic.GetCurrentMovieData().help.help_clues != null)
             {
-                for (int i = 0; i < pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_clues.Count; i++)
+                for (int i = 0; i < pic.GetCurrentMovieData().help.help_clues.Count; i++)
                 {
-                    if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_clues[i].type == clueType[rand])
+                    if (pic.GetCurrentMovieData().help.help_clues[i].type == clueType[rand])
                     {
                         item.transform.parent.GetChild(1).gameObject.SetActive(false);
                     }
@@ -467,7 +468,7 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void CheckTNTButton()
     {
-        if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_bombs.id != 0)
+        if (pic.GetCurrentMovieData().help.help_bombs.id != 0)
         {
             TNT_Butt.interactable = false;
             mg_lc.EliminarLetrasFalsas();
@@ -480,13 +481,13 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void Unpixelice()
     {
-        if (pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie - 1].help.help_pixel.pixel_count < pic.playerData.px_limit)
+        if (pic.GetCurrentMovieData().help.help_pixel.pixel_count < pic.playerData.px_limit)
         {
             ApiClient.Instance.UseHelpPixel(pic.currentLevel, pic.currentMovie,
             onSuccess: info => {
                 if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.pixel, pop_con))
                 {
-                    pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_pixel.pixel_count++;
+                    pic.GetCurrentMovieData().help.help_pixel.pixel_count++;
                     pixelice += 10;
                     mg_vc.SetPixelice(pixelice);
 
@@ -511,7 +512,10 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void CheckUnpixeliceButton()
     {
-        if (pic.playerData.levelsProgress[pic.currentLevel - 1].subLevels[pic.currentMovie - 1].help.help_pixel.pixel_count >= pic.playerData.px_limit)
+        int lvlarr = pic.currentLevel - 1;
+        int moviearr = (pic.currentMovie - 1) - (9 * (pic.currentLevel - 1));
+        Debug.Log("Tring to access ->>>> LEVEL array: " + lvlarr + " &&& MOVIE array: " + moviearr);
+        if (pic.GetCurrentMovieData().help.help_pixel.pixel_count >= pic.playerData.px_limit)
         {
             PX_Butt.interactable = false;
         }

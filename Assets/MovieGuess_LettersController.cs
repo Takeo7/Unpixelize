@@ -324,10 +324,11 @@ public class MovieGuess_LettersController : MonoBehaviour
     {
         var title = MovieGuess_Controller.MovieGuess_instance.title;
         var lang = MovieGuess_Controller.MovieGuess_instance.tit_lang;
+        PlayerInfoController pic = PlayerInfoController.Player_Instance;
 
         var sublevel = PlayerInfoController.Player_Instance
             .playerData.levelsProgress[PlayerInfoController.Player_Instance.currentLevel - 1]
-            .subLevels[PlayerInfoController.Player_Instance.currentMovie - 1];
+            .subLevels[(pic.currentMovie - 1) - (9 * (pic.currentLevel - 1))];
 
         HelpLetters helpLetters = lang == MovieGuess_Controller.TitleLanguage.es
             ? sublevel.help.helpLetters_es

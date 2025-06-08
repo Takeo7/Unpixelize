@@ -73,7 +73,7 @@ public class Movie_Buttons_Controller : MonoBehaviour
             GameObject temp = Instantiate(movie_prefab, movies_parent);
             var button = temp.GetComponent<MovieInfo_Button>();
             button.mbc = this;
-
+            Debug.Log("ESTE ES EL TITULO QUE APARECE: " + levelData.subLevels[i].film.name.en);
             button.LoadMovieID(
                 levelData.subLevels[i].sublevel_id,
                 levelData.subLevels[i].solved,

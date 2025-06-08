@@ -324,6 +324,7 @@ public class MovieGuess_LettersController : MonoBehaviour
     {
         var title = MovieGuess_Controller.MovieGuess_instance.title;
         var lang = MovieGuess_Controller.MovieGuess_instance.tit_lang;
+
         var sublevel = PlayerInfoController.Player_Instance
             .playerData.levelsProgress[PlayerInfoController.Player_Instance.currentLevel - 1]
             .subLevels[PlayerInfoController.Player_Instance.currentMovie - 1];
@@ -336,50 +337,66 @@ public class MovieGuess_LettersController : MonoBehaviour
             ? buyedLetters_es
             : buyedLetters_en;
 
-        if (helpLetters != null && helpLetters.letters > 0 && targetDict.Count == 0)
+        // 🧹 1. Eliminar letras colocadas actualmente
+        Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
+        for (int i = 0; i < emptyGrid.childCount; i++)
+        {
+            if (emptyGrid.GetChild(i).childCount > 0)
+            {
+                Destroy(emptyGrid.GetChild(i).GetChild(0).gameObject);
+            }
+        }
+
+        Debug.Log("🧹 Limpieza completada de letras colocadas en los slots");
+
+        if (helpLetters != null && helpLetters.letters > 0)
         {
             Debug.Log($"♻️ Restaurando {helpLetters.letters} letras compradas del servidor (orden aleatorio)...");
 
-            // 1. Obtener índices de letras no vacíos
-            List<int> posiblesIndices = new List<int>();
-            for (int i = 0; i < title.Length; i++)
+            // ⚠️ Solo llenar el diccionario si está vacío
+            if (targetDict.Count == 0)
             {
-                if (title[i] != ' ')
+                List<int> posiblesIndices = new List<int>();
+                for (int i = 0; i < title.Length; i++)
                 {
-                    posiblesIndices.Add(i);
+                    if (title[i] != ' ')
+                    {
+                        posiblesIndices.Add(i);
+                    }
                 }
-            }
 
-            // 2. Mezclar aleatoriamente los índices
-            for (int i = 0; i < posiblesIndices.Count; i++)
-            {
-                int randomIndex = Random.Range(i, posiblesIndices.Count);
-                int temp = posiblesIndices[i];
-                posiblesIndices[i] = posiblesIndices[randomIndex];
-                posiblesIndices[randomIndex] = temp;
-            }
-
-            // 3. Colocar letras compradas en los primeros X índices aleatorios
-            int placed = 0;
-            foreach (int index in posiblesIndices)
-            {
-                if (placed >= helpLetters.letters) break;
-
-                string letter = title[index].ToString().ToUpper();
-                if (!targetDict.ContainsKey(index))
+                for (int i = 0; i < posiblesIndices.Count; i++)
                 {
+                    int randomIndex = Random.Range(i, posiblesIndices.Count);
+                    int temp = posiblesIndices[i];
+                    posiblesIndices[i] = posiblesIndices[randomIndex];
+                    posiblesIndices[randomIndex] = temp;
+                }
+
+                int placed = 0;
+                foreach (int index in posiblesIndices)
+                {
+                    if (placed >= helpLetters.letters) break;
+
+                    string letter = title[index].ToString().ToUpper();
                     targetDict.Add(index, letter);
-                    StartCoroutine(MoverLetraConDelay(letter, index, lang));
-                    Debug.Log($"🔁 Letra aleatoria colocada: {letter} en posición {index}");
                     placed++;
                 }
+            }
+
+            // 🔄 2. Colocar letras visualmente según el diccionario actual
+            foreach (var kvp in targetDict)
+            {
+                StartCoroutine(MoverLetraConDelay(kvp.Value, kvp.Key, lang));
             }
         }
         else
         {
-            Debug.Log("✅ Letras ya restauradas o no hay letras compradas desde servidor.");
+            Debug.Log("✅ No hay letras compradas para este idioma.");
         }
+        mgc.HideSoftLoadingScreen();
     }
+
 
 
 

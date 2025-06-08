@@ -129,21 +129,13 @@ public class MovieGuess_Controller : MonoBehaviour
         en
     }
 
-    public bool ChangeLanguage()
+    public void ChangeLanguage(TitleLanguage lang)
     {
+        ShowSoftLoadingScreen();
         IsIncorrectTitle(false);
-        switch (tit_lang)
-        {
-            case TitleLanguage.es:
-                tit_lang = TitleLanguage.en;
-                break;
-            case TitleLanguage.en:
-                tit_lang = TitleLanguage.es;
-                break;
-        }
+        tit_lang = lang;
 
-        SetMovieData();
-        return true;
+        UpdateMovieData();
     }
 
     #endregion
@@ -189,6 +181,29 @@ public class MovieGuess_Controller : MonoBehaviour
              });
 
         
+    }
+
+    public void UpdateMovieData()
+    {
+
+        _api = ApiClient.Instance;
+
+        //Get Helpers
+
+        _api.GetHelpData(pic.currentLevel, pic.currentMovie,
+            onSuccess: response =>
+            {
+                IsIncorrectTitle(false);
+                Debug.Log("SetMovieData");
+                CleanTitle();
+                mg_lc.SetAllLetters(length, length, title, fakeLetters);
+                CheckTNTButton();
+            },
+             onError: err => {
+                 Debug.Log("Get Help Data ERROR");
+             });
+
+
     }
     public void SetVideo()
     {

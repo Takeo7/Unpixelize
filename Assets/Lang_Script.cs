@@ -10,21 +10,20 @@ public class Lang_Script : MonoBehaviour
     public GameObject selector_lang;
     public void ChangeLang(string s)
     {
-        if (MovieGuess_Controller.MovieGuess_instance.ChangeLanguage())
+        switch (s)
         {
-            switch (s)
-            {
-                case "es":
-                    butt_img.sprite = es_img;
-                    break;
-                case "en":
-                    butt_img.sprite = en_img;
-                    break;
-                default:
-                    break;
-            }
-            selector_lang.SetActive(false);
+            case "es":
+                butt_img.sprite = es_img;
+                MovieGuess_Controller.MovieGuess_instance.ChangeLanguage(MovieGuess_Controller.TitleLanguage.es);
+                break;
+            case "en":
+                butt_img.sprite = en_img;
+                MovieGuess_Controller.MovieGuess_instance.ChangeLanguage(MovieGuess_Controller.TitleLanguage.en);
+                break;
+            default:
+                break;
         }
-        
+        selector_lang.SetActive(false);
+
     }
 }

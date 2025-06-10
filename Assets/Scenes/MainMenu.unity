@@ -535,10 +535,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 953824602}
     m_Modifications:
-    - target: {fileID: 2370975026033099717, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4850003213214966335, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
       propertyPath: m_Name
       value: LoadingScreen
@@ -622,10 +618,6 @@ PrefabInstance:
     - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8971194777116174737, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

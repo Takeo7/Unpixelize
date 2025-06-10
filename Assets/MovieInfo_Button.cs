@@ -24,7 +24,7 @@ public class MovieInfo_Button : MonoBehaviour
     [Header("Visual Settings")]
     public RawImage videoDisplay;
     public Vector2Int renderTextureSize = new Vector2Int(512, 512);
-    public float scaleMultiplier = 1.2f;
+    public float scaleMultiplier = 1.4f;
     public int pixelBlockSize = 8;
 
     private VideoPlayer videoPlayer;

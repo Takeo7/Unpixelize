@@ -599,7 +599,7 @@ MonoBehaviour:
   shadow_img: {fileID: 5234715189553220246}
   videoDisplay: {fileID: 0}
   renderTextureSize: {x: 512, y: 512}
-  scaleMultiplier: 2
+  scaleMultiplier: 2.3
   pixelBlockSize: 20
 --- !u!114 &-2150234218046767580
 MonoBehaviour:

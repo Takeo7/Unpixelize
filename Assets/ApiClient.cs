@@ -13,7 +13,7 @@ public class ApiClient : MonoBehaviour
     public static ApiClient Instance;
 
     [Header("API Settings")]
-    public string baseUrl = "http://13.61.154.102/api";
+    public string baseUrl = "http://13.53.108.213/api";
     public string authToken;
     public bool Testing;
 
@@ -28,8 +28,6 @@ public class ApiClient : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        baseUrl = "http://13.61.154.102/api";
         PlayerPrefs.SetString("auth_secret", "VISIBLE_CHECK_123");
         PlayerPrefs.Save();
     }

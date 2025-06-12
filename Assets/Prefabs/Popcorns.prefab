@@ -50,9 +50,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3f1fe39ef219e0439539061a892f10a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  popcornText: {fileID: 0}
-  win_color: {r: 0.5451228, g: 0.9245283, b: 0.7105592, a: 0}
-  lose_color: {r: 0.9254902, g: 0.56030375, b: 0.54509807, a: 0}
+  popcornText: {fileID: 2884055903314166176}
+  win_color: {r: 0.5451228, g: 0.9245283, b: 0.7105592, a: 1}
+  lose_color: {r: 0.9254902, g: 0.56030375, b: 0.54509807, a: 1}
   seconds: 2
 --- !u!1 &1319343028905483559
 GameObject:
@@ -66,6 +66,7 @@ GameObject:
   - component: {fileID: 1987457211895078461}
   - component: {fileID: 381013962619923186}
   - component: {fileID: 1561447829533785785}
+  - component: {fileID: 2934824818807076496}
   m_Layer: 5
   m_Name: Popcorns_btn
   m_TagString: Untagged
@@ -116,14 +117,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.17254902, g: 0.1764706, b: 0.22352941, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -2706323504363822216, guid: 72ec3cecbf6c6174aad4312342f9ed50, type: 3}
+  m_Sprite: {fileID: -3526654198125849464, guid: 9eda84697c2ff104aae531a5a454ec92, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -177,6 +178,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2934824818807076496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1319343028905483559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.25882354}
+  m_EffectDistance: {x: 4, y: -4}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6508045840494227025
 GameObject:
   m_ObjectHideFlags: 0
@@ -423,8 +439,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 113.51, y: 0}
-  m_SizeDelta: {x: 227.0259, y: 198.9701}
+  m_AnchoredPosition: {x: 90.4, y: 0}
+  m_SizeDelta: {x: 119.2404, y: 104}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8130345582015626248
 CanvasRenderer:
@@ -454,7 +470,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 3908735692508584220, guid: 1b780e857b4ff7c429132230396fd0a6, type: 3}
+  m_Sprite: {fileID: -2401722949390763749, guid: 587bdfb3a7691ad41a9cb877a14842f5, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -538,8 +554,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278231039
-  m_fontColor: {r: 1, g: 0.625, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -667,7 +683,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: YOU ARE POOR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: edb6215d4d3427546b72cb19c3f3f036, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b23db9e0ad43aa745a45426fadf5cdbf, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}

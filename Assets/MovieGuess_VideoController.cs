@@ -14,6 +14,7 @@ public class MovieGuess_VideoController : MonoBehaviour
     [Header("Render Texture Settings")]
     public int defaultWidth = 1280;
     public int defaultHeight = 720;
+    public float scaleMultiplier;
 
     private bool videoLoaded = false;
     private RenderTexture renderTexture;
@@ -69,6 +70,8 @@ public class MovieGuess_VideoController : MonoBehaviour
         videoPlayer.source = VideoSource.VideoClip;
         videoPlayer.aspectRatio = VideoAspectRatio.FitInside;
 
+        
+
         if (renderTexture == null)
         {
             renderTexture = new RenderTexture(defaultWidth, defaultHeight, 0);
@@ -79,6 +82,24 @@ public class MovieGuess_VideoController : MonoBehaviour
         rawImage.texture = renderTexture;
 
         Debug.Log("🎥 VideoPlayer preparado con RenderTexture " + renderTexture.width + "x" + renderTexture.height);
+    }
+
+    private void AdjustRawImageScaleToAspect(VideoClip clip, RawImage display)
+    {
+        float videoAspect = (float)clip.width / clip.height;
+        float renderAspect = (float)defaultWidth / defaultHeight;
+
+        RectTransform rt = display.rectTransform;
+        if (videoAspect > renderAspect)
+        {
+            rt.sizeDelta = new Vector2(defaultWidth * scaleMultiplier, defaultHeight * (renderAspect / videoAspect) * scaleMultiplier);
+        }
+        else
+        {
+            rt.sizeDelta = new Vector2(defaultWidth * (videoAspect / renderAspect) * scaleMultiplier, defaultHeight * scaleMultiplier);
+        }
+
+        display.transform.position = new Vector2(display.transform.position.x, display.transform.position.y- 20);
     }
 
     private IEnumerator PrepareAndPlayUntilSuccess()
@@ -116,7 +137,9 @@ public class MovieGuess_VideoController : MonoBehaviour
             return;
         }
 
-        float videoAspect = (float)videoPlayer.clip.width / videoPlayer.clip.height;
+        AdjustRawImageScaleToAspect(videoPlayer.clip, rawImage);
+
+        //float videoAspect = (float)videoPlayer.clip.width / videoPlayer.clip.height;
 
     }
 

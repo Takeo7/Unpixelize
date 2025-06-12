@@ -7,6 +7,10 @@ public class Sqr_letter_script : MonoBehaviour
     public string letter;
     public bool inEmptySlot = false;
 
+    [Space]
+    public Color std;
+    public Color up;
+
     public void OnClick()
     {
         MovieGuess_Controller.MovieGuess_instance.IsIncorrectTitle(false);
@@ -21,6 +25,7 @@ public class Sqr_letter_script : MonoBehaviour
                 transform.localPosition = Vector3.zero;
                 inEmptySlot = true;
                 MovieGuess_LettersController.MovieGuessLetters_instance.CheckTitle(MovieGuess_Controller.MovieGuess_instance.title);
+                transform.GetComponent<Image>().color = up;
             }
         }
         else
@@ -32,6 +37,7 @@ public class Sqr_letter_script : MonoBehaviour
                 transform.SetParent(returnSlot, false);
                 transform.localPosition = Vector3.zero;
                 inEmptySlot = false;
+                transform.GetComponent<Image>().color = std;
             }
         }
     }

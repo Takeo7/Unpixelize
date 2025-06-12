@@ -7,8 +7,7 @@ using UnityEngine.UI;
 
 public class MovieGuess_LettersController : MonoBehaviour
 {
-
-    #region Sigleton
+    #region Singleton
     public static MovieGuess_LettersController MovieGuessLetters_instance { get; private set; }
 
     private void Awake()
@@ -16,193 +15,168 @@ public class MovieGuess_LettersController : MonoBehaviour
         if (MovieGuessLetters_instance == null)
         {
             MovieGuessLetters_instance = this;
-            //DontDestroyOnLoad(gameObject); // Opcional: Mantiene la instancia entre escenas
         }
         else
         {
-            Destroy(gameObject); // Si ya existe una instancia, destruye la nueva
+            Destroy(gameObject);
         }
     }
     #endregion
 
-    [Space]
     public MovieGuess_Controller mgc;
 
-    [Space]
     public GameObject Grid_Empty_Letter_Squares;
     public GameObject empty_letter_square;
     public List<Transform> emptySlots = new List<Transform>();
-    public int last_letter_count = 0;
+    public List<int> answerKeyToTitleIndex = new List<int>();
 
-    [Space]
     public GameObject Grid_Letter_Squares;
     public GameObject letter_square;
 
-    [Space]
     public List<GameObject> originalLetters = new List<GameObject>();
     public List<GameObject> fakeLetters = new List<GameObject>();
     public List<GameObject> allLetters = new List<GameObject>();
 
-    [Space]
     bool tnt;
 
-    [Space]
     public Dictionary<int, string> buyedLetters_es = new Dictionary<int, string>();
     public Dictionary<int, string> buyedLetters_en = new Dictionary<int, string>();
 
+    public List<Transform> visibleLetterSlots = new List<Transform>();
+    public string cleanedTitle;
 
-    #region SetLetters
 
     public void SetAllLetters(int length, int correctLetterCount, string title, int fakeLetterCount)
     {
-        Debug.Log("Set All letters");
         SetEmptySquares(length, correctLetterCount, title, fakeLetterCount);
     }
+
     public void SetEmptySquares(int length, int correctLetterCount, string title, int fakeLetterCount)
     {
-        Debug.Log("Set Empty Letters");
-        // Limpiar si ya hay algo
+        StartCoroutine(LayoutGridAndLetters(length, correctLetterCount, title, fakeLetterCount));
+    }
+
+    private IEnumerator LayoutGridAndLetters(int length, int correctLetterCount, string title, int fakeLetterCount)
+    {
         foreach (Transform child in Grid_Empty_Letter_Squares.transform)
-        {
             Destroy(child.gameObject);
-        }
 
         emptySlots.Clear();
+        visibleLetterSlots.Clear();
+        answerKeyToTitleIndex.Clear();
+        cleanedTitle = title.Replace(" ", "");
 
-        
-        for (int i = 0; i < length; i++)
+        yield return null;
+
+        int maxPerRow = 10;
+        string[] allWords = title.Split(' ');
+
+        List<List<string>> plannedRows = new List<List<string>>();
+        List<string> currentRowWords = new List<string>();
+        int currentWidth = 0;
+
+        foreach (string word in allWords)
         {
-            GameObject g = Instantiate(empty_letter_square);
-            g.transform.SetParent(Grid_Empty_Letter_Squares.transform, false);
-            g.SetActive(true);
+            if (string.IsNullOrEmpty(word)) continue;
 
-            // Guardar referencia al slot
-            emptySlots.Add(g.transform);
+            if (currentWidth > 0 && currentWidth + word.Length + 1 > maxPerRow)
+            {
+                plannedRows.Add(new List<string>(currentRowWords));
+                currentRowWords.Clear();
+                currentWidth = 0;
+            }
+
+            currentRowWords.Add(word);
+            currentWidth += word.Length + 1;
         }
-        ShowEmptySquaresWithoutSpacesDeferred(title);
+
+        if (currentRowWords.Count > 0)
+            plannedRows.Add(new List<string>(currentRowWords));
+
+        int titleIndex = 0;
+
+        foreach (List<string> rowOfWords in plannedRows)
+        {
+            int contentWidth = 0;
+            foreach (string w in rowOfWords)
+                contentWidth += w.Length;
+            contentWidth += rowOfWords.Count - 1;
+
+            int emptySpace = maxPerRow - contentWidth;
+            int leftPadding = Mathf.FloorToInt(emptySpace / 2f);
+
+            for (int i = 0; i < leftPadding; i++)
+            {
+                GameObject filler = Instantiate(empty_letter_square, Grid_Empty_Letter_Squares.transform);
+                filler.GetComponent<Image>().enabled = false;
+            }
+
+            for (int i = 0; i < rowOfWords.Count; i++)
+            {
+                string word = rowOfWords[i];
+
+                foreach (char c in word)
+                {
+                    GameObject slot = Instantiate(empty_letter_square, Grid_Empty_Letter_Squares.transform);
+                    slot.GetComponent<Image>().enabled = true;
+
+                    emptySlots.Add(slot.transform);
+                    visibleLetterSlots.Add(slot.transform);
+                    answerKeyToTitleIndex.Add(titleIndex);
+                    titleIndex++;
+                }
+
+                if (i < rowOfWords.Count - 1)
+                {
+                    GameObject spaceSlot = Instantiate(empty_letter_square, Grid_Empty_Letter_Squares.transform);
+                    spaceSlot.GetComponent<Image>().enabled = false;
+                    emptySlots.Add(spaceSlot.transform);
+                    titleIndex++;
+                }
+            }
+
+            int rightPadding = emptySpace - leftPadding;
+            for (int i = 0; i < rightPadding; i++)
+            {
+                GameObject filler = Instantiate(empty_letter_square, Grid_Empty_Letter_Squares.transform);
+                filler.GetComponent<Image>().enabled = false;
+            }
+        }
+
         SetLetterSquares(correctLetterCount, title, fakeLetterCount);
     }
 
-    public void HideEmptySquaresForSpaces(string title)
-    {
-        Transform grid = Grid_Empty_Letter_Squares.transform;
 
-        for (int i = 0; i < title.Length && i < grid.childCount; i++)
-        {
-            if (title[i] == ' ')
-            {
-                Transform slot = grid.GetChild(i);
-                Image image = slot.GetComponent<Image>();
-                if (image != null)
-                {
-                    Debug.Log("Espacio en: " + i);
-                    image.enabled = false;
-                    Debug.Log("Image disabled");
-                }
-                
-            }
-        }
 
-        Debug.Log("🔲 Ocultadas las casillas correspondientes a espacios en el título.");
-    }
-
-    public void HideEmptySquaresForSpacesDeferred(string title)
-    {
-        StartCoroutine(WaitAndHideSpaces(title));
-    }
-
-    private IEnumerator WaitAndHideSpaces(string title)
-    {
-        yield return null; // espera 1 frame
-
-        Transform grid = Grid_Empty_Letter_Squares.transform;
-
-        for (int i = 0; i < title.Length && i < grid.childCount; i++)
-        {
-            if (title[i] == ' ')
-            {
-                Transform slot = grid.GetChild(i);
-                Image image = slot.GetComponent<Image>();
-                if (image != null)
-                {
-                    image.enabled = false;
-                    Debug.Log($"✅ Image ocultada en slot {i}: {slot.name}");
-                }
-                else
-                {
-                    Debug.LogWarning($"❌ No se encontró Image en slot {i}: {slot.name}");
-                }
-            }
-        }
-
-        Debug.Log("🔲 Espacios ocultados tras un frame.");
-    }
-
-    public void ShowEmptySquaresWithoutSpacesDeferred(string title)
-    {
-        StartCoroutine(WaitAndShowSpaces(title));
-    }
-
-    private IEnumerator WaitAndShowSpaces(string title)
-    {
-        yield return null; // Espera 1 frame
-
-        Transform grid = Grid_Empty_Letter_Squares.transform;
-
-        for (int i = 0; i < title.Length && i < grid.childCount; i++)
-        {
-            if (title[i] != ' ')
-            {
-                Transform slot = grid.GetChild(i);
-                Image image = slot.GetComponent<Image>();
-                if (image != null)
-                {
-                    image.enabled = true;
-                    //Debug.Log($"✅ Image activado en slot {i}: {slot.name}");
-                }
-                else
-                {
-                    //Debug.LogWarning($"❌ No se encontró Image en slot {i}: {slot.name}");
-                }
-            }
-        }
-
-        //Debug.Log("🟩 Activadas casillas sin espacios tras esperar un frame.");
-    }
 
 
 
     public void SetLetterSquares(int correctLetterCount, string title, int fakeLetterCount)
     {
         Debug.Log("Set Letters");
+
         originalLetters.Clear();
         fakeLetters.Clear();
         allLetters.Clear();
 
         foreach (Transform child in Grid_Letter_Squares.transform)
-        {
             Destroy(child.gameObject);
-        }
 
-        // Crear letras correctas
-        for (int i = 0; i < correctLetterCount; i++)
+        // Letras correctas (solo las visibles)
+        for (int i = 0; i < cleanedTitle.Length; i++)
         {
-            GameObject g = Instantiate(letter_square);
-            string letter = title[i].ToString().ToUpper();
-            if (letter != " ")
-            {
-                g.GetComponentInChildren<Sqr_letter_script>().letter = letter;
-                g.GetComponentInChildren<TextMeshProUGUI>().SetText(letter);
+            string letter = cleanedTitle[i].ToString().ToUpper();
 
-                originalLetters.Add(g);
-            }
-            
+            GameObject g = Instantiate(letter_square);
+            g.GetComponentInChildren<Sqr_letter_script>().letter = letter;
+            g.GetComponentInChildren<TextMeshProUGUI>().SetText(letter);
+            originalLetters.Add(g);
         }
 
         allLetters.AddRange(originalLetters);
 
-        // Crear letras falsas
-        if (tnt == false)
+        // Letras falsas
+        if (!tnt)
         {
             for (int i = 0; i < fakeLetterCount; i++)
             {
@@ -210,28 +184,24 @@ public class MovieGuess_LettersController : MonoBehaviour
                 string randomLetter = GetRandomLetter();
                 g.GetComponentInChildren<Sqr_letter_script>().letter = randomLetter;
                 g.GetComponentInChildren<TextMeshProUGUI>().SetText(randomLetter);
-
                 fakeLetters.Add(g);
             }
 
             allLetters.AddRange(fakeLetters);
         }
-        
 
-        // Unir y mezclar todas       
         ShuffleList(allLetters);
 
-        // Asignar al grid
         foreach (GameObject g in allLetters)
         {
             g.transform.SetParent(Grid_Letter_Squares.transform, false);
             g.SetActive(true);
         }
 
-        //PlaceBuyedLetters();
         RestoreBuyedLettersFromServer();
         MovieGuess_Controller.MovieGuess_instance.CheckIsAlreadySolved();
     }
+
 
     private string GetRandomLetter()
     {
@@ -249,85 +219,100 @@ public class MovieGuess_LettersController : MonoBehaviour
             list[randomIndex] = temp;
         }
     }
-
-    #endregion
-
-    #region Main Letter Funcionality
-
-    public Transform GetNextEmptySlot()
-    {
-        string title = MovieGuess_Controller.MovieGuess_instance.title;
-
-        for (int i = 0; i < emptySlots.Count; i++)
-        {
-            // Saltar si el título tiene un espacio en esa posición
-            if (title[i] == ' ')
-                continue;
-
-            if (emptySlots[i].childCount == 0)
-                return emptySlots[i];
-        }
-        return null;
-    }
-
-    public Transform GetAvailableGridSlot()
-    {
-        return Grid_Letter_Squares.transform;
-    }
-
-    #endregion
-
-    #region Add New Letter Func
-
     public void AutoPlaceNextCorrectLetter(string title)
     {
-        Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
+        List<int> libres = new List<int>();
 
-        //Buscar huecos vacíos
-        List<int> huecosLibres = new List<int>();
-        for (int i = 0; i < title.Length; i++)
+        for (int i = 0; i < visibleLetterSlots.Count; i++)
         {
-            // Ignorar los espacios
-            if (title[i] == ' ')
-                continue;
-
-            Transform targetSlot = emptyGrid.GetChild(i);
-            if (targetSlot.childCount == 0)
-            {
-                huecosLibres.Add(i);
-            }
+            if (visibleLetterSlots[i].childCount == 0)
+                libres.Add(i);
         }
 
-        if (huecosLibres.Count == 0)
+        if (libres.Count == 0)
         {
+            Debug.Log("[AUTO] No hay huecos libres.");
             return;
         }
 
-        //Elegir uno al azar
-        int randomIndex = huecosLibres[Random.Range(0, huecosLibres.Count)];
-        string targetLetter = title[randomIndex].ToString().ToUpper();
+        int idx = libres[Random.Range(0, libres.Count)];
+        string letra = cleanedTitle[idx].ToString().ToUpper();
+
+        int indexEnTituloOriginal = GetIndexInOriginalTitle(title, idx);
+
+        mgc.PostAddNewLetter_API(indexEnTituloOriginal, letra, mgc.tit_lang);
+        PlaceBuyedLetter(letra, idx, mgc.tit_lang);
+    }
+
+
+    private int GetIndexInOriginalTitle(string fullTitle, int indexSinEspacios)
+    {
+        int count = 0;
+        for (int i = 0; i < fullTitle.Length; i++)
+        {
+            if (fullTitle[i] != ' ')
+            {
+                if (count == indexSinEspacios)
+                    return i;
+                count++;
+            }
+        }
+        return -1;
+    }
 
 
 
-        Debug.Log($"Hueco aleatorio elegido: {randomIndex}, letra buscada: {targetLetter}");
 
-        mgc.PostAddNewLetter_API(randomIndex, targetLetter, mgc.tit_lang);
+    public IEnumerator MoverLetraConDelay(string letter, int indexInCleanedTitle, MovieGuess_Controller.TitleLanguage lang)
+    {
+        yield return null;
 
+        Transform slot = visibleLetterSlots[indexInCleanedTitle];
 
-        RestoreBuyedLettersFromServer();
-        PlaceBuyedLetter(targetLetter, randomIndex, MovieGuess_Controller.MovieGuess_instance.tit_lang);
-        
+        if (slot.childCount > 0)
+        {
+            Debug.LogWarning($"[MOVER] Slot #{indexInCleanedTitle} ya estaba ocupado.");
+            yield break;
+        }
+
+        Transform letterGrid = Grid_Letter_Squares.transform;
+
+        for (int j = letterGrid.childCount - 1; j >= 0; j--)
+        {
+            Transform letterSlot = letterGrid.GetChild(j);
+            var script = letterSlot.GetComponent<Sqr_letter_script>();
+
+            if (script != null && script.letter == letter)
+            {
+                letterSlot.SetParent(slot, false);
+                letterSlot.localPosition = Vector3.zero;
+
+                Button btn = letterSlot.GetComponentInChildren<Button>();
+                if (btn != null) btn.interactable = false;
+
+                Dictionary<int, string> targetDict = (lang == MovieGuess_Controller.TitleLanguage.es)
+                    ? buyedLetters_es
+                    : buyedLetters_en;
+
+                if (!targetDict.ContainsKey(indexInCleanedTitle))
+                    targetDict.Add(indexInCleanedTitle, letter);
+
+                yield break;
+            }
+        }
+
+        Debug.LogWarning($"[MOVER] Letra '{letter}' no encontrada en grid inferior.");
     }
 
 
     public void RestoreBuyedLettersFromServer()
     {
-        var title = MovieGuess_Controller.MovieGuess_instance.title;
+        string title = MovieGuess_Controller.MovieGuess_instance.title;
+        string titleSinEspacios = cleanedTitle;
         var lang = MovieGuess_Controller.MovieGuess_instance.tit_lang;
         PlayerInfoController pic = PlayerInfoController.Player_Instance;
 
-        var sublevel = PlayerInfoController.Player_Instance
-            .playerData.levelsProgress[PlayerInfoController.Player_Instance.currentLevel - 1]
+        var sublevel = pic.playerData.levelsProgress[pic.currentLevel - 1]
             .subLevels[(pic.currentMovie - 1) - (9 * (pic.currentLevel - 1))];
 
         HelpLetters helpLetters = lang == MovieGuess_Controller.TitleLanguage.es
@@ -338,54 +323,41 @@ public class MovieGuess_LettersController : MonoBehaviour
             ? buyedLetters_es
             : buyedLetters_en;
 
-        // 🧹 1. Eliminar letras colocadas actualmente
-        Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
-        for (int i = 0; i < emptyGrid.childCount; i++)
+        // Limpia solo los visibles
+        foreach (Transform slot in visibleLetterSlots)
         {
-            if (emptyGrid.GetChild(i).childCount > 0)
-            {
-                Destroy(emptyGrid.GetChild(i).GetChild(0).gameObject);
-            }
+            if (slot.childCount > 0)
+                Destroy(slot.GetChild(0).gameObject);
         }
 
-        Debug.Log("🧹 Limpieza completada de letras colocadas en los slots");
+        Debug.Log("🧹 Limpieza completada de letras compradas en los slots visibles");
 
         if (helpLetters != null && helpLetters.letters > 0)
         {
-            Debug.Log($"♻️ Restaurando {helpLetters.letters} letras compradas del servidor (orden aleatorio)...");
+            Debug.Log($"♻️ Restaurando {helpLetters.letters} letras compradas del servidor...");
 
-            // ⚠️ Solo llenar el diccionario si está vacío
             if (targetDict.Count == 0)
             {
                 List<int> posiblesIndices = new List<int>();
-                for (int i = 0; i < title.Length; i++)
-                {
-                    if (title[i] != ' ')
-                    {
-                        posiblesIndices.Add(i);
-                    }
-                }
+                for (int i = 0; i < titleSinEspacios.Length; i++)
+                    posiblesIndices.Add(i);
 
                 for (int i = 0; i < posiblesIndices.Count; i++)
                 {
                     int randomIndex = Random.Range(i, posiblesIndices.Count);
-                    int temp = posiblesIndices[i];
-                    posiblesIndices[i] = posiblesIndices[randomIndex];
-                    posiblesIndices[randomIndex] = temp;
+                    (posiblesIndices[i], posiblesIndices[randomIndex]) = (posiblesIndices[randomIndex], posiblesIndices[i]);
                 }
 
                 int placed = 0;
                 foreach (int index in posiblesIndices)
                 {
                     if (placed >= helpLetters.letters) break;
-
-                    string letter = title[index].ToString().ToUpper();
+                    string letter = titleSinEspacios[index].ToString().ToUpper();
                     targetDict.Add(index, letter);
                     placed++;
                 }
             }
 
-            // 🔄 2. Colocar letras visualmente según el diccionario actual
             foreach (var kvp in targetDict)
             {
                 StartCoroutine(MoverLetraConDelay(kvp.Value, kvp.Key, lang));
@@ -395,258 +367,132 @@ public class MovieGuess_LettersController : MonoBehaviour
         {
             Debug.Log("✅ No hay letras compradas para este idioma.");
         }
+
         mgc.HideSoftLoadingScreen();
     }
 
 
-
-
-
-    public void PlaceBuyedLetter(string letter, int place, MovieGuess_Controller.TitleLanguage lang)
+    public void PlaceBuyedLetter(string letter, int indexInCleanedTitle, MovieGuess_Controller.TitleLanguage lang)
     {
-        StartCoroutine(MoverLetraConDelay(letter, place, lang));
+        if (indexInCleanedTitle < 0 || indexInCleanedTitle >= visibleLetterSlots.Count)
+        {
+            Debug.LogError($"❌ Índice inválido {indexInCleanedTitle} en PlaceBuyedLetter");
+            return;
+        }
+
+        StartCoroutine(MoverLetraConDelay(letter, indexInCleanedTitle, lang));
         CheckTitle(MovieGuess_Controller.MovieGuess_instance.title);
     }
 
-    public void PlaceBuyedLetters()
-    {
-        Debug.Log("Place Buyed Letters");
-        switch (MovieGuess_Controller.MovieGuess_instance.tit_lang)
-        {
-            case MovieGuess_Controller.TitleLanguage.es:
-                Debug.Log("Buyed Español");
-                foreach (var item in buyedLetters_es)
-                {
-                    StartCoroutine(MoverLetraConDelay(item.Value, item.Key, MovieGuess_Controller.TitleLanguage.es));
 
-                }
-
-                break;
-            case MovieGuess_Controller.TitleLanguage.en:
-                Debug.Log("Buyed English");
-                foreach (var item in buyedLetters_en)
-                {
-                    StartCoroutine(MoverLetraConDelay(item.Value, item.Key, MovieGuess_Controller.TitleLanguage.en));
-
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    public void AutoPlaceAllCorrectLetters(string title)
-    {
-        Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
-        Transform letterGrid = Grid_Letter_Squares.transform;
-
-        Debug.Log("🔠 Colocando todas las letras correctas automáticamente...");
-
-        for (int i = 0; i < title.Length; i++)
-        {
-            string targetLetter = title[i].ToString().ToUpper();
-            Transform targetSlot = emptyGrid.GetChild(i);
-
-            // Saltar si ya tiene una letra colocada
-            if (targetSlot.childCount > 0)
-                continue;
-
-            for (int j = 0; j < letterGrid.childCount; j++)
-            {
-                Transform letterSlot = letterGrid.GetChild(j);
-                Sqr_letter_script script = letterSlot.GetComponent<Sqr_letter_script>();
-
-                if (script != null && script.letter == targetLetter)
-                {
-                    letterSlot.SetParent(targetSlot, false);
-                    letterSlot.localPosition = Vector3.zero;
-
-                    Debug.Log($"✅ Letra '{targetLetter}' colocada en posición {i}", letterSlot.gameObject);
-                    break;
-                }
-            }
-        }
-    }
-
-
-    public IEnumerator MoverLetraConDelay(string letter, int place, MovieGuess_Controller.TitleLanguage lang)
-    {
-        yield return null; // Esperar un frame para asegurarnos de que todo esté instanciado
-
-        Debug.Log($"[MoverLetraConDelay] Letra: {letter} --- Place: {place} --- Lang: {lang}");
-
-        Transform emptyGrid = Grid_Empty_Letter_Squares.transform;
-        Transform letterGrid = Grid_Letter_Squares.transform;
-
-        if (letter == " ")
-        {
-            Debug.Log("❌ Saltamos colocación de espacio en la posición " + place);
-            yield break;
-        }
-
-        if (emptyGrid == null || letterGrid == null)
-        {
-            Debug.LogError("❌ Grid_Empty_Letter_Squares o Grid_Letter_Squares es NULL.");
-            yield break;
-        }
-
-        if (place < 0 || place >= emptyGrid.childCount)
-        {
-            Debug.LogError("❌ Índice de place fuera de rango: " + place);
-            yield break;
-        }
-
-        Transform slot = emptyGrid.GetChild(place);
-
-        // Buscar una letra disponible en el grid principal
-        for (int j = 0; j < letterGrid.childCount; j++)
-        {
-            Transform letterSlot = letterGrid.GetChild(j);
-            if (letterSlot == null)
-                continue;
-
-            Sqr_letter_script letterScript = letterSlot.GetComponent<Sqr_letter_script>();
-            if (letterScript == null)
-                continue;
-
-            // Comparación segura
-            if (letterScript.letter.Trim().ToUpper() == letter.Trim().ToUpper())
-            {
-                Debug.Log("Letra encontrada, la colocamos.", letterSlot.gameObject);
-
-                letterSlot.SetParent(slot, false);
-                letterSlot.localPosition = Vector3.zero;
-
-                // 🔒 Desactivar botón para que no se pueda devolver
-                Button btn = letterSlot.GetComponentInChildren<Button>();
-                if (btn != null)
-                {
-                    btn.interactable = false;
-                    Debug.Log("🔒 Botón desactivado para letra comprada: " + letter);
-                }
-
-                Debug.Log("Slot destino:", slot.gameObject);
-
-                // Guardar en diccionario según idioma
-                switch (lang)
-                {
-                    case MovieGuess_Controller.TitleLanguage.es:
-                        if (!buyedLetters_es.ContainsKey(place))
-                        {
-                            buyedLetters_es.Add(place, letter);
-                            Debug.Log("✅ Letra añadida al español: " + letter + " en posición " + place);
-                        }
-                        break;
-
-                    case MovieGuess_Controller.TitleLanguage.en:
-                        if (!buyedLetters_en.ContainsKey(place))
-                        {
-                            buyedLetters_en.Add(place, letter);
-                            Debug.Log("✅ Letra añadida al inglés: " + letter + " en posición " + place);
-                        }
-                        break;
-                }
-                CheckTitle(MovieGuess_Controller.MovieGuess_instance.title);
-                yield break; // Salimos tras colocar una letra
-            }
-        }
-
-        Debug.LogWarning("⚠️ No se encontró ninguna letra disponible para colocar.");
-    }
+  
 
 
 
-    #endregion
 
     public void CheckTitle(string title)
     {
-        Transform grid = Grid_Empty_Letter_Squares.transform;
-
-        if (grid.childCount != title.Length)
+        if (visibleLetterSlots.Count != cleanedTitle.Length)
         {
-            Debug.LogError("ERROR: cantidad de casillas no coincide con la longitud del título.");
+            Debug.LogError("❌ Error: cantidad de slots visibles no coincide con título sin espacios.");
             return;
         }
 
-        StringBuilder checkTitle = new StringBuilder();
+        StringBuilder constructed = new StringBuilder();
 
-        for (int i = 0; i < title.Length; i++)
+        for (int i = 0; i < visibleLetterSlots.Count; i++)
         {
-            Transform slot = grid.GetChild(i);
+            Transform slot = visibleLetterSlots[i];
 
-            if (slot.childCount == 0)
+            if (slot.childCount > 0)
             {
-                if (title[i] == ' ')
-                {
-                    checkTitle.Append(" ");
-
-                }
-                else
-                {
-                    Debug.Log("ERROR: hay casillas vacías.");
-                    return;
-                }
-
+                constructed.Append(slot.GetComponentInChildren<TextMeshProUGUI>().text.ToUpper());
             }
             else
             {
-                TextMeshProUGUI textComponent = slot.GetComponentInChildren<TextMeshProUGUI>();
-                if (textComponent != null)
-                {
-                    checkTitle.Append(textComponent.text.ToUpper());
-                }
-                else
-                {
-                    Debug.Log("ERROR: no se encontró el texto en una letra.");
-                    return;
-                }
+                MovieGuess_Controller.MovieGuess_instance.IsIncorrectTitle(false);
+                return;
             }
-
-            
         }
 
-        if (checkTitle.ToString() == title.ToUpper())
+        if (constructed.ToString() == cleanedTitle.ToUpper())
         {
             Debug.Log("✅ Title check: IS CORRECT");
             MovieGuess_Controller.MovieGuess_instance.IsCorrectTitle(true);
-            return;
         }
         else
         {
             Debug.Log("❌ Title check: IS WRONG");
             MovieGuess_Controller.MovieGuess_instance.IsIncorrectTitle(true);
-            return;
         }
     }
+
+
+    public void AutoPlaceAllCorrectLetters(string title)
+    {
+        if (answerKeyToTitleIndex.Count != visibleLetterSlots.Count)
+        {
+            Debug.LogWarning($"[AUTO ALL] Mismatch: answerKeyToTitleIndex ({answerKeyToTitleIndex.Count}) vs visibleLetterSlots ({visibleLetterSlots.Count})");
+            return;
+        }
+
+        string cleaned = title.Replace(" ", "");
+
+        for (int i = 0; i < visibleLetterSlots.Count; i++)
+        {
+            if (visibleLetterSlots[i].childCount > 0) continue;
+
+            if (i >= cleaned.Length)
+            {
+                Debug.LogWarning($"[AUTO ALL] Slot #{i} fuera de rango para cleanedTitle (len={cleaned.Length})");
+                continue;
+            }
+
+            string letter = cleaned[i].ToString().ToUpper();
+            int titleIndex = answerKeyToTitleIndex[i];
+
+            Debug.Log($"[AUTO ALL] Colocando letra '{letter}' en slot #{i} → título[{titleIndex}]");
+            mgc.PostAddNewLetter_API(titleIndex, letter, mgc.tit_lang);
+            PlaceBuyedLetter(letter, i, mgc.tit_lang);
+        }
+    }
+
+
 
     public void DisableEmptyLetterSquares()
     {
         foreach (Transform child in Grid_Empty_Letter_Squares.transform)
         {
             Button btn = child.GetComponentInChildren<Button>();
-            if (btn != null)
-            {
-                btn.interactable = false;
-            }
+            if (btn != null) btn.interactable = false;
         }
-
-        Debug.Log("🛑 Letras del grid de respuesta desactivadas");
     }
 
-    #region tnt
     public void EliminarLetrasFalsas()
     {
         foreach (GameObject fake in fakeLetters)
         {
-            if (fake != null)
-            {
-                Destroy(fake);
-            }
+            if (fake != null) Destroy(fake);
         }
-
         fakeLetters.Clear();
-
         tnt = true;
     }
-    #endregion
+
+    public Transform GetAvailableGridSlot()
+    {
+        return Grid_Letter_Squares.transform;
+    }
+
+    public Transform GetNextEmptySlot()
+    {
+        foreach (Transform slot in emptySlots)
+        {
+            Image slotImage = slot.GetComponent<Image>();
+            if (slotImage != null && slotImage.enabled && slot.childCount == 0)
+            {
+                return slot;
+            }
+        }
+        return null;
+    }
 }

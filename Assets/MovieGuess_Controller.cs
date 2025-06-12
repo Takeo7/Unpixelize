@@ -50,6 +50,7 @@ public class MovieGuess_Controller : MonoBehaviour
     [Space]
     public GameObject correctView;
     public TextMeshProUGUI correctTextPlatform;
+    public GameObject[] itemsToHideSolvedView;
 
     [Space]
     public GameObject powerButtons;
@@ -256,6 +257,7 @@ public class MovieGuess_Controller : MonoBehaviour
                 {
                     pic.SetPopcorns(PlayerInfoController.Win_Type.movie_solved, pop_con);
                     LoadPopcornsText_mgc();
+                    PrepareSolvedView();
                     Debug.Log("Post Correct Movie SUCCESS: " + response);
                     HideSoftLoadingScreen();
                 },
@@ -274,12 +276,21 @@ public class MovieGuess_Controller : MonoBehaviour
 
         mg_lc.DisableEmptyLetterSquares();
 
-        correctView.SetActive(true);
+        PrepareSolvedView();
         //correctTextPlatform.text = pic.playerData.levelsProgress[pic.currentLevel-1].subLevels[pic.currentMovie-1].film.platform;
         correctTextPlatform.text = "PRIME VIDEO";
         powerButtons.SetActive(false);
 
         mg_lc.AutoPlaceAllCorrectLetters(title);
+    }
+
+    public void PrepareSolvedView()
+    {
+        correctView.SetActive(true);
+        foreach (GameObject item in itemsToHideSolvedView)
+        {
+            item.SetActive(false);
+        }
     }
 
     public void CheckIsAlreadySolved()

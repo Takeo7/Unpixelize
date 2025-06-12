@@ -165,13 +165,13 @@ public class PlayerInfoController : MonoBehaviour
         string json = JsonUtility.ToJson(playerData);
         string path = Application.persistentDataPath + "/playerdata.json";
         System.IO.File.WriteAllText(path, json);
-        Debug.Log($"💾 PlayerData guardado en: {path}");
+        //Debug.Log($"💾 PlayerData guardado en: {path}");
     }
 
     private void OnApplicationQuit()
     {
         SavePlayerDataToDisk();
-        Debug.Log("💾 Datos guardados al cerrar la aplicación.");
+        //Debug.Log("💾 Datos guardados al cerrar la aplicación.");
     }
 
     private void OnApplicationPause(bool pause)
@@ -179,7 +179,7 @@ public class PlayerInfoController : MonoBehaviour
         if (pause)
         {
             SavePlayerDataToDisk();
-            Debug.Log("💾 Datos guardados al ir al segundo plano.");
+            //Debug.Log("💾 Datos guardados al ir al segundo plano.");
         }
     }
 
@@ -192,12 +192,12 @@ public class PlayerInfoController : MonoBehaviour
             string json = System.IO.File.ReadAllText(path);
             PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json);
             LoadPlayerData(loadedData);
-            Debug.Log("📂 PlayerData cargado desde archivo.");
+            //Debug.Log("📂 PlayerData cargado desde archivo.");
             return true;
         }
         else
         {
-            Debug.LogWarning("❌ No se encontró archivo de PlayerData.");
+            //Debug.LogWarning("❌ No se encontró archivo de PlayerData.");
             return false;
         }
     }

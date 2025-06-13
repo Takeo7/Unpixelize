@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3273297192250636993}
   - component: {fileID: 5727480648276029997}
   m_Layer: 5
-  m_Name: Popcorns
+  m_Name: Popcorns 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -336,8 +336,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b23db9e0ad43aa745a45426fadf5cdbf, type: 2}
-  m_sharedMaterial: {fileID: -747348167886123173, guid: b23db9e0ad43aa745a45426fadf5cdbf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: edb6215d4d3427546b72cb19c3f3f036, type: 2}
+  m_sharedMaterial: {fileID: -3222523430014192086, guid: edb6215d4d3427546b72cb19c3f3f036, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -547,8 +547,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b23db9e0ad43aa745a45426fadf5cdbf, type: 2}
-  m_sharedMaterial: {fileID: -747348167886123173, guid: b23db9e0ad43aa745a45426fadf5cdbf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: edb6215d4d3427546b72cb19c3f3f036, type: 2}
+  m_sharedMaterial: {fileID: -3222523430014192086, guid: edb6215d4d3427546b72cb19c3f3f036, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

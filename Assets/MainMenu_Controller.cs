@@ -17,7 +17,9 @@ public class MainMenu_Controller : MonoBehaviour
     public string password_t;
 
     [Space]
+    public GameObject errorScreen;
     public TextMeshProUGUI errorText;
+    public Color errorColor;
 
     [Space]
     public bool deleteData;
@@ -25,7 +27,6 @@ public class MainMenu_Controller : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
         if (deleteData)
         {
             PlayerPrefs.DeleteAll();
@@ -50,8 +51,8 @@ public class MainMenu_Controller : MonoBehaviour
                 errorText.text = "NO INTERNET";
             }
         }));
-        
-        
+
+
 
 
         
@@ -90,13 +91,13 @@ public class MainMenu_Controller : MonoBehaviour
         ApiClient.Instance.Login(email_t, password_t,
         onSuccess: response =>
         {
-            string token = ExtractTokenFromResponse(response);
+            string token = ApiClient.Instance.authToken;
             PlayerInfoController.Player_Instance.playerData.authToken = token;
             ApiClient.Instance.authToken = token;
 
-            errorText.gameObject.SetActive(true);
-            errorText.color = Color.green;
-            errorText.text = "Login exitoso, cargando info";
+            //errorText.gameObject.SetActive(true);
+            //errorText.color = Color.green;
+            //errorText.text = "Login exitoso, cargando info";
 
             /*
             ApiClient.Instance.GetLevels(
@@ -123,9 +124,9 @@ public class MainMenu_Controller : MonoBehaviour
         {
             Debug.LogError("Login fallido: " + error);
 
-            errorText.gameObject.SetActive(true);
-            errorText.color = Color.red;
-            errorText.text = "Login fallido: " + error;
+            errorScreen.SetActive(true);
+            errorText.color = errorColor;
+            errorText.text = "Sorry,  something didnt go as expected.";
 
         });
     }
@@ -154,17 +155,7 @@ public class MainMenu_Controller : MonoBehaviour
     
     
 
-    [System.Serializable]
-    public class LoginResponse
-    {
-        public string token;
-    }
-
-    string ExtractTokenFromResponse(string json)
-    {
-        LoginResponse data = JsonUtility.FromJson<LoginResponse>(json);
-        return data.token;
-    }
+  
 
 
 

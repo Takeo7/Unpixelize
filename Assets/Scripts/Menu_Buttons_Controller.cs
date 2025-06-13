@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class Menu_Buttons_Controller : MonoBehaviour
 {
@@ -19,7 +20,13 @@ public class Menu_Buttons_Controller : MonoBehaviour
 
     [Space]
     [Header("Popcorn Text")]
+    public AnimatedCounter pop_anim;
     public TextMeshProUGUI pop_text;
+
+    [Space]
+    public GameObject dailyReward_GO;
+    public TextMeshProUGUI dialyReward_pop_text;
+    public float time_daily = 1f;
 
     void Start()
     {
@@ -32,6 +39,8 @@ public class Menu_Buttons_Controller : MonoBehaviour
                 loadingScreen.SetActive(false);
                 LoadLevels();
                 sc.PreloadScene(Scene_Controller.Scenes.MovieSelector.ToString());
+                pic.LoadPopcornsText(pop_text);
+                CheckDailyreward();
             },
             onError: error =>
             {
@@ -41,7 +50,6 @@ public class Menu_Buttons_Controller : MonoBehaviour
             );
 
 
-        pic.LoadPopcornsText(pop_text);
         
     }
 
@@ -54,6 +62,18 @@ public class Menu_Buttons_Controller : MonoBehaviour
             GameObject temp = Instantiate(level_prefab, level_parent);
             temp.GetComponent<LevelInfo_Button>().LoadLevelID(pd.levelsProgress[i].levelId, pd.levelsProgress[i].unlocked);
             temp.GetComponent<LevelInfo_Button>().sc = sc;
+        }
+    }
+
+    public void CheckDailyreward()
+    {
+        if (pic.dailyReward)
+        {
+            int daily = pic.playerData.daily_reward;
+            dailyReward_GO.SetActive(true);
+            dialyReward_pop_text.text = daily.ToString();
+            pop_anim.SetPoints(daily);
+            
         }
     }
 

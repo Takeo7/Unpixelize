@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3273297192250636993}
   - component: {fileID: 5727480648276029997}
+  - component: {fileID: 2343245127564381692}
   m_Layer: 5
   m_Name: Popcorns
   m_TagString: Untagged
@@ -54,6 +55,25 @@ MonoBehaviour:
   win_color: {r: 0.5451228, g: 0.9245283, b: 0.7105592, a: 1}
   lose_color: {r: 0.9254902, g: 0.56030375, b: 0.54509807, a: 1}
   seconds: 2
+--- !u!114 &2343245127564381692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 745215901983463359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5ec314d76d6d1e4fb7be2d7e55f7f3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pointsText: {fileID: 7511318680459394428}
+  minUpdateSpeed: 0.05
+  maxUpdateSpeed: 0.01
+  speedCurvePower: 0.8
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  increaseColor: {r: 0.9647059, g: 0.7921569, b: 0.31764707, a: 1}
+  decreaseColor: {r: 0.8980392, g: 0.22352941, b: 0.20784314, a: 1}
 --- !u!1 &1319343028905483559
 GameObject:
   m_ObjectHideFlags: 0

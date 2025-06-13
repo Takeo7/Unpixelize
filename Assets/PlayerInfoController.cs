@@ -16,6 +16,8 @@ public class PlayerInfoController : MonoBehaviour
 
     public PlayerData playerData;
 
+    public bool dailyReward = false;
+
     private void Awake()
     {
         #region Singleton
@@ -50,6 +52,14 @@ public class PlayerInfoController : MonoBehaviour
         playerData = data;
     }
 
+
+    public void HandleDailyReward()
+    {
+        Debug.Log("🎁 Daily reward disponible");
+        dailyReward = true;
+    }
+
+
     public void SetPopcorns(int pop)
     {
         popcorns = pop;
@@ -71,7 +81,7 @@ public class PlayerInfoController : MonoBehaviour
         text.text = prices[(int)type].ToString();
     }
 
-    public bool SetPopcorns(Purchase_Type pt, Popcorn_Controller pop_con)
+    public bool SetPopcorns(Purchase_Type pt, AnimatedCounter pop_anim)
     {
         if (prices[(int)pt] <= popcorns)
         {
@@ -81,8 +91,8 @@ public class PlayerInfoController : MonoBehaviour
                {
                    SetPopcorns(playerData.amount);
                    //popcorns -= prices[(int)pt];
-                   pop_con.ShowPopcornChange(prices[(int)pt], false);
-                   MovieGuess_Controller.MovieGuess_instance.LoadPopcornsText_mgc();
+                   pop_anim.SetPoints(-prices[(int)pt]);
+                   //MovieGuess_Controller.MovieGuess_instance.LoadPopcornsText_mgc();
                    Debug.Log("Get amount SUCCESS: " + response);
                },
                onError: error =>
@@ -98,7 +108,7 @@ public class PlayerInfoController : MonoBehaviour
         }
     }
 
-    public void SetPopcorns(Win_Type wt, Popcorn_Controller pop_con)
+    public void SetPopcorns(Win_Type wt, AnimatedCounter pop_anim)
     {
 
         //Llamada para updatear popcorns
@@ -107,8 +117,8 @@ public class PlayerInfoController : MonoBehaviour
            {
                SetPopcorns(playerData.amount);
 
-               pop_con.ShowPopcornChange(win_amount[(int)wt], true);
-               MovieGuess_Controller.MovieGuess_instance.LoadPopcornsText_mgc();
+               pop_anim.SetPoints(win_amount[(int)wt]);
+               //MovieGuess_Controller.MovieGuess_instance.LoadPopcornsText_mgc();
                Debug.Log("Get amount SUCCESS: " + response);
            },
            onError: error =>
@@ -213,6 +223,7 @@ public class PlayerData
     public string playerName;
     public string authToken; // ← Aquí se guardará el token
     public int amount;
+    public int daily_reward;
     public int px_limit;
 
     // Lista de niveles con progreso del jugador

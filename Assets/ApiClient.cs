@@ -114,11 +114,67 @@ public class ApiClient : MonoBehaviour
         }
     }
 
+    #region Login
     public void Login(string email, string password, System.Action<string> onSuccess, System.Action<string> onError)
     {
         StartCoroutine(LoginCoroutine(email, password, onSuccess, onError));
     }
 
+    private IEnumerator LoginCoroutine(string email, string password, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        string url = baseUrl + "/login";
+
+        var json = JsonUtility.ToJson(new LoginRequest { email = email, password = password });
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        UnityWebRequest request = new UnityWebRequest(url, "POST");
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        Stopwatch sw = Stopwatch.StartNew();
+        yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] Login completado en {sw.ElapsedMilliseconds} ms" + "--- URL: " + url);
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            LoginResponse response = JsonUtility.FromJson<LoginResponse>(request.downloadHandler.text);
+
+            PlayerInfoController.Player_Instance.playerData.authToken = response.token;
+            authToken = response.token;
+
+            if (response.daily_reward)
+            {
+                PlayerInfoController.Player_Instance.HandleDailyReward();
+            }
+
+            onSuccess?.Invoke(response.token);
+        }
+        else
+        {
+            Debug.LogError("❌ Error en Login: " + request.downloadHandler.text);
+            onError?.Invoke(request.error);
+        }
+    }
+
+
+    [System.Serializable]
+    public class LoginRequest
+    {
+        public string email;
+        public string password;
+    }
+
+    [System.Serializable]
+    public class LoginResponse
+    {
+        public string token;
+        public bool daily_reward;
+    }
+
+    #endregion
+    
     public void Logout(System.Action<string> onSuccess, System.Action<string> onError)
     {
         StartCoroutine(LogoutCoroutine(onSuccess, onError));
@@ -170,10 +226,7 @@ public class ApiClient : MonoBehaviour
     }
 
 
-    public void GetPlayerInfo(System.Action<InfoResponse> onSuccess, System.Action<string> onError)
-    {
-        StartCoroutine(GetPlayerInfoCoroutine(onSuccess, onError));
-    }
+    
 
     public void GetHelpData(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
     {
@@ -328,6 +381,12 @@ public class ApiClient : MonoBehaviour
         }
     }
 
+    #region Info
+
+    public void GetPlayerInfo(System.Action<InfoResponse> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(GetPlayerInfoCoroutine(onSuccess, onError));
+    }
 
     private IEnumerator GetPlayerInfoCoroutine(System.Action<InfoResponse> onSuccess, System.Action<string> onError)
     {
@@ -350,6 +409,7 @@ public class ApiClient : MonoBehaviour
                 // Asignar en PlayerInfoController
                 var pic = PlayerInfoController.Player_Instance;
                 pic.playerData.amount = response.amount;
+                pic.playerData.daily_reward = response.daily_reward;
                 pic.playerData.px_limit = response.limit_pixel;
                 pic.prices = new List<int>
             {
@@ -381,6 +441,17 @@ public class ApiClient : MonoBehaviour
         }
     }
 
+
+    [System.Serializable]
+    public class InfoResponse
+    {
+        public int amount;
+        public int daily_reward;
+        public int limit_pixel;
+        public HelpPrices help_prices;
+        public Rewards rewards;
+    }
+    #endregion
 
     private IEnumerator GetAmountCoroutine(System.Action<int> onSuccess, System.Action<string> onError)
     {
@@ -415,33 +486,7 @@ public class ApiClient : MonoBehaviour
         }
     }
 
-    private IEnumerator LoginCoroutine(string email, string password, System.Action<string> onSuccess, System.Action<string> onError)
-    {
-        string url = baseUrl + "/login";
-
-        var json = JsonUtility.ToJson(new LoginRequest { email = email, password = password });
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-
-        UnityWebRequest request = new UnityWebRequest(url, "POST");
-        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-
-        Stopwatch sw = Stopwatch.StartNew();
-        yield return request.SendWebRequest();
-        sw.Stop();
-        Debug.Log($"[⏱️ API] Login completado en {sw.ElapsedMilliseconds} ms"+ "--- URL: "+url);
-
-        if (request.result == UnityWebRequest.Result.Success)
-        {
-            onSuccess?.Invoke(request.downloadHandler.text);
-        }
-        else
-        {
-            Debug.LogError("❌ Error en Login: " + request.downloadHandler.text);
-            onError?.Invoke(request.error);
-        }
-    }
+    
 
     private IEnumerator LogoutCoroutine(System.Action<string> onSuccess, System.Action<string> onError)
     {
@@ -601,12 +646,7 @@ public class ApiClient : MonoBehaviour
         }
     }
 
-    [System.Serializable]
-    public class LoginRequest
-    {
-        public string email;
-        public string password;
-    }
+   
 
     [System.Serializable]
     public class LevelApiResponse
@@ -623,14 +663,8 @@ public class ApiClient : MonoBehaviour
     }
 
 
-    [System.Serializable]
-    public class InfoResponse
-    {
-        public int amount;
-        public int limit_pixel;
-        public HelpPrices help_prices;
-        public Rewards rewards;
-    }
+   
+
 
     [System.Serializable]
     public class HelpPrices

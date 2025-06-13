@@ -67,13 +67,18 @@ public class Menu_Buttons_Controller : MonoBehaviour
 
     public void CheckDailyreward()
     {
-        if (pic.dailyReward)
+        Debug.Log("Daily reward del PIC: " + pic.dailyReward);
+        if (pic.dailyReward == true)
         {
             int daily = pic.playerData.daily_reward;
             dailyReward_GO.SetActive(true);
             dialyReward_pop_text.text = daily.ToString();
             pop_anim.SetPoints(daily);
-            
+            pic.dailyReward = false;
+        }
+        else
+        {
+            Debug.Log("No DAILY REWARD");
         }
     }
 

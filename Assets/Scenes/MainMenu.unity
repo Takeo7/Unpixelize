@@ -2384,8 +2384,10 @@ MonoBehaviour:
     playerName: 
     authToken: 
     amount: 0
+    daily_reward: 0
     px_limit: 0
     levelsProgress: []
+  dailyReward: 0
   prices: 32000000640000000a00000032000000f4010000
   win_amount: f4010000e8030000
 --- !u!4 &2097617393

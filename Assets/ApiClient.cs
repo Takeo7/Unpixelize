@@ -228,10 +228,7 @@ public class ApiClient : MonoBehaviour
 
     
 
-    public void GetHelpData(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
-    {
-        StartCoroutine(GetHelpDataCoroutine(levelId, subLevelId, onSuccess, onError));
-    }
+    
     public void Register(System.Action<string> onSuccess, System.Action<string> onError)
     {
         StartCoroutine(RegisterCoroutine(onSuccess, onError));
@@ -320,6 +317,12 @@ public class ApiClient : MonoBehaviour
         public string token;
         public string message;
     }
+    #region Help Data
+
+    public void GetHelpData(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(GetHelpDataCoroutine(levelId, subLevelId, onSuccess, onError));
+    }
 
 
     private IEnumerator GetHelpDataCoroutine(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
@@ -352,13 +355,17 @@ public class ApiClient : MonoBehaviour
                     subData.help.help_clues = serverData.help_clues;
                     subData.help.help_bombs = serverData.help_bombs;
 
-                    if (serverData.help_letters != null)
+                    if (serverData.help_letters != null && serverData.help_letters.Count > 0)
                     {
-                        if (serverData.help_letters.lang == "es")
-                            subData.help.helpLetters_es = new HelpLetters { letters = serverData.help_letters.letter_count };
-                        else if (serverData.help_letters.lang == "en")
-                            subData.help.helpLetters_en = new HelpLetters { letters = serverData.help_letters.letter_count };
+                        foreach (var letter in serverData.help_letters)
+                        {
+                            if (letter.lang == "es")
+                                subData.help.helpLetters_es = new HelpLetters { letters = letter.letter_count };
+                            else if (letter.lang == "en")
+                                subData.help.helpLetters_en = new HelpLetters { letters = letter.letter_count };
+                        }
                     }
+
 
                     Debug.Log($"✅ Ayudas cargadas para L{levelId}-S{subLevelId}");
                 }
@@ -380,6 +387,34 @@ public class ApiClient : MonoBehaviour
             onError?.Invoke(request.error);
         }
     }
+
+    [System.Serializable]
+    public class HelpServerItem
+    {
+        public int id;
+        public int film_id;
+        public int level_id;
+        public HelpPixel help_pixel;
+        public List<HelpClue> help_clues;
+        public HelpBomb help_bombs;
+        public List<HelpLetterServerData> help_letters;
+    }
+
+    [System.Serializable]
+    public class HelpLetterServerData
+    {
+        public int id;
+        public int user_id;
+        public int level_id;
+        public int sublevel_id;
+        public int letter_count;
+        public string lang;
+        public string created_at;
+        public string updated_at;
+    }
+
+#endregion
+
 
     #region Info
 
@@ -683,30 +718,9 @@ public class ApiClient : MonoBehaviour
         public int resolved_level;
     }
 
-    [System.Serializable]
-    public class HelpLetterServerData
-    {
-        public int id;
-        public int user_id;
-        public int level_id;
-        public int sublevel_id;
-        public int letter_count;
-        public string lang;
-        public string created_at;
-        public string updated_at;
-    }
+   
 
-    [System.Serializable]
-    public class HelpServerItem
-    {
-        public int id;
-        public int film_id;
-        public int level_id;
-        public HelpPixel help_pixel;
-        public List<HelpClue> help_clues;
-        public HelpBomb help_bombs;
-        public HelpLetterServerData help_letters;
-    }
+   
 
 }
 

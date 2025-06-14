@@ -151,20 +151,12 @@ public class MovieGuess_VideoController : MonoBehaviour
         rawImage.texture = redTex;
     }
 
-    public void UnPixelice(int incremental)
-    {
-        if (rawImage.material != null && rawImage.material.HasProperty("_PixelSize"))
-        {
-            float pixelsize = rawImage.material.GetFloat("_PixelSize");
-            rawImage.material.SetFloat("_PixelSize", pixelsize + incremental);
-        }
-    }
-
     public void SetPixelice(int p)
     {
         if (rawImage.material != null && rawImage.material.HasProperty("_PixelSize"))
         {
             rawImage.material.SetFloat("_PixelSize", p);
+            rawImage.SetMaterialDirty(); // Forzar redibujado
         }
     }
 }

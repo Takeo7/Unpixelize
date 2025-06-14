@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
@@ -80,6 +80,14 @@ public class MovieGuess_Controller : MonoBehaviour
     [Space]
     public GameObject poor_msg;
 
+    [Space]
+    [Header("Reward popup")]
+    public GameObject NotificationsMain_GO;
+    public Transform NotificationGrid;
+    public GameObject Notification_GO;
+
+
+
     private void Start()
     {
         pic = PlayerInfoController.Player_Instance;
@@ -88,6 +96,8 @@ public class MovieGuess_Controller : MonoBehaviour
 
         LoadPopcornsText_mgc();
         LoadHelpersTexts();
+
+        BugReportingScript.bugInstance.ResetCamera();
     }
 
 
@@ -243,6 +253,9 @@ public class MovieGuess_Controller : MonoBehaviour
         return count;
     }
 
+
+    #region SolvedLevel
+
     public void IsCorrectTitle(bool y)
     {
         ShowSoftLoadingScreen();
@@ -253,13 +266,29 @@ public class MovieGuess_Controller : MonoBehaviour
         {
             //Post Completed
             _api.MarkSubLevelSolved(pic.currentLevel, pic.currentMovie,
-                onSuccess: response =>
+                onSuccess: (SolvedSublevelResponse response) =>
                 {
                     pic.SetPopcorns(PlayerInfoController.Win_Type.movie_solved, pop_anim);
                     LoadPopcornsText_mgc();
                     PrepareSolvedView();
                     Debug.Log("Post Correct Movie SUCCESS: " + response);
                     HideSoftLoadingScreen();
+
+
+
+                    ShowRewardPopup("Movie Solved", pic.win_amount[0].ToString());
+
+                    if (response.level_completed)
+                    {
+                        Debug.Log("🎉 Nivel completo!");
+                        ShowRewardPopup("Level completed", pic.win_amount[1].ToString());
+                    }
+
+                    if (response.next_level_unlocked)
+                    {
+                        Debug.Log("🔓 ¡Nuevo nivel desbloqueado!");
+                        ShowRewardPopup("Next level unlocked");
+                    }
                 },
                 onError: error =>
                 {
@@ -267,10 +296,6 @@ public class MovieGuess_Controller : MonoBehaviour
                     Debug.LogError("Post Correct Movie fallido: " + error);
 
                 });
-        }
-        else
-        {
-            
         }
         
 
@@ -282,6 +307,35 @@ public class MovieGuess_Controller : MonoBehaviour
         powerButtons.SetActive(false);
 
         mg_lc.AutoPlaceAllCorrectLetters(title);
+
+        mg_vc.SetPixelice(55);
+    }
+
+    public void ShowRewardPopup(string message, string amount)
+    {
+        GameObject noti = Instantiate(Notification_GO, NotificationGrid);
+        NotificationPopupScript noti_Script = noti.GetComponent<NotificationPopupScript>();
+        noti_Script.message_text.text = message;
+        noti_Script.Price_text.text = amount;
+        noti_Script.popcorns_go.SetActive(true);
+        NotificationsMain_GO.SetActive(true);
+    }
+
+    public void ShowRewardPopup(string message)
+    {
+        GameObject noti = Instantiate(Notification_GO, NotificationGrid);
+        NotificationPopupScript noti_Script = noti.GetComponent<NotificationPopupScript>();
+        noti_Script.message_text.text = message;
+        noti_Script.popcorns_go.SetActive(false);
+        NotificationsMain_GO.SetActive(true);
+    }
+
+    public void ClearNotifications()
+    {
+        foreach (Transform childen in NotificationGrid.GetComponentsInChildren<Transform>())
+        {
+            Destroy(childen.gameObject);
+        }
     }
 
     public void PrepareSolvedView()
@@ -306,6 +360,8 @@ public class MovieGuess_Controller : MonoBehaviour
     {
         wrong_img.gameObject.SetActive(n);
     }
+
+    #endregion
 
     #region PowerButtons
 

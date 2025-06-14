@@ -54,8 +54,8 @@ public class MainMenu_Controller : MonoBehaviour
 
 
 
+        BugReportingScript.bugInstance.ResetCamera();
 
-        
 
 
     }

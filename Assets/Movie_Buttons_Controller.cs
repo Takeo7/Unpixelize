@@ -45,6 +45,8 @@ public class Movie_Buttons_Controller : MonoBehaviour
         );
 
         pic.LoadPopcornsText(pop_text);
+
+        BugReportingScript.bugInstance.ResetCamera();
     }
 
     public void MovieLoaded()

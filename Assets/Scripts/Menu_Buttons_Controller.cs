@@ -49,7 +49,7 @@ public class Menu_Buttons_Controller : MonoBehaviour
 
             );
 
-
+        BugReportingScript.bugInstance.ResetCamera();
         
     }
 

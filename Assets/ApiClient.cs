@@ -215,20 +215,103 @@ public class ApiClient : MonoBehaviour
         StartCoroutine(PutRequest($"/help/letter/{levelId}/{subLevelId}/{lang}", onSuccess, onError));
     }
 
-    public void MarkSubLevelSolved(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
+    #region Solved Sublevel
+
+    public void MarkSubLevelSolved(int levelId, int subLevelId, System.Action<SolvedSublevelResponse> onSuccess, System.Action<string> onError)
     {
-        StartCoroutine(PostRequest($"/solved_sublevel/{levelId}/{subLevelId}", onSuccess, onError));
+        StartCoroutine(PostSolvedSublevelCoroutine(levelId, subLevelId, onSuccess, onError));
     }
+
+    private IEnumerator PostSolvedSublevelCoroutine(int levelId, int subLevelId, System.Action<SolvedSublevelResponse> onSuccess, System.Action<string> onError)
+    {
+        string url = $"{baseUrl}/solved_sublevel/{levelId}/{subLevelId}";
+
+        UnityWebRequest request = UnityWebRequest.PostWwwForm(url, "");
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+        Stopwatch sw = Stopwatch.StartNew();
+        yield return request.SendWebRequest();
+        sw.Stop();
+        Debug.Log($"[⏱️ API] POST solved_sublevel/{levelId}/{subLevelId} en {sw.ElapsedMilliseconds} ms");
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            try
+            {
+                SolvedSublevelResponse response = JsonUtility.FromJson<SolvedSublevelResponse>(request.downloadHandler.text);
+                Debug.Log($"✅ Subnivel resuelto: {response.message} | Nivel completo: {response.level_completed} | Siguiente desbloqueado: {response.next_level_unlocked}");
+                onSuccess?.Invoke(response);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("❌ Error al parsear solved_sublevel: " + e.Message);
+                onError?.Invoke("Parse error");
+            }
+        }
+        else
+        {
+            Debug.LogError("❌ Error en POST solved_sublevel: " + request.downloadHandler.text);
+            onError?.Invoke(request.error);
+        }
+    }
+
+
+    
+
+    #endregion
 
     public void GetPlayerAmount(System.Action<int> onSuccess, System.Action<string> onError)
     {
         StartCoroutine(GetAmountCoroutine(onSuccess, onError));
     }
 
+    #region BugReport
 
-    
+    public void SendReport(string message, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        StartCoroutine(PostReportCoroutine(message, onSuccess, onError));
+    }
 
-    
+
+    private IEnumerator PostReportCoroutine(string message, System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        string url = baseUrl + "/report";
+
+        ReportRequest report = new ReportRequest { report = message };
+        string json = JsonUtility.ToJson(report);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        UnityWebRequest request = new UnityWebRequest(url, "POST");
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", "Bearer " + authToken); // si se requiere autenticación
+
+        Stopwatch sw = Stopwatch.StartNew();
+        yield return request.SendWebRequest();
+        sw.Stop();
+
+        Debug.Log($"[⏱️ API] POST /report completado en {sw.ElapsedMilliseconds} ms");
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log("📨 Reporte enviado con éxito.");
+            onSuccess?.Invoke(request.downloadHandler.text);
+        }
+        else
+        {
+            Debug.LogError("❌ Error al enviar el reporte: " + request.downloadHandler.text);
+            onError?.Invoke(request.error);
+        }
+    }
+
+
+    #endregion
+
+
+    #region Register
+
     public void Register(System.Action<string> onSuccess, System.Action<string> onError)
     {
         StartCoroutine(RegisterCoroutine(onSuccess, onError));
@@ -317,6 +400,9 @@ public class ApiClient : MonoBehaviour
         public string token;
         public string message;
     }
+
+#endregion
+
     #region Help Data
 
     public void GetHelpData(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
@@ -646,7 +732,7 @@ public class ApiClient : MonoBehaviour
         Stopwatch sw = Stopwatch.StartNew();
         yield return request.SendWebRequest();
         sw.Stop();
-        Debug.Log($"[⏱️ API] POST {endpoint} completado en {sw.ElapsedMilliseconds} ms");
+        Debug.Log($"[⏱️ API] POST {url} completado en {sw.ElapsedMilliseconds} ms");
 
         if (request.result == UnityWebRequest.Result.Success)
         {
@@ -724,6 +810,19 @@ public class ApiClient : MonoBehaviour
 
 }
 
+[System.Serializable]
+public class ReportRequest
+{
+    public string report;
+}
+
+[System.Serializable]
+public class SolvedSublevelResponse
+{
+    public string message;
+    public bool level_completed;
+    public bool next_level_unlocked;
+}
 public static class JsonHelper
 {
     public static T[] FromJson<T>(string json)

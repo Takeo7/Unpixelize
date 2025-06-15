@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "icons8-espa\xF1a-100_0": 6142435790108328508
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

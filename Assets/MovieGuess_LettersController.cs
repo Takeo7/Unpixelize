@@ -68,7 +68,7 @@ public class MovieGuess_LettersController : MonoBehaviour
 
         yield return null;
 
-        int maxPerRow = 10;
+        int maxPerRow = 8;
         string[] allWords = title.Split(' ');
 
         List<List<string>> plannedRows = new List<List<string>>();

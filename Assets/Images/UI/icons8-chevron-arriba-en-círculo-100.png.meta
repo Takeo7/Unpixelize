@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8186d68f910561948a7a4ab7942fd70e
+guid: 840b3426ffa304533b362f8bb02a4e8a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7244858896769582498
-    second: icons8-close-100_0
+      213: -8647408090466426575
+    second: "icons8-chevron-arriba-en-ci\u0301rculo-100_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: icons8-close-100_0
+      name: "icons8-chevron-arriba-en-ci\u0301rculo-100_0"
       rect:
         serializedVersion: 2
-        x: 9
-        y: 9
-        width: 82
-        height: 82
+        x: 0
+        y: 0
+        width: 100
+        height: 100
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2a587cd18c8ea8460800000000000000
-      internalID: 7244858896769582498
+      spriteID: 131e8eb582c3ef780800000000000000
+      internalID: -8647408090466426575
       vertices: []
       indices: 
       edges: []
@@ -160,8 +160,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      icons8-close-100_0: 7244858896769582498
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

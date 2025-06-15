@@ -50,7 +50,7 @@ public class Menu_Buttons_Controller : MonoBehaviour
             );
 
         BugReportingScript.bugInstance.ResetCamera();
-        
+
     }
 
     public void LoadLevels()
@@ -75,11 +75,18 @@ public class Menu_Buttons_Controller : MonoBehaviour
             dialyReward_pop_text.text = daily.ToString();
             pop_anim.SetPoints(daily);
             pic.dailyReward = false;
+            StartCoroutine(TimerNotification());
         }
         else
         {
             Debug.Log("No DAILY REWARD");
         }
+    }
+
+    IEnumerator TimerNotification()
+    {
+        yield return new WaitForSecondsRealtime(3f);
+        dailyReward_GO.SetActive(false);
     }
 
    

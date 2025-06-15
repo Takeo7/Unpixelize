@@ -53,9 +53,12 @@ public class MovieGuess_Controller : MonoBehaviour
     public GameObject[] itemsToHideSolvedView;
 
     [Space]
+    [Header("Power Buttons")]
     public GameObject powerButtons;
     public Button PX_Butt;
+    public UnpixeliceAnimation unpix_button_anim;
     public Button TNT_Butt;
+    public Image tnt_img;
 
     [Space]
     public List<TextMeshProUGUI> tips_text = new List<TextMeshProUGUI>();
@@ -311,6 +314,7 @@ public class MovieGuess_Controller : MonoBehaviour
         mg_vc.SetPixelice(55);
     }
 
+    #region Notifications
     public void ShowRewardPopup(string message, string amount)
     {
         GameObject noti = Instantiate(Notification_GO, NotificationGrid);
@@ -319,6 +323,7 @@ public class MovieGuess_Controller : MonoBehaviour
         noti_Script.Price_text.text = amount;
         noti_Script.popcorns_go.SetActive(true);
         NotificationsMain_GO.SetActive(true);
+        StartCoroutine(TimerNotifications(noti));
     }
 
     public void ShowRewardPopup(string message)
@@ -328,6 +333,7 @@ public class MovieGuess_Controller : MonoBehaviour
         noti_Script.message_text.text = message;
         noti_Script.popcorns_go.SetActive(false);
         NotificationsMain_GO.SetActive(true);
+        StartCoroutine(TimerNotifications(noti));
     }
 
     public void ClearNotifications()
@@ -338,6 +344,12 @@ public class MovieGuess_Controller : MonoBehaviour
         }
     }
 
+    IEnumerator TimerNotifications(GameObject go)
+    {
+        yield return new WaitForSecondsRealtime(3f);
+        Destroy(go);
+    }
+#endregion
     public void PrepareSolvedView()
     {
         correctView.SetActive(true);
@@ -514,6 +526,8 @@ public class MovieGuess_Controller : MonoBehaviour
             {
                 mg_lc.EliminarLetrasFalsas();
                 LoadPopcornsText_mgc();
+                pic.GetCurrentMovieData().help.help_bombs.id = 1;
+                CheckTNTButton();
                 Debug.Log("Post TNT Movie SUCCESS: " + response);
             },
                 onError: error =>
@@ -538,6 +552,7 @@ public class MovieGuess_Controller : MonoBehaviour
         if (pic.GetCurrentMovieData().help.help_bombs.id != 0)
         {
             TNT_Butt.interactable = false;
+            tnt_img.color = Color.grey;
             mg_lc.EliminarLetrasFalsas();
         }
     }
@@ -582,10 +597,13 @@ public class MovieGuess_Controller : MonoBehaviour
         int lvlarr = pic.currentLevel - 1;
         int moviearr = (pic.currentMovie - 1) - (9 * (pic.currentLevel - 1));
         Debug.Log("Tring to access ->>>> LEVEL array: " + lvlarr + " &&& MOVIE array: " + moviearr);
-        if (pic.GetCurrentMovieData().help.help_pixel.pixel_count >= pic.playerData.px_limit)
+
+        if (pic.GetCurrentMovieData().help.help_pixel.pixel_count >= pic.playerData.px_limit - 1)
         {
             PX_Butt.interactable = false;
         }
+        
+        unpix_button_anim.Unpixelice(pic.GetCurrentMovieData().help.help_pixel.pixel_count);
     }
 
     #endregion

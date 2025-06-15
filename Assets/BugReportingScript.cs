@@ -42,5 +42,7 @@ public class BugReportingScript : MonoBehaviour
                 Debug.LogError("❌ Fallo al enviar reporte: " + error);
             });
 
+        reportInput.text = "";
+
     }
 }

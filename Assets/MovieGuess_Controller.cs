@@ -124,7 +124,7 @@ public class MovieGuess_Controller : MonoBehaviour
     {
         poor_msg.SetActive(true);
         StartCoroutine(Cantbuy_Coroutine());
-        Debug.Log("This can not be purchased... poor scum");
+        //Debug.Log("This can not be purchased... poor scum");
     }
 
     private IEnumerator Cantbuy_Coroutine()
@@ -180,18 +180,18 @@ public class MovieGuess_Controller : MonoBehaviour
             onSuccess: response =>
             {
                 IsIncorrectTitle(false);
-                Debug.Log("SetMovieData");
+                //Debug.Log("SetMovieData");
                 CleanTitle();
                 mg_lc.SetAllLetters(length, length, title, fakeLetters);
                 SetTips();
 
                 SetVideo();
                 mg_vc.SetPixelice(pixelice);
-                Debug.Log("Traza LC");
+                //Debug.Log("Traza LC");
                 loading_screen.SetActive(false); 
             },
              onError: err => {
-                 Debug.Log("Get Help Data ERROR");
+                 Debug.LogError("Get Help Data ERROR");
              });
 
         
@@ -208,13 +208,13 @@ public class MovieGuess_Controller : MonoBehaviour
             onSuccess: response =>
             {
                 IsIncorrectTitle(false);
-                Debug.Log("SetMovieData");
+                //Debug.Log("SetMovieData");
                 CleanTitle();
                 mg_lc.SetAllLetters(length, length, title, fakeLetters);
                 CheckTNTButton();
             },
              onError: err => {
-                 Debug.Log("Get Help Data ERROR");
+                 Debug.LogWarning("Get Help Data ERROR");
              });
 
 
@@ -272,9 +272,9 @@ public class MovieGuess_Controller : MonoBehaviour
                 onSuccess: (SolvedSublevelResponse response) =>
                 {
                     pic.SetPopcorns(PlayerInfoController.Win_Type.movie_solved, pop_anim);
-                    LoadPopcornsText_mgc();
+                    //LoadPopcornsText_mgc();
                     PrepareSolvedView();
-                    Debug.Log("Post Correct Movie SUCCESS: " + response);
+                    //Debug.Log("Post Correct Movie SUCCESS: " + response);
                     HideSoftLoadingScreen();
 
 
@@ -283,13 +283,13 @@ public class MovieGuess_Controller : MonoBehaviour
 
                     if (response.level_completed)
                     {
-                        Debug.Log("🎉 Nivel completo!");
+                        //Debug.Log("🎉 Nivel completo!");
                         ShowRewardPopup("Level completed", pic.win_amount[1].ToString());
                     }
 
                     if (response.next_level_unlocked)
                     {
-                        Debug.Log("🔓 ¡Nuevo nivel desbloqueado!");
+                        //Debug.Log("🔓 ¡Nuevo nivel desbloqueado!");
                         ShowRewardPopup("Next level unlocked");
                     }
                 },
@@ -390,7 +390,7 @@ public class MovieGuess_Controller : MonoBehaviour
                 if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.newLetter, pop_anim))
                 {
                     mg_lc.AutoPlaceNextCorrectLetter(title);
-                    LoadPopcornsText_mgc();
+                    //LoadPopcornsText_mgc();
                 }
                 else
                 {
@@ -399,6 +399,10 @@ public class MovieGuess_Controller : MonoBehaviour
                 HideSoftLoadingScreen();
             },
              onError: err => {
+                 if (err == "poor")
+                 {
+                     CantPurchase();
+                 }
                  Debug.Log("Get Help New Letter ERROR");
                  HideSoftLoadingScreen();
              });
@@ -407,7 +411,7 @@ public class MovieGuess_Controller : MonoBehaviour
 
     }
 
-    public void PostAddNewLetter_API(int index, string letter, TitleLanguage lang)
+    public void AddNewLetter_back(int index, string letter, TitleLanguage lang)
     {
         Debug.LogWarning("Falta llamada de Add new letter a la API");
     }
@@ -416,18 +420,8 @@ public class MovieGuess_Controller : MonoBehaviour
     #region Autosolve
     public void AutoSolveMovie()
     {
-        
-        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.key, pop_anim))
-        {
-            LoadPopcornsText_mgc();
-            mg_lc.AutoPlaceAllCorrectLetters(title);            
-            PostAutosolveMovie();
-        }
-        else
-        {
-            CantPurchase();
-            HideSoftLoadingScreen();
-        }
+
+        PostAutosolveMovie();
         
     }
 
@@ -436,12 +430,27 @@ public class MovieGuess_Controller : MonoBehaviour
         _api.UseHelpKey(pic.currentLevel, pic.currentMovie,
             onSuccess: response =>
             {
-                Debug.Log("Post Key Helper Movie SUCCESS: " + response);
-                IsCorrectTitle(false);
+                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.key, pop_anim))
+                {
+                    //LoadPopcornsText_mgc();
+                    mg_lc.AutoPlaceAllCorrectLetters(title);
+                    Debug.Log("Post Key Helper Movie SUCCESS: " + response);
+                    IsCorrectTitle(false);
+                }
+                else
+                {
+                    CantPurchase();
+                    HideSoftLoadingScreen();
+                }
+                
                 HideSoftLoadingScreen();
             },
                 onError: error =>
                 {
+                    if (error == "poor")
+                 {
+                     CantPurchase();
+                 }
                     Debug.LogError("Post Key Helper Movie fallido: " + error);
                     HideSoftLoadingScreen();
 
@@ -487,28 +496,34 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void BuyTip(Tip_info ti)
     {
-        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.clue, pop_anim))
-        {
+        
             _api.UseHelpClue(pic.currentLevel, pic.currentMovie, ti.tip_Type,
             onSuccess: response =>
             {
+            if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.clue, pop_anim))
+                {
                 ti.gameObject.SetActive(false);
                 Debug.Log("Post Clue " + ti.tip_Type + " Movie SUCCESS: " + response);
                 HideSoftLoadingScreen();
+                }
+            else
+                {
+                    CantPurchase();
+                    HideSoftLoadingScreen();
+                }
             },
                onError: error =>
                {
+                    if (error == "poor")
+                 {
+                     CantPurchase();
+                 }
                    Debug.LogError("Post Clue " + ti.tip_Type + " Movie fallido: " + error);
                    HideSoftLoadingScreen();
 
                });
-            LoadPopcornsText_mgc();
-        }
-        else
-        {
-            CantPurchase();
-            HideSoftLoadingScreen();
-        }
+            //LoadPopcornsText_mgc();
+        
 
         
 
@@ -519,30 +534,36 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void TntFakeWords()
     {
-        if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.tnt, pop_anim))
-        {
+        
             _api.UseHelpBomb(pic.currentLevel, pic.currentMovie,
             onSuccess: response =>
             {
+            if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.tnt, pop_anim))
+                {
                 mg_lc.EliminarLetrasFalsas();
-                LoadPopcornsText_mgc();
+                //LoadPopcornsText_mgc();
                 pic.GetCurrentMovieData().help.help_bombs.id = 1;
                 CheckTNTButton();
                 Debug.Log("Post TNT Movie SUCCESS: " + response);
+                }
+            else
+                {
+                CantPurchase();
+                HideSoftLoadingScreen();
+                }
             },
                 onError: error =>
                 {
+                    if (error == "poor")
+                 {
+                     CantPurchase();
+                 }
                     Debug.LogError("Post TNT Movie fallido: " + error);
 
                 });
             
             HideSoftLoadingScreen();
-        }
-        else
-        {
-            CantPurchase();
-            HideSoftLoadingScreen();
-        }
+        
 
         
     }
@@ -573,7 +594,7 @@ public class MovieGuess_Controller : MonoBehaviour
                     pixelice += 10;
                     mg_vc.SetPixelice(pixelice);
 
-                    LoadPopcornsText_mgc();
+                    //LoadPopcornsText_mgc();
                     CheckUnpixeliceButton();
                 }
                 else
@@ -583,6 +604,10 @@ public class MovieGuess_Controller : MonoBehaviour
                 HideSoftLoadingScreen();
             },
              onError: err => {
+                if (err == "poor")
+                 {
+                     CantPurchase();
+                 }
                  CantPurchase();
                  HideSoftLoadingScreen();
              });

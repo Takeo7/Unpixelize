@@ -35,7 +35,7 @@ public class MovieGuess_VideoController : MonoBehaviour
 
     public void PlayVideoFromAddressables(string address)
     {
-        Debug.Log("🔍 Buscando video en Addressables: " + address);
+        //Debug.Log("🔍 Buscando video en Addressables: " + address);
 
         PrepareVideoPlayer();
 
@@ -43,7 +43,7 @@ public class MovieGuess_VideoController : MonoBehaviour
         {
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
-                Debug.Log("✅ Video encontrado: " + address);
+                //Debug.Log("✅ Video encontrado: " + address);
                 videoPlayer.clip = handle.Result;
                 currentPreparation = StartCoroutine(PrepareAndPlayUntilSuccess());
             }
@@ -81,7 +81,7 @@ public class MovieGuess_VideoController : MonoBehaviour
         videoPlayer.targetTexture = renderTexture;
         rawImage.texture = renderTexture;
 
-        Debug.Log("🎥 VideoPlayer preparado con RenderTexture " + renderTexture.width + "x" + renderTexture.height);
+        //Debug.Log("🎥 VideoPlayer preparado con RenderTexture " + renderTexture.width + "x" + renderTexture.height);
     }
 
     private void AdjustRawImageScaleToAspect(VideoClip clip, RawImage display)
@@ -105,7 +105,7 @@ public class MovieGuess_VideoController : MonoBehaviour
     private IEnumerator PrepareAndPlayUntilSuccess()
     {
         videoPlayer.Prepare();
-        Debug.Log("⌛ Esperando preparación del video...");
+        //Debug.Log("⌛ Esperando preparación del video...");
 
         float timeout = 5f;
         while (!videoPlayer.isPrepared && timeout > 0f)
@@ -121,7 +121,7 @@ public class MovieGuess_VideoController : MonoBehaviour
             yield break;
         }
 
-        Debug.Log("🎬 Video preparado: " + videoPlayer.clip.name);
+        //Debug.Log("🎬 Video preparado: " + videoPlayer.clip.name);
 
         videoLoaded = true;
         videoPlayer.Play();

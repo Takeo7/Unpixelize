@@ -240,7 +240,7 @@ public class MovieGuess_LettersController : MonoBehaviour
 
         int indexEnTituloOriginal = GetIndexInOriginalTitle(title, idx);
 
-        mgc.PostAddNewLetter_API(indexEnTituloOriginal, letra, mgc.tit_lang);
+        mgc.AddNewLetter_back(indexEnTituloOriginal, letra, mgc.tit_lang);
         PlaceBuyedLetter(letra, idx, mgc.tit_lang);
     }
 
@@ -452,7 +452,7 @@ public class MovieGuess_LettersController : MonoBehaviour
             int titleIndex = answerKeyToTitleIndex[i];
 
             Debug.Log($"[AUTO ALL] Colocando letra '{letter}' en slot #{i} → título[{titleIndex}]");
-            mgc.PostAddNewLetter_API(titleIndex, letter, mgc.tit_lang);
+            mgc.AddNewLetter_back(titleIndex, letter, mgc.tit_lang);
             PlaceBuyedLetter(letter, i, mgc.tit_lang);
         }
     }

@@ -2228,6 +2228,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7152727633943457786, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_text
+      value: LOADING
+      objectReference: {fileID: 0}
+    - target: {fileID: 7152727633943457786, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7411028806138286433, guid: 213c8504faa553149bf2841dc2b5b96a, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

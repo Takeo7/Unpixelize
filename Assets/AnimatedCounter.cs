@@ -1,15 +1,16 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using System;
 
 public class AnimatedCounter : MonoBehaviour
 {
     public TextMeshProUGUI pointsText;
 
     [Header("Velocidad")]
-    public float minUpdateSpeed = 0.01f;    // Velocidad más rápida (menor delay)
-    public float maxUpdateSpeed = 0.05f;    // Velocidad más lenta (mayor delay)
-    public float speedCurvePower = 0.5f;    // Controla cómo escala la velocidad según la diferencia
+    public float minUpdateSpeed = 0.01f;    // Velocidad mï¿½s rï¿½pida (menor delay)
+    public float maxUpdateSpeed = 0.05f;    // Velocidad mï¿½s lenta (mayor delay)
+    public float speedCurvePower = 0.5f;    // Controla cï¿½mo escala la velocidad segï¿½n la diferencia
 
     [Header("Colores")]
     public Color normalColor = Color.white;
@@ -48,7 +49,16 @@ public class AnimatedCounter : MonoBehaviour
             yield return new WaitForSeconds(stepDelay);
         }
 
-        pointsText.color = normalColor;
+        if (to <= 0)
+        {
+            Debug.Log("ES = TU AMOUNT");
+            pointsText.color = decreaseColor;
+        }
+        else
+        {
+            pointsText.color = normalColor;
+        }
+        
         animationCoroutine = null;
     }
 }

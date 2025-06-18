@@ -721,51 +721,136 @@ public class ApiClient : MonoBehaviour
         }
     }
 
-    private IEnumerator PostRequest(string endpoint, System.Action<string> onSuccess, System.Action<string> onError)
+    [System.Serializable]
+public class PostErrorWithMessage
+{
+    public string message;
+}
+
+[System.Serializable]
+public class AmountWrapper
+{
+    public int amount;
+}
+
+private void TryUpdateAmountFromJson(string json)
+{
+    try
     {
-        string url = baseUrl + endpoint;
-
-        UnityWebRequest request = UnityWebRequest.PostWwwForm(url, "");
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Authorization", "Bearer " + authToken);
-
-        Stopwatch sw = Stopwatch.StartNew();
-        yield return request.SendWebRequest();
-        sw.Stop();
-        Debug.Log($"[⏱️ API] POST {url} completado en {sw.ElapsedMilliseconds} ms");
-
-        if (request.result == UnityWebRequest.Result.Success)
+        AmountWrapper aw = JsonUtility.FromJson<AmountWrapper>(json);
+        if (aw.amount >= 0) // permite amount = 0 como en solved_sublevel
         {
-            onSuccess?.Invoke(request.downloadHandler.text);
+            PlayerInfoController.Player_Instance.SetPopcorns(aw.amount);
+            Debug.Log("💰 Amount actualizado desde respuesta POST: " + aw.amount);
+        }
+    }
+    catch
+    {
+        // El JSON no tiene "amount", no pasa nada
+    }
+}
+
+public IEnumerator PostRequest<T>(string endpoint, System.Action<T> onSuccess, System.Action<string> onError)
+{
+    string url = baseUrl + endpoint;
+
+    UnityWebRequest request = UnityWebRequest.PostWwwForm(url, "");
+    request.downloadHandler = new DownloadHandlerBuffer();
+    request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+    Stopwatch sw = Stopwatch.StartNew();
+    yield return request.SendWebRequest();
+    sw.Stop();
+
+    string responseText = request.downloadHandler.text;
+    Debug.Log($"[⏱️ API] POST {endpoint} en {sw.ElapsedMilliseconds} ms\nRespuesta: {responseText}");
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        try
+        {
+            // 1. Deserializa en el tipo esperado (T)
+            T result = JsonUtility.FromJson<T>(responseText);
+            onSuccess?.Invoke(result);
+
+            // 2. Intenta extraer amount, si lo hay
+            TryUpdateAmountFromJson(responseText);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("❌ Error parseando respuesta POST: " + e.Message);
+            onError?.Invoke("Parse error");
+        }
+    }
+    else
+    {
+        if ((int)request.responseCode == 400)
+        {
+            try
+            {
+                PostErrorWithMessage errorObj = JsonUtility.FromJson<PostErrorWithMessage>(responseText);
+                Debug.LogWarning("⚠️ Error 400: " + errorObj.message);
+                onError?.Invoke("poor");
+            }
+            catch
+            {
+                Debug.LogError("❌ Error 400 sin mensaje parseable");
+                onError?.Invoke("Error 400");
+            }
         }
         else
         {
+            Debug.LogError("❌ Error HTTP: " + request.error);
             onError?.Invoke(request.error);
         }
     }
+}
+
 
     private IEnumerator PutRequest(string endpoint, System.Action<string> onSuccess, System.Action<string> onError)
+{
+    string url = baseUrl + endpoint;
+
+    UnityWebRequest request = UnityWebRequest.Put(url, "");
+    request.downloadHandler = new DownloadHandlerBuffer();
+    request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+    Stopwatch sw = Stopwatch.StartNew();
+    yield return request.SendWebRequest();
+    sw.Stop();
+
+    string responseText = request.downloadHandler.text;
+    Debug.Log($"[⏱️ API] PUT {endpoint} completado en {sw.ElapsedMilliseconds} ms\nRespuesta: {responseText}");
+
+    if (request.result == UnityWebRequest.Result.Success)
     {
-        string url = baseUrl + endpoint;
-
-        UnityWebRequest request = UnityWebRequest.Put(url, "");
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Authorization", "Bearer " + authToken);
-
-        Stopwatch sw = Stopwatch.StartNew();
-        yield return request.SendWebRequest();
-        sw.Stop();
-        Debug.Log($"[⏱️ API] PUT {endpoint} completado en {sw.ElapsedMilliseconds} ms");
-
-        if (request.result == UnityWebRequest.Result.Success)
+        onSuccess?.Invoke(responseText);
+        TryUpdateAmountFromJson(responseText); // 💰 Intentar actualizar amount si lo hay
+    }
+    else
+    {
+        if ((int)request.responseCode == 400)
         {
-            onSuccess?.Invoke(request.downloadHandler.text);
+            try
+            {
+                PostErrorWithMessage errorObj = JsonUtility.FromJson<PostErrorWithMessage>(responseText);
+                Debug.LogWarning("⚠️ Error 400: " + errorObj.message);
+                onError?.Invoke("poor");
+            }
+            catch
+            {
+                Debug.LogError("❌ Error 400 sin mensaje parseable");
+                onError?.Invoke("Error 400");
+            }
         }
         else
         {
+            Debug.LogError("❌ Error HTTP: " + request.error);
             onError?.Invoke(request.error);
         }
     }
+}
+
 
    
 

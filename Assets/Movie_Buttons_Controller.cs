@@ -64,7 +64,7 @@ public class Movie_Buttons_Controller : MonoBehaviour
 
         if (currentLevelIndex < 0 || currentLevelIndex >= pd.levelsProgress.Count)
         {
-            Debug.LogError("Nivel inválido: " + currentLevelIndex);
+            Debug.LogError("Nivel invï¿½lido: " + currentLevelIndex);
             yield break;
         }
 
@@ -75,14 +75,14 @@ public class Movie_Buttons_Controller : MonoBehaviour
             GameObject temp = Instantiate(movie_prefab, movies_parent);
             var button = temp.GetComponent<MovieInfo_Button>();
             button.mbc = this;
-            Debug.Log("ESTE ES EL TITULO QUE APARECE: " + levelData.subLevels[i].film.name.en);
+            //Debug.Log("ESTE ES EL TITULO QUE APARECE: " + levelData.subLevels[i].film.name.en);
             button.LoadMovieID(
                 levelData.subLevels[i].sublevel_id,
                 levelData.subLevels[i].solved,
                 levelData.subLevels[i].film.name.en);
             button.sc = sc;
 
-            yield return null; // o yield return new WaitForSeconds(0.05f); para suavizar más
+            yield return null; // o yield return new WaitForSeconds(0.05f); para suavizar mï¿½s
         }
 
         

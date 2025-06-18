@@ -9,8 +9,6 @@ public class PlayerInfoController : MonoBehaviour
     public int currentLevel;
     public int currentMovie;
 
-    public int popcorns=1000;
-
     #endregion
     public static PlayerInfoController Player_Instance { get; private set; }
 
@@ -62,18 +60,13 @@ public class PlayerInfoController : MonoBehaviour
 
     public void SetPopcorns(int pop)
     {
-        popcorns = pop;
-    }
-
-    public int GetPopcorns()
-    {
-        return popcorns;
+        playerData.amount = pop;
     }
 
     public void LoadPopcornsText(TMPro.TextMeshProUGUI text)
     {
-        Debug.Log("LoadPopcornsText: "+popcorns);
-        text.text = popcorns.ToString();
+        Debug.Log("LoadPopcornsText: "+playerData.amount);
+        text.text = playerData.amount.ToString();
     }
 
     public void LoadHelpersText(TMPro.TextMeshProUGUI text, Purchase_Type type)
@@ -83,50 +76,13 @@ public class PlayerInfoController : MonoBehaviour
 
     public bool SetPopcorns(Purchase_Type pt, AnimatedCounter pop_anim)
     {
-        if (prices[(int)pt] <= popcorns)
-        {
-            //Llamada para updatear popcorns
-            ApiClient.Instance.GetPlayerAmount(
-               onSuccess: response =>
-               {
-                   SetPopcorns(playerData.amount);
-                   //popcorns -= prices[(int)pt];
-                   pop_anim.SetPoints(-prices[(int)pt]);
-                   //MovieGuess_Controller.MovieGuess_instance.LoadPopcornsText_mgc();
-                   Debug.Log("Get amount SUCCESS: " + response);
-               },
-               onError: error =>
-               {
-                   Debug.LogError("Get amount fallido: " + error);
-
-               });
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        pop_anim.SetPoints(-prices[(int)pt]);
+        return true;
     }
 
     public void SetPopcorns(Win_Type wt, AnimatedCounter pop_anim)
     {
-
-        //Llamada para updatear popcorns
-        ApiClient.Instance.GetPlayerAmount(
-           onSuccess: response =>
-           {
-               SetPopcorns(playerData.amount);
-
-               pop_anim.SetPoints(win_amount[(int)wt]);
-               //MovieGuess_Controller.MovieGuess_instance.LoadPopcornsText_mgc();
-               Debug.Log("Get amount SUCCESS: " + response);
-           },
-           onError: error =>
-           {
-               Debug.LogError("Get amount fallido: " + error);
-
-           });
-        //popcorns += win_amount[(int)wt];
+        pop_anim.SetPoints(win_amount[(int)wt]);
     }
 
 

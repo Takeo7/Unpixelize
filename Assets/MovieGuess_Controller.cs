@@ -271,27 +271,32 @@ public class MovieGuess_Controller : MonoBehaviour
             _api.MarkSubLevelSolved(pic.currentLevel, pic.currentMovie,
                 onSuccess: (SolvedSublevelResponse response) =>
                 {
-                    pic.SetPopcorns(PlayerInfoController.Win_Type.movie_solved, pop_anim);
-                    //LoadPopcornsText_mgc();
-                    PrepareSolvedView();
-                    //Debug.Log("Post Correct Movie SUCCESS: " + response);
-                    HideSoftLoadingScreen();
-
-
-
+                    
                     ShowRewardPopup("Movie Solved", pic.win_amount[0].ToString());
 
                     if (response.level_completed)
                     {
                         //Debug.Log("🎉 Nivel completo!");
                         ShowRewardPopup("Level completed", pic.win_amount[1].ToString());
+                        pic.UpdateAnimPopcorns(response.amount, pop_anim);
+                        pic.SetPopcorns(response.amount);
                     }
-
-                    if (response.next_level_unlocked)
+                    else if (response.next_level_unlocked)
                     {
                         //Debug.Log("🔓 ¡Nuevo nivel desbloqueado!");
                         ShowRewardPopup("Next level unlocked");
+                        pic.UpdateAnimPopcorns(response.amount, pop_anim);
+                        pic.SetPopcorns(response.amount);
                     }
+                    else
+                    {
+                        pic.UpdateAnimPopcorns(response.amount, pop_anim);
+                        pic.SetPopcorns(response.amount);
+                    }
+                    
+                    PrepareSolvedView();
+                    //Debug.Log("Post Correct Movie SUCCESS: " + response);
+                    HideSoftLoadingScreen();
                 },
                 onError: error =>
                 {
@@ -387,15 +392,8 @@ public class MovieGuess_Controller : MonoBehaviour
         _api.UseHelpLetter(pic.currentLevel, pic.currentMovie, tit_lang.ToString(),
             onSuccess: response =>
             {
-                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.newLetter, pop_anim))
-                {
-                    mg_lc.AutoPlaceNextCorrectLetter(title);
-                    //LoadPopcornsText_mgc();
-                }
-                else
-                {
-                    CantPurchase();
-                }
+                pic.UpdateAnimPopcorns(pic.playerData.amount, pop_anim);
+                mg_lc.AutoPlaceNextCorrectLetter(title);
                 HideSoftLoadingScreen();
             },
              onError: err => {
@@ -413,7 +411,7 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void AddNewLetter_back(int index, string letter, TitleLanguage lang)
     {
-        Debug.LogWarning("Falta llamada de Add new letter a la API");
+        //Debug.LogWarning("Falta llamada de Add new letter a la API");
     }
     #endregion
 
@@ -430,18 +428,24 @@ public class MovieGuess_Controller : MonoBehaviour
         _api.UseHelpKey(pic.currentLevel, pic.currentMovie,
             onSuccess: response =>
             {
-                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.key, pop_anim))
+                
+                mg_lc.AutoPlaceAllCorrectLetters(title);
+                Debug.Log("Post Key Helper Movie SUCCESS: " + response);
+                IsCorrectTitle(false);
+                if (response.level_completed)
                 {
-                    //LoadPopcornsText_mgc();
-                    mg_lc.AutoPlaceAllCorrectLetters(title);
-                    Debug.Log("Post Key Helper Movie SUCCESS: " + response);
-                    IsCorrectTitle(false);
+                    //Debug.Log("🎉 Nivel completo!");
+                    ShowRewardPopup("Level completed", pic.win_amount[1].ToString());
+                    
                 }
-                else
+                else if (response.next_level_unlocked)
                 {
-                    CantPurchase();
-                    HideSoftLoadingScreen();
+                    //Debug.Log("🔓 ¡Nuevo nivel desbloqueado!");
+                    ShowRewardPopup("Next level unlocked");
                 }
+
+                pic.UpdateAnimPopcorns(response.amount, pop_anim);
+                pic.SetPopcorns(response.amount);
                 
                 HideSoftLoadingScreen();
             },
@@ -500,17 +504,11 @@ public class MovieGuess_Controller : MonoBehaviour
             _api.UseHelpClue(pic.currentLevel, pic.currentMovie, ti.tip_Type,
             onSuccess: response =>
             {
-            if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.clue, pop_anim))
-                {
                 ti.gameObject.SetActive(false);
                 Debug.Log("Post Clue " + ti.tip_Type + " Movie SUCCESS: " + response);
                 HideSoftLoadingScreen();
-                }
-            else
-                {
-                    CantPurchase();
-                    HideSoftLoadingScreen();
-                }
+                pic.UpdateAnimPopcorns(pic.playerData.amount, pop_anim);
+            
             },
                onError: error =>
                {
@@ -538,19 +536,14 @@ public class MovieGuess_Controller : MonoBehaviour
             _api.UseHelpBomb(pic.currentLevel, pic.currentMovie,
             onSuccess: response =>
             {
-            if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.tnt, pop_anim))
-                {
                 mg_lc.EliminarLetrasFalsas();
                 //LoadPopcornsText_mgc();
                 pic.GetCurrentMovieData().help.help_bombs.id = 1;
+                pic.UpdateAnimPopcorns(pic.playerData.amount, pop_anim);
                 CheckTNTButton();
                 Debug.Log("Post TNT Movie SUCCESS: " + response);
-                }
-            else
-                {
-                CantPurchase();
                 HideSoftLoadingScreen();
-                }
+            
             },
                 onError: error =>
                 {
@@ -587,20 +580,13 @@ public class MovieGuess_Controller : MonoBehaviour
         if (pic.GetCurrentMovieData().help.help_pixel.pixel_count < pic.playerData.px_limit)
         {
             ApiClient.Instance.UseHelpPixel(pic.currentLevel, pic.currentMovie,
-            onSuccess: info => {
-                if (pic.SetPopcorns(PlayerInfoController.Purchase_Type.pixel, pop_anim))
-                {
-                    pic.GetCurrentMovieData().help.help_pixel.pixel_count++;
-                    pixelice += 10;
-                    mg_vc.SetPixelice(pixelice);
-
-                    //LoadPopcornsText_mgc();
-                    CheckUnpixeliceButton();
-                }
-                else
-                {
-                    CantPurchase();
-                }
+            onSuccess: info =>
+            {
+                pic.GetCurrentMovieData().help.help_pixel.pixel_count++;
+                pixelice += 10;
+                mg_vc.SetPixelice(pixelice);
+                CheckUnpixeliceButton();
+                pic.UpdateAnimPopcorns(pic.playerData.amount, pop_anim);
                 HideSoftLoadingScreen();
             },
              onError: err => {

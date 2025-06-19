@@ -35,7 +35,7 @@ public class Movie_Buttons_Controller : MonoBehaviour
         ApiClient.Instance.GetLevel(PlayerInfoController.Player_Instance.currentLevel,
             onSuccess: response =>
             {
-                
+                pic.LoadPopcornsText(pop_text);
                 StartCoroutine(LoadMoviesSequentially());
             },
             onError: error =>
@@ -44,7 +44,7 @@ public class Movie_Buttons_Controller : MonoBehaviour
             }
         );
 
-        pic.LoadPopcornsText(pop_text);
+        
 
         BugReportingScript.bugInstance.ResetCamera();
     }

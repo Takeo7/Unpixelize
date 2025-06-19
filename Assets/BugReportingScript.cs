@@ -45,4 +45,24 @@ public class BugReportingScript : MonoBehaviour
         reportInput.text = "";
 
     }
+
+    public void ResetUser()
+    {
+        ApiClient.Instance.ResetUser(
+    onSuccess: () =>
+    {
+        // Opcional: borrar datos locales
+        //PlayerPrefs.DeleteAll();
+        //PlayerPrefs.Save();
+
+        // Recargar la escena inicial
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu"); // o la escena inicial real
+    },
+    onError: (error) =>
+    {
+        Debug.LogError("❌ Error al resetear usuario: " + error);
+    }
+);
+
+    }
 }

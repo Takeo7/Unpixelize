@@ -73,7 +73,7 @@ public class Menu_Buttons_Controller : MonoBehaviour
             int daily = pic.playerData.daily_reward;
             dailyReward_GO.SetActive(true);
             dialyReward_pop_text.text = daily.ToString();
-            pop_anim.SetPoints(daily);
+            pop_anim.SetDailyReward(daily);
             pic.dailyReward = false;
             StartCoroutine(TimerNotification());
         }

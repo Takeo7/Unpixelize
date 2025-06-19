@@ -205,7 +205,7 @@ public class ApiClient : MonoBehaviour
         StartCoroutine(PostRequest($"/help/bomb/{levelId}/{subLevelId}", onSuccess, onError));
     }
 
-    public void UseHelpKey(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
+    public void UseHelpKey(int levelId, int subLevelId, System.Action<HelpKeyResponse> onSuccess, System.Action<string> onError)
     {
         StartCoroutine(PostRequest($"/help/key/{levelId}/{subLevelId}", onSuccess, onError));
     }
@@ -401,7 +401,8 @@ public class ApiClient : MonoBehaviour
         public string message;
     }
 
-#endregion
+    #endregion
+
 
     #region Help Data
 
@@ -767,20 +768,21 @@ public IEnumerator PostRequest<T>(string endpoint, System.Action<T> onSuccess, S
 
     if (request.result == UnityWebRequest.Result.Success)
     {
-        try
-        {
-            // 1. Deserializa en el tipo esperado (T)
-            T result = JsonUtility.FromJson<T>(responseText);
-            onSuccess?.Invoke(result);
+            try
+            {
 
-            // 2. Intenta extraer amount, si lo hay
-            TryUpdateAmountFromJson(responseText);
+                // 2. Intenta extraer amount, si lo hay
+                TryUpdateAmountFromJson(responseText);
+
+                // 1. Deserializa en el tipo esperado (T)
+                T result = JsonUtility.FromJson<T>(responseText);
+                onSuccess?.Invoke(result);
         }
-        catch (Exception e)
-        {
-            Debug.LogError("❌ Error parseando respuesta POST: " + e.Message);
-            onError?.Invoke("Parse error");
-        }
+            catch (Exception e)
+            {
+                Debug.LogError("❌ Error parseando respuesta POST: " + e.Message);
+                onError?.Invoke("Parse error");
+            }
     }
     else
     {
@@ -822,10 +824,60 @@ public IEnumerator PostRequest<T>(string endpoint, System.Action<T> onSuccess, S
     string responseText = request.downloadHandler.text;
     Debug.Log($"[⏱️ API] PUT {endpoint} completado en {sw.ElapsedMilliseconds} ms\nRespuesta: {responseText}");
 
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+
+            TryUpdateAmountFromJson(responseText); // 💰 Intentar actualizar amount si lo hay
+            onSuccess?.Invoke(responseText);
+        }
+        else
+        {
+            if ((int)request.responseCode == 400)
+            {
+                try
+                {
+                    PostErrorWithMessage errorObj = JsonUtility.FromJson<PostErrorWithMessage>(responseText);
+                    Debug.LogWarning("⚠️ Error 400: " + errorObj.message);
+                    onError?.Invoke("poor");
+                }
+                catch
+                {
+                    Debug.LogError("❌ Error 400 sin mensaje parseable");
+                    onError?.Invoke("Error 400");
+                }
+            }
+            else
+            {
+                Debug.LogError("❌ Error HTTP: " + request.error);
+                onError?.Invoke(request.error);
+            }
+        }
+}
+
+public void ResetUser(System.Action onSuccess, System.Action<string> onError)
+{
+    StartCoroutine(PostRequest_ResetUser(onSuccess, onError));
+}
+
+private IEnumerator PostRequest_ResetUser(System.Action onSuccess, System.Action<string> onError)
+{
+    string url = baseUrl + "/user/reset";
+
+    UnityWebRequest request = UnityWebRequest.PostWwwForm(url, "");
+    request.downloadHandler = new DownloadHandlerBuffer();
+    request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+    Stopwatch sw = Stopwatch.StartNew();
+    yield return request.SendWebRequest();
+    sw.Stop();
+
+    Debug.Log($"[⏱️ API] POST /user/reset completado en {sw.ElapsedMilliseconds} ms");
+
     if (request.result == UnityWebRequest.Result.Success)
     {
-        onSuccess?.Invoke(responseText);
-        TryUpdateAmountFromJson(responseText); // 💰 Intentar actualizar amount si lo hay
+        // Opcional: log
+        Debug.Log("✅ Usuario reseteado correctamente");
+        onSuccess?.Invoke();
     }
     else
     {
@@ -833,24 +885,20 @@ public IEnumerator PostRequest<T>(string endpoint, System.Action<T> onSuccess, S
         {
             try
             {
-                PostErrorWithMessage errorObj = JsonUtility.FromJson<PostErrorWithMessage>(responseText);
-                Debug.LogWarning("⚠️ Error 400: " + errorObj.message);
-                onError?.Invoke("poor");
+                PostErrorWithMessage errorObj = JsonUtility.FromJson<PostErrorWithMessage>(request.downloadHandler.text);
+                onError?.Invoke(errorObj.message);
             }
             catch
             {
-                Debug.LogError("❌ Error 400 sin mensaje parseable");
                 onError?.Invoke("Error 400");
             }
         }
         else
         {
-            Debug.LogError("❌ Error HTTP: " + request.error);
             onError?.Invoke(request.error);
         }
     }
 }
-
 
    
 
@@ -907,7 +955,17 @@ public class SolvedSublevelResponse
     public string message;
     public bool level_completed;
     public bool next_level_unlocked;
+    public int amount;
 }
+[System.Serializable]
+public class HelpKeyResponse
+{
+    public string message;
+    public bool level_completed;
+    public bool next_level_unlocked;
+    public int amount;
+}
+
 public static class JsonHelper
 {
     public static T[] FromJson<T>(string json)

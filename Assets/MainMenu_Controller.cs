@@ -82,10 +82,13 @@ public class MainMenu_Controller : MonoBehaviour
         {
             email_t = "test@example.com";
             password_t = "password";
-        }else 
+        }
+        else
         {
             email_t = PlayerPrefs.GetString("REGISTERED_EMAIL");
+            Debug.Log("USER: " + email_t);
             password_t = PlayerPrefs.GetString("password");
+            Debug.Log("PASSWORD: " + password_t);
         }
 
         ApiClient.Instance.Login(email_t, password_t,

@@ -63,9 +63,14 @@ public class PlayerInfoController : MonoBehaviour
         playerData.amount = pop;
     }
 
+    public void UpdatePopcorns(int pop)
+    {
+        playerData.amount += pop;
+    }
+
     public void LoadPopcornsText(TMPro.TextMeshProUGUI text)
     {
-        Debug.Log("LoadPopcornsText: "+playerData.amount);
+        Debug.Log("LoadPopcornsText: " + playerData.amount);
         text.text = playerData.amount.ToString();
     }
 
@@ -74,15 +79,10 @@ public class PlayerInfoController : MonoBehaviour
         text.text = prices[(int)type].ToString();
     }
 
-    public bool SetPopcorns(Purchase_Type pt, AnimatedCounter pop_anim)
+    public bool UpdateAnimPopcorns(int amount, AnimatedCounter pop_anim)
     {
-        pop_anim.SetPoints(-prices[(int)pt]);
+        pop_anim.SetPoints(amount);
         return true;
-    }
-
-    public void SetPopcorns(Win_Type wt, AnimatedCounter pop_anim)
-    {
-        pop_anim.SetPoints(win_amount[(int)wt]);
     }
 
 
@@ -99,7 +99,7 @@ public class PlayerInfoController : MonoBehaviour
     public enum Win_Type
     {
         movie_solved,
-        level_unlocked
+        level_solved
     }
     public List<int> win_amount = new List<int> { 500, 1000 };
 

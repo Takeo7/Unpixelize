@@ -19,24 +19,39 @@ public class AnimatedCounter : MonoBehaviour
 
     private Coroutine animationCoroutine;
 
-    public void SetPoints(int delta)
+    public void SetPoints(int amount)
     {
         if (animationCoroutine != null)
             StopCoroutine(animationCoroutine);
 
         int currentPoints = int.TryParse(pointsText.text, out var value) ? value : 0;
-        int targetPoints = currentPoints + delta;
+        int targetPoints = amount;
 
-        animationCoroutine = StartCoroutine(AnimatePoints(currentPoints, targetPoints, delta));
+        animationCoroutine = StartCoroutine(AnimatePoints(currentPoints, targetPoints));
     }
 
-    private IEnumerator AnimatePoints(int from, int to, int delta)
+    public void SetDailyReward(int daily)
     {
+        if (animationCoroutine != null)
+            StopCoroutine(animationCoroutine);
+
+        int currentPoints = (int.TryParse(pointsText.text, out var value) ? value : 0) - daily;
+        int targetPoints = currentPoints + daily;
+
+        animationCoroutine = StartCoroutine(AnimatePoints(currentPoints, targetPoints));
+    }
+
+    private IEnumerator AnimatePoints(int from, int to)
+    {
+
+        int delta = to - from;
         int direction = delta > 0 ? 1 : -1;
         pointsText.color = delta > 0 ? increaseColor : decreaseColor;
 
         int currentValue = from;
         int totalSteps = Mathf.Abs(delta);
+
+        Debug.Log("From: " + from + "-- to: " + to);
 
         while (currentValue != to)
         {
@@ -51,14 +66,14 @@ public class AnimatedCounter : MonoBehaviour
 
         if (to <= 0)
         {
-            Debug.Log("ES = TU AMOUNT");
+            Debug.Log("TU AMOUNT ES 0");
             pointsText.color = decreaseColor;
         }
         else
         {
             pointsText.color = normalColor;
         }
-        
+
         animationCoroutine = null;
     }
 }

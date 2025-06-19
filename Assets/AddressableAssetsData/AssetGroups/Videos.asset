@@ -16,12 +16,12 @@ MonoBehaviour:
   m_GUID: 032ebe3be54bb26468aeabdecfab2fb3
   m_SerializeEntries:
   - m_GUID: 02898b82aa57bc746831d8226a922c61
-    m_Address: Videos/the truman show
+    m_Address: Videos/The Truman Show
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 04ecc2be5e694b34598fc80053675f6a
-    m_Address: Videos/jumanji
+    m_Address: Videos/Jumanji
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -31,7 +31,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 195af65c06f3bdb4bb965403c7699112
-    m_Address: Videos/The sword in the stone
+    m_Address: Videos/The Sword in the Stone
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -41,7 +41,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 30555d46c313851498bab250b06f8ca8
-    m_Address: Videos/the shining
+    m_Address: Videos/The Shining
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -75,8 +75,13 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7c63a59128e7b4620aac295d6d4ad73b
+    m_Address: Videos/The Others
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8cb1dedf2e8103044a9a128d1429e330
-    m_Address: Videos/tarzan
+    m_Address: Videos/Tarzan
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -91,7 +96,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: adad39693745d534695e5153f5b1c116
-    m_Address: Videos/yesterday
+    m_Address: Videos/Yesterday
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c271ad36e13d34f11aa394437919bf41
+    m_Address: Videos/The Holiday
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -121,22 +131,22 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f120dc0fa9d2f7141b1f0f48cc05884d
-    m_Address: Videos/coco
+    m_Address: Videos/Coco
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f3ff966edfa5d9341995ad51e5d9e580
-    m_Address: Videos/beetlejuice
+    m_Address: Videos/Beetlejuice
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f5c2f58f15787b643b0f7f49641cd0ea
-    m_Address: Videos/star wars
+    m_Address: Videos/Star Wars
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f800619587ed0a643ae3cbcb4395b00f
-    m_Address: Videos/despicable me
+    m_Address: Videos/Despicable Me
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

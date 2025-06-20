@@ -116,6 +116,10 @@ public class MovieInfo_Button : MonoBehaviour
             }
         };
     }
+    public static string NormalizeString(string input)
+{
+    return input.ToLowerInvariant().Replace(" ", "");
+}
 
     private IEnumerator PrepareAndDisplayFirstFrame()
     {

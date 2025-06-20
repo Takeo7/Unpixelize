@@ -258,7 +258,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentLevel: 0
   currentMovie: 0
-  popcorns: 0
   playerData:
     playerId: 
     playerName: 

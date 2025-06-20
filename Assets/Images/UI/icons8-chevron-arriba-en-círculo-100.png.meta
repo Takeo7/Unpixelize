@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "icons8-chevron-arriba-en-ci\u0301rculo-100_0": -8647408090466426575
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

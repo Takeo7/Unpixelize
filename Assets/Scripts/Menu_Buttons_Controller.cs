@@ -60,7 +60,7 @@ public class Menu_Buttons_Controller : MonoBehaviour
         for (int i = 0; i < length; i++)
         {
             GameObject temp = Instantiate(level_prefab, level_parent);
-            temp.GetComponent<LevelInfo_Button>().LoadLevelID(pd.levelsProgress[i].levelId, pd.levelsProgress[i].unlocked);
+            temp.GetComponent<LevelInfo_Button>().LoadLevelID(pd.levelsProgress[i].levelId, pd.levelsProgress[i].unlocked, pd.levelsProgress[i].solved);
             temp.GetComponent<LevelInfo_Button>().sc = sc;
         }
     }

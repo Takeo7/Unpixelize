@@ -191,7 +191,7 @@ public class MovieGuess_Controller : MonoBehaviour
                 loading_screen.SetActive(false); 
             },
              onError: err => {
-                 Debug.LogError("Get Help Data ERROR");
+                 Debug.LogError("Get Help Data ERROR: "+err);
              });
 
         
@@ -375,7 +375,7 @@ public class MovieGuess_Controller : MonoBehaviour
 
     public void IsIncorrectTitle(bool n)
     {
-        wrong_img.gameObject.SetActive(n);
+        //wrong_img.gameObject.SetActive(n);
     }
 
     #endregion

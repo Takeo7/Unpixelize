@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Collections;
 using UnityEngine.UI;
+using System.Xml.Serialization;
 
 public class MovieGuess_LettersController : MonoBehaviour
 {
@@ -39,13 +40,21 @@ public class MovieGuess_LettersController : MonoBehaviour
 
     bool tnt;
 
+    [Space]
+    [Header("Buyed letters")]
     public Dictionary<int, string> buyedLetters_es = new Dictionary<int, string>();
     public Dictionary<int, string> buyedLetters_en = new Dictionary<int, string>();
 
     public List<Transform> visibleLetterSlots = new List<Transform>();
     public string cleanedTitle;
 
+    [Space]
+    [Header("Try letters")]
+    public List<Sqr_letter_script> tryLetters;
 
+
+
+    #region Set Letters
     public void SetAllLetters(int length, int correctLetterCount, string title, int fakeLetterCount)
     {
         SetEmptySquares(length, correctLetterCount, title, fakeLetterCount);
@@ -219,6 +228,52 @@ public class MovieGuess_LettersController : MonoBehaviour
             list[randomIndex] = temp;
         }
     }
+
+    #endregion
+
+    #region TryLetters
+    public void AddTryLetter(Sqr_letter_script letter)
+    {
+        tryLetters.Add(letter);
+    }
+    public void RemoveTryLetter(Sqr_letter_script letter)
+    {
+        tryLetters.Remove(letter);
+    }
+    public void AllTryLettersColorInput(LetterState ls)
+    {
+        switch (ls)
+        {
+            case LetterState.Up:
+                foreach (Sqr_letter_script letter in tryLetters)
+                {
+                    letter.SetUpColor();
+                }
+                break;
+            case LetterState.Std:
+                foreach (Sqr_letter_script letter in tryLetters)
+                {
+                    letter.SetStdColor();
+                }
+                break;
+            case LetterState.Wrong:
+                foreach (Sqr_letter_script letter in tryLetters)
+                {
+                    letter.SetWrongColor();
+                }
+                break;
+            
+        }
+        
+    }
+    public enum LetterState
+    {
+        Up,
+        Std,
+        Wrong
+    }
+    #endregion
+
     public void AutoPlaceNextCorrectLetter(string title)
     {
         List<int> libres = new List<int>();
@@ -423,6 +478,7 @@ public class MovieGuess_LettersController : MonoBehaviour
         else
         {
             Debug.Log("❌ Title check: IS WRONG");
+            AllTryLettersColorInput(LetterState.Wrong);
             MovieGuess_Controller.MovieGuess_instance.IsIncorrectTitle(true);
         }
     }
@@ -432,7 +488,7 @@ public class MovieGuess_LettersController : MonoBehaviour
     {
         if (answerKeyToTitleIndex.Count != visibleLetterSlots.Count)
         {
-            Debug.LogWarning($"[AUTO ALL] Mismatch: answerKeyToTitleIndex ({answerKeyToTitleIndex.Count}) vs visibleLetterSlots ({visibleLetterSlots.Count})");
+            //Debug.LogWarning($"[AUTO ALL] Mismatch: answerKeyToTitleIndex ({answerKeyToTitleIndex.Count}) vs visibleLetterSlots ({visibleLetterSlots.Count})");
             return;
         }
 
@@ -444,14 +500,14 @@ public class MovieGuess_LettersController : MonoBehaviour
 
             if (i >= cleaned.Length)
             {
-                Debug.LogWarning($"[AUTO ALL] Slot #{i} fuera de rango para cleanedTitle (len={cleaned.Length})");
+                //Debug.LogWarning($"[AUTO ALL] Slot #{i} fuera de rango para cleanedTitle (len={cleaned.Length})");
                 continue;
             }
 
             string letter = cleaned[i].ToString().ToUpper();
             int titleIndex = answerKeyToTitleIndex[i];
 
-            Debug.Log($"[AUTO ALL] Colocando letra '{letter}' en slot #{i} → título[{titleIndex}]");
+            //Debug.Log($"[AUTO ALL] Colocando letra '{letter}' en slot #{i} → título[{titleIndex}]");
             mgc.AddNewLetter_back(titleIndex, letter, mgc.tit_lang);
             PlaceBuyedLetter(letter, i, mgc.tit_lang);
         }

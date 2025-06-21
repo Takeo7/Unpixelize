@@ -39,8 +39,8 @@ public class PlayerInfoController : MonoBehaviour
 
         }
 
-        //PlayerData mockData = MockDataGenerator.GetMockPlayerData();
-        //PlayerInfoController.Player_Instance.LoadPlayerData(mockData);
+        QualitySettings.vSyncCount = 1;
+        Application.targetFrameRate = -1;
     }
 
    

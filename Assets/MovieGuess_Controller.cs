@@ -147,6 +147,7 @@ public class MovieGuess_Controller : MonoBehaviour
     {
         ShowSoftLoadingScreen();
         IsIncorrectTitle(false);
+        mg_lc.ClearTryLetters();
         tit_lang = lang;
 
         UpdateMovieData();

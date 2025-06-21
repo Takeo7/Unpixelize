@@ -266,6 +266,10 @@ public class MovieGuess_LettersController : MonoBehaviour
         }
         
     }
+    public void ClearTryLetters()
+    {
+        tryLetters.Clear();
+    }
     public enum LetterState
     {
         Up,

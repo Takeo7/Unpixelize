@@ -10,6 +10,9 @@ public class Menu_Buttons_Controller : MonoBehaviour
 
     [Space]
     public GameObject loadingScreen;
+    [Space]
+    public GameObject EndBeta_Pop;
+    public int levelsToEndBeta = 3;
 
     [Space]
     public PlayerInfoController pic;
@@ -55,6 +58,7 @@ public class Menu_Buttons_Controller : MonoBehaviour
 
     public void LoadLevels()
     {
+        int levelsSolvedCount = 0;
         int length = pd.levelsProgress.Count;
         Debug.Log("Loaded " + length + " Levels");
         for (int i = 0; i < length; i++)
@@ -62,7 +66,22 @@ public class Menu_Buttons_Controller : MonoBehaviour
             GameObject temp = Instantiate(level_prefab, level_parent);
             temp.GetComponent<LevelInfo_Button>().LoadLevelID(pd.levelsProgress[i].levelId, pd.levelsProgress[i].unlocked, pd.levelsProgress[i].solved);
             temp.GetComponent<LevelInfo_Button>().sc = sc;
+
+            if (pd.levelsProgress[i].solved == true)
+            {
+                levelsSolvedCount++;
+            }
         }
+
+        if (levelsSolvedCount == levelsToEndBeta)
+        {
+            ShowEndBeta();
+        }
+    }
+
+    public void ShowEndBeta()
+    {
+        EndBeta_Pop.SetActive(true);
     }
 
     public void CheckDailyreward()

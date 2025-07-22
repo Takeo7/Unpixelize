@@ -363,19 +363,40 @@ public class ApiClient : MonoBehaviour
             Debug.Log("✅ Registro completado: " + request.downloadHandler.text);
 
             RegisterResponse response = JsonUtility.FromJson<RegisterResponse>(request.downloadHandler.text);
-
-            // Guardar en PlayerPrefs
             PlayerPrefs.SetString("REGISTERED_EMAIL", response.email);
+            PlayerPrefs.Save();
             Debug.Log("EMAIL: " + response.email);
-            authToken = response.token;
-            PlayerInfoController.Player_Instance.playerData.authToken = authToken;
+
+            if (!string.IsNullOrEmpty(response.token))
+            {
+                // Usuario nuevo
+                authToken = response.token;
+                PlayerInfoController.Player_Instance.playerData.authToken = authToken;
+                onSuccess?.Invoke(response.email);
+            }
+
+        }
+        else if ((int)request.responseCode == 409)
+        {
+            RegisterResponse response = JsonUtility.FromJson<RegisterResponse>(request.downloadHandler.text);
+            // Usuario ya existía: usar las credenciales devueltas
+            Debug.LogWarning("⚠️ Usuario ya existe, usando password proporcionado");
+            PlayerPrefs.SetString("REGISTERED_EMAIL", response.email);
+            PlayerPrefs.SetString("password", response.password);
             PlayerPrefs.Save();
 
-            // Guardar en PlayerInfoController
-            PlayerInfoController.Player_Instance.playerData.authToken = response.token;
-            authToken = response.token;
-
-            onSuccess?.Invoke(response.email);
+            // Opcional: iniciar sesión con las credenciales
+            Login(response.email, response.password,
+                onSuccess: loginResponse =>
+                {
+                    Debug.Log("🔑 Login automático tras register duplicado");
+                    onSuccess?.Invoke(response.email);
+                },
+                onError: loginError =>
+                {
+                    Debug.LogError("❌ Fallo en login automático tras registro duplicado: " + loginError);
+                    onError?.Invoke(loginError);
+                });
         }
         else
         {
@@ -394,11 +415,12 @@ public class ApiClient : MonoBehaviour
     }
 
     [System.Serializable]
-    private class RegisterResponse
+    public class RegisterResponse
     {
-        public string email;
-        public string token;
         public string message;
+        public string email;
+        public string password; // solo si ya existía
+        public string token;    // solo si se acaba de crear
     }
 
     #endregion

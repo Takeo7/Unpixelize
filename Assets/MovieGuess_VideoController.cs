@@ -20,6 +20,14 @@ public class MovieGuess_VideoController : MonoBehaviour
     private RenderTexture renderTexture;
     private Coroutine currentPreparation;
 
+    void Awake()
+{
+    Debug.Log("✅ MovieGuess scene started");
+}
+
+    
+
+
     void OnDestroy()
     {
         if (currentPreparation != null)

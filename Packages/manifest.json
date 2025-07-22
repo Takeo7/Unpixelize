@@ -17,6 +17,9 @@
     "com.unity.visualscripting": "1.9.5",
     "com.unity.modules.uielements": "1.0.0",
     "com.unity.burst": "1.8.13",
-    "com.unity.modules.video": "1.0.0"
+    "com.unity.modules.video": "1.0.0",
+    "com.unity.collections": "1.4.0",
+    "com.unity.modules.ui": "1.0.0",
+    "com.unity.2d.spriteshape": "7.0.11"
   }
 }

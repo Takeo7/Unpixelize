@@ -55,6 +55,7 @@ public class Scene_Controller : MonoBehaviour
         MainMenu,
         LevelSelector,
         MovieSelector,
-        MovieGuess
+        MovieGuess,
+        MovieGuess_Clean
     }
 }

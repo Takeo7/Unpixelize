@@ -16,7 +16,7 @@ public class MovieGuess_VideoController : MonoBehaviour
     public int defaultHeight = 720;
     public float scaleMultiplier;
 
-    private bool videoLoaded = false;
+    //private bool videoLoaded = false;
     private RenderTexture renderTexture;
     private Coroutine currentPreparation;
 
@@ -131,7 +131,7 @@ public class MovieGuess_VideoController : MonoBehaviour
 
         //Debug.Log("🎬 Video preparado: " + videoPlayer.clip.name);
 
-        videoLoaded = true;
+        //videoLoaded = true;
         videoPlayer.Play();
 
         AdjustRawImageScale();

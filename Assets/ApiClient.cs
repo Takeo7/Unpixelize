@@ -13,7 +13,7 @@ public class ApiClient : MonoBehaviour
     public static ApiClient Instance;
 
     [Header("API Settings")]
-    public string baseUrl = "http://13.53.108.213/api";
+    public string baseUrl = "https://unpixelize-api.com/api";
     public string authToken;
     public bool Testing;
 
@@ -124,6 +124,8 @@ public class ApiClient : MonoBehaviour
     {
         string url = baseUrl + "/login";
 
+        Debug.Log("AQUI ES ANTES DEL LOGINREQUEST");
+
         var json = JsonUtility.ToJson(new LoginRequest { email = email, password = password });
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -139,8 +141,26 @@ public class ApiClient : MonoBehaviour
 
         if (request.result == UnityWebRequest.Result.Success)
         {
-            LoginResponse response = JsonUtility.FromJson<LoginResponse>(request.downloadHandler.text);
+            Debug.Log("AQUI ES ANTES DEL RESPONSE");
+            string responseText = request.downloadHandler.text;
+            Debug.Log("📥 Respuesta completa:\n" + responseText);
+            Debug.Log("📡 Código de respuesta HTTP: " + request.responseCode);
+            Debug.Log("❌ Error en la petición: " + request.error);
 
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("❌ Error en la petición: " + request.error);
+                yield break;
+            }
+
+            if (!responseText.Trim().StartsWith("{"))
+            {
+                Debug.LogError("❌ La respuesta no es JSON válido.");
+                yield break;
+            }
+            
+            LoginResponse response = JsonUtility.FromJson<LoginResponse>(request.downloadHandler.text);
+            
             PlayerInfoController.Player_Instance.playerData.authToken = response.token;
             authToken = response.token;
 
@@ -171,6 +191,7 @@ public class ApiClient : MonoBehaviour
     {
         public string token;
         public bool daily_reward;
+        int amount;
     }
 
     #endregion

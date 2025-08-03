@@ -391,10 +391,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lvl_id: 2
   unlocked: 0
+  solved: 0
   sc: {fileID: 0}
   lvl_bt: {fileID: 2043470589332421537}
   unlocked_ui: {fileID: 8073156544276770889}
   locked_ui: {fileID: 7537333690280502228}
+  solved_ui: {fileID: 3938650993944568365}
   unlockedColor: {r: 0.9490197, g: 0.93725497, b: 0.9333334, a: 1}
   lockedColor: {r: 0.9490196, g: 0.9372549, b: 0.93333334, a: 0.5019608}
 --- !u!1 &3826846495801979736

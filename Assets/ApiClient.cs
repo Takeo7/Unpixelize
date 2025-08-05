@@ -701,7 +701,7 @@ public class ApiClient : MonoBehaviour
                     levelId = level.level,
                     levelName = $"Nivel {level.level}",
                     unlocked = level.unlocked,
-                    solved = false,
+                    solved = level.solved,
                     subLevels = new List<SubLevelData>()
                 };
 
@@ -943,7 +943,7 @@ private IEnumerator PostRequest_ResetUser(System.Action onSuccess, System.Action
     }
 }
 
-   
+
 
     [System.Serializable]
     public class LevelApiResponse
@@ -951,6 +951,7 @@ private IEnumerator PostRequest_ResetUser(System.Action onSuccess, System.Action
         public int id;
         public int level;
         public bool unlocked;
+        public bool solved;
     }
 
     [System.Serializable]

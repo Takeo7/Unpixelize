@@ -68,6 +68,9 @@ public class MovieGuess_Controller : MonoBehaviour
     public GameObject softLoadingScreen;
 
     [Space]
+    public Animations_Script anim_s;
+
+    [Space]
     public ApiClient _api;
 
     [Space]
@@ -189,7 +192,8 @@ public class MovieGuess_Controller : MonoBehaviour
                 SetVideo();
                 mg_vc.SetPixelice(pixelice);
                 //Debug.Log("Traza LC");
-                loading_screen.SetActive(false); 
+                loading_screen.SetActive(false);
+                anim_s.StartPopping();
             },
              onError: err => {
                  Debug.LogError("Get Help Data ERROR: "+err);

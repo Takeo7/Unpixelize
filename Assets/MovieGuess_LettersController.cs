@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections;
 using UnityEngine.UI;
 using System.Xml.Serialization;
+using System.Linq;
 
 public class MovieGuess_LettersController : MonoBehaviour
 {
@@ -39,12 +40,6 @@ public class MovieGuess_LettersController : MonoBehaviour
     public List<GameObject> allLetters = new List<GameObject>();
 
     bool tnt;
-
-    [Space]
-    [Header("Buyed letters")]
-    public Dictionary<int, string> buyedLetters_es = new Dictionary<int, string>();
-    public Dictionary<int, string> buyedLetters_en = new Dictionary<int, string>();
-
     public List<Transform> visibleLetterSlots = new List<Transform>();
     public string cleanedTitle;
 
@@ -55,10 +50,13 @@ public class MovieGuess_LettersController : MonoBehaviour
 
 
     #region Set Letters
+
+    
     public void SetAllLetters(int length, int correctLetterCount, string title, int fakeLetterCount)
     {
         SetEmptySquares(length, correctLetterCount, title, fakeLetterCount);
     }
+
 
     public void SetEmptySquares(int length, int correctLetterCount, string title, int fakeLetterCount)
     {
@@ -278,7 +276,8 @@ public class MovieGuess_LettersController : MonoBehaviour
     }
     #endregion
 
-    public void AutoPlaceNextCorrectLetter(string title)
+
+    public int GetNextCorrectLetterIndex(string title)
     {
         List<int> libres = new List<int>();
 
@@ -291,18 +290,52 @@ public class MovieGuess_LettersController : MonoBehaviour
         if (libres.Count == 0)
         {
             Debug.Log("[AUTO] No hay huecos libres.");
-            return;
+            return 500;
+        }
+        else
+        {
+            int idx = libres[Random.Range(0, libres.Count)];
+            return idx;
         }
 
-        int idx = libres[Random.Range(0, libres.Count)];
+        
+    }
+    public void AutoPlaceNextCorrectLetter(string title, int idx)
+    {
+        
         string letra = cleanedTitle[idx].ToString().ToUpper();
 
         int indexEnTituloOriginal = GetIndexInOriginalTitle(title, idx);
 
         mgc.AddNewLetter_back(indexEnTituloOriginal, letra, mgc.tit_lang);
         PlaceBuyedLetter(letra, idx, mgc.tit_lang);
+        AddNewBuyedLetterToSave(letra, idx, mgc.tit_lang);
     }
 
+    public void AddNewBuyedLetterToSave(string letter, int index, MovieGuess_Controller.TitleLanguage lang)
+    {
+        switch (lang)
+        {
+            case MovieGuess_Controller.TitleLanguage.es:
+                if (mgc.pic.GetCurrentMovieData().help.helpLetters_es.letters_list == null)
+                {
+                    mgc.pic.GetCurrentMovieData().help.helpLetters_es.letters_list = new List<int>();
+                }
+                Debug.Log("before count " + mgc.pic.GetCurrentMovieData().help.helpLetters_es.letters_list.Count + " to es");
+                mgc.pic.GetCurrentMovieData().help.helpLetters_es.letters_list.Add(index);
+                Debug.Log("Added total " + mgc.pic.GetCurrentMovieData().help.helpLetters_es.letters_list.Count + " to es");
+                break;
+            case MovieGuess_Controller.TitleLanguage.en:
+                if (mgc.pic.GetCurrentMovieData().help.helpLetters_en.letters_list == null)
+                {
+                    mgc.pic.GetCurrentMovieData().help.helpLetters_en.letters_list = new List<int>();
+                }
+                mgc.pic.GetCurrentMovieData().help.helpLetters_en.letters_list.Add(index);
+                Debug.Log("Added " + letter + " to en");
+                break;
+
+        }
+    }
 
     private int GetIndexInOriginalTitle(string fullTitle, int indexSinEspacios)
     {
@@ -349,12 +382,12 @@ public class MovieGuess_LettersController : MonoBehaviour
                 Button btn = letterSlot.GetComponentInChildren<Button>();
                 if (btn != null) btn.interactable = false;
 
-                Dictionary<int, string> targetDict = (lang == MovieGuess_Controller.TitleLanguage.es)
-                    ? buyedLetters_es
-                    : buyedLetters_en;
+                List<int> targetDict = (lang == MovieGuess_Controller.TitleLanguage.es)
+                    ? mgc.pic.GetCurrentMovieData().help.helpLetters_es.letters_list
+                    : mgc.pic.GetCurrentMovieData().help.helpLetters_en.letters_list;
 
-                if (!targetDict.ContainsKey(indexInCleanedTitle))
-                    targetDict.Add(indexInCleanedTitle, letter);
+                if (!targetDict.Contains(indexInCleanedTitle))
+                    targetDict.Add(indexInCleanedTitle);
 
                 yield break;
             }
@@ -369,18 +402,19 @@ public class MovieGuess_LettersController : MonoBehaviour
         string title = MovieGuess_Controller.MovieGuess_instance.title;
         string titleSinEspacios = cleanedTitle;
         var lang = MovieGuess_Controller.MovieGuess_instance.tit_lang;
-        PlayerInfoController pic = PlayerInfoController.Player_Instance;
 
-        var sublevel = pic.playerData.levelsProgress[pic.currentLevel - 1]
-            .subLevels[(pic.currentMovie - 1) - (9 * (pic.currentLevel - 1))];
+        var sublevel = mgc.pic.GetCurrentMovieData();
 
         HelpLetters helpLetters = lang == MovieGuess_Controller.TitleLanguage.es
             ? sublevel.help.helpLetters_es
             : sublevel.help.helpLetters_en;
 
-        Dictionary<int, string> targetDict = lang == MovieGuess_Controller.TitleLanguage.es
-            ? buyedLetters_es
-            : buyedLetters_en;
+
+        
+
+        List<int> targetDict = helpLetters.letters_list;
+
+
 
         // Limpia solo los visibles
         foreach (Transform slot in visibleLetterSlots)
@@ -391,7 +425,7 @@ public class MovieGuess_LettersController : MonoBehaviour
 
         Debug.Log("🧹 Limpieza completada de letras compradas en los slots visibles");
 
-        if (helpLetters != null && helpLetters.letters > 0)
+        if (helpLetters != null && helpLetters.letters > 0 && targetDict != null) 
         {
             Debug.Log($"♻️ Restaurando {helpLetters.letters} letras compradas del servidor...");
 
@@ -412,14 +446,14 @@ public class MovieGuess_LettersController : MonoBehaviour
                 {
                     if (placed >= helpLetters.letters) break;
                     string letter = titleSinEspacios[index].ToString().ToUpper();
-                    targetDict.Add(index, letter);
+                    targetDict.Add(index);
                     placed++;
                 }
             }
 
             foreach (var kvp in targetDict)
             {
-                StartCoroutine(MoverLetraConDelay(kvp.Value, kvp.Key, lang));
+                StartCoroutine(MoverLetraConDelay(cleanedTitle[kvp].ToString().ToUpper(), kvp, lang));
             }
         }
         else

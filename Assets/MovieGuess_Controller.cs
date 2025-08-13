@@ -391,19 +391,37 @@ public class MovieGuess_Controller : MonoBehaviour
     public void AddNewLetter()
     {
         _api = ApiClient.Instance;
-
+        int nextBuyedLetter = mg_lc.GetNextCorrectLetterIndex(title);
         //Get Helpers
+        List<int> buyedLetters = new List<int>();
+        int[] blArray = buyedLetters.ToArray();
+        
+        switch (tit_lang)
+        {
+            case TitleLanguage.es:
+                if(pic.GetCurrentMovieData().help.helpLetters_es.letters_list != null)
+                buyedLetters = pic.GetCurrentMovieData().help.helpLetters_es.letters_list;
+                break;
+            case TitleLanguage.en:
+                if(pic.GetCurrentMovieData().help.helpLetters_en.letters_list != null)
+                buyedLetters = pic.GetCurrentMovieData().help.helpLetters_en.letters_list;
+                break;
 
-        _api.UseHelpLetter(pic.currentLevel, pic.currentMovie, tit_lang.ToString(),
+        }
+        buyedLetters.Add(nextBuyedLetter);
+        blArray = buyedLetters.ToArray();
+
+        _api.UseHelpLetter(pic.currentLevel, pic.currentMovie, tit_lang.ToString(), blArray,
             onSuccess: response =>
             {
                 pic.UpdateAnimPopcorns(pic.playerData.amount, pop_anim);
-                mg_lc.AutoPlaceNextCorrectLetter(title);
+                mg_lc.AutoPlaceNextCorrectLetter(title, nextBuyedLetter);
                 HideSoftLoadingScreen();
             },
              onError: err => {
                  if (err == "poor")
                  {
+                     buyedLetters.Remove(nextBuyedLetter);
                      CantPurchase();
                  }
                  Debug.Log("Get Help New Letter ERROR");

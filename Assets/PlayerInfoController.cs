@@ -120,6 +120,22 @@ public class PlayerInfoController : MonoBehaviour
         }
     }
 
+    public SubLevelData GetEspecificMovieData(int level, int movie)
+    {
+        var sub = playerData.levelsProgress[level - 1]
+        .subLevels.Find(s => s.sublevel_id == movie);
+
+        if (sub != null)
+        {
+            return sub;
+        }
+        else
+        {
+            Debug.LogError("❌ No se encontró el subnivel con ID: " + movie);
+            return null;
+        }
+    }
+
     public void OpenReferral()
     {
         Application.OpenURL(GetCurrentMovieData().film.referral.link);
@@ -284,6 +300,7 @@ public class HelpBomb
 public class HelpLetters
 {
     public int letters;
+    public List<int> letters_list;
 }
 
 #endregion

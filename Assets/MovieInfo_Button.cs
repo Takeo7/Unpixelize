@@ -100,7 +100,7 @@ public class MovieInfo_Button : MonoBehaviour
 
     private void LoadAndPrepareVideo(string address)
     {
-        Debug.Log("🔍 Buscando video en Addressables: " + address);
+        //Debug.Log("🔍 Buscando video en Addressables: " + address);
 
         Addressables.LoadAssetAsync<VideoClip>(address).Completed += (AsyncOperationHandle<VideoClip> handle) =>
         {

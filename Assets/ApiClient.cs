@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 using System.Security.Cryptography;
 using System;
+using UnityEditor;
 
 public class ApiClient : MonoBehaviour
 {
@@ -213,7 +214,7 @@ public class ApiClient : MonoBehaviour
 
     public void UseHelpPixel(int levelId, int subLevelId, System.Action<string> onSuccess, System.Action<string> onError)
     {
-        StartCoroutine(PutRequest($"/help/pixel/{levelId}/{subLevelId}", onSuccess, onError));
+        StartCoroutine(PutRequest($"/help/pixel/{levelId}/{subLevelId}", null, onSuccess, onError));
     }
 
     public void UseHelpClue(int levelId, int subLevelId, string clueType, System.Action<string> onSuccess, System.Action<string> onError)
@@ -231,9 +232,9 @@ public class ApiClient : MonoBehaviour
         StartCoroutine(PostRequest($"/help/key/{levelId}/{subLevelId}", onSuccess, onError));
     }
 
-    public void UseHelpLetter(int levelId, int subLevelId, string lang, System.Action<string> onSuccess, System.Action<string> onError)
+    public void UseHelpLetter(int levelId, int subLevelId, string lang, int[] buyed_letters, System.Action<string> onSuccess, System.Action<string> onError)
     {
-        StartCoroutine(PutRequest($"/help/letter/{levelId}/{subLevelId}/{lang}", onSuccess, onError));
+        StartCoroutine(PutRequest($"/help/letter/{levelId}/{subLevelId}/{lang}", buyed_letters, onSuccess, onError));
     }
 
     #region Solved Sublevel
@@ -469,15 +470,13 @@ public class ApiClient : MonoBehaviour
 
         if (request.result == UnityWebRequest.Result.Success)
         {
+            
+            
             try
             {
                 string jsonFixed = JsonHelper.FixJsonArray(request.downloadHandler.text);
                 HelpServerItem[] helps = JsonHelper.FromJson<HelpServerItem>(jsonFixed);
-
-                var levelData = PlayerInfoController.Player_Instance.playerData.levelsProgress
-                    .Find(l => l.levelId == levelId);
-                var subData = levelData?.subLevels.Find(s => s.sublevel_id == subLevelId);
-
+                SubLevelData subData = PlayerInfoController.Player_Instance.GetEspecificMovieData(levelId, subLevelId);
                 if (subData != null && helps.Length > 0)
                 {
                     HelpServerItem serverData = helps[0];
@@ -490,9 +489,17 @@ public class ApiClient : MonoBehaviour
                         foreach (var letter in serverData.help_letters)
                         {
                             if (letter.lang == "es")
-                                subData.help.helpLetters_es = new HelpLetters { letters = letter.letter_count };
+                            {
+                                subData.help.helpLetters_es.letters = letter.letter_count;
+                                subData.help.helpLetters_es.letters_list = letter.buyed_letters;
+                            }
+
                             else if (letter.lang == "en")
-                                subData.help.helpLetters_en = new HelpLetters { letters = letter.letter_count };
+                            {
+                                subData.help.helpLetters_en.letters = letter.letter_count;
+                                subData.help.helpLetters_en.letters_list = letter.buyed_letters;
+                            }
+                                
                         }
                     }
 
@@ -508,7 +515,7 @@ public class ApiClient : MonoBehaviour
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"❌ Error parseando ayuda: {e.Message}");
+                Debug.LogError($"❌ Error parseando ayuda: {e.Source}");
                 onError?.Invoke("Parse error");
             }
         }
@@ -539,6 +546,7 @@ public class ApiClient : MonoBehaviour
         public int sublevel_id;
         public int letter_count;
         public string lang;
+        public List<int> buyed_letters;
         public string created_at;
         public string updated_at;
     }
@@ -546,7 +554,7 @@ public class ApiClient : MonoBehaviour
 #endregion
 
 
-    #region Info
+#region Info
 
     public void GetPlayerInfo(System.Action<InfoResponse> onSuccess, System.Action<string> onError)
     {
@@ -852,12 +860,34 @@ public IEnumerator PostRequest<T>(string endpoint, System.Action<T> onSuccess, S
 }
 
 
-    private IEnumerator PutRequest(string endpoint, System.Action<string> onSuccess, System.Action<string> onError)
+    [System.Serializable]
+public class BuyedLettersPayload
+{
+    public int[] buyed_letters;
+}
+
+private IEnumerator PutRequest(
+    string endpoint,
+    int[] buyedLetters, // puede ser null
+    System.Action<string> onSuccess,
+    System.Action<string> onError)
 {
     string url = baseUrl + endpoint;
 
-    UnityWebRequest request = UnityWebRequest.Put(url, "");
+    // Creamos la request manualmente para poder decidir si mandamos body o no
+    UnityWebRequest request = new UnityWebRequest(url, "PUT");
     request.downloadHandler = new DownloadHandlerBuffer();
+
+    // Si tenemos array, lo serializamos como {"buyed_letters":[...]}
+    if (buyedLetters != null && buyedLetters.Length > 0)
+    {
+        string jsonData = JsonUtility.ToJson(new BuyedLettersPayload { buyed_letters = buyedLetters });
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.SetRequestHeader("Content-Type", "application/json");
+    }
+    // Si no hay body, no ponemos uploadHandler ni Content-Type
+
     request.SetRequestHeader("Authorization", "Bearer " + authToken);
 
     Stopwatch sw = Stopwatch.StartNew();
@@ -865,37 +895,37 @@ public IEnumerator PostRequest<T>(string endpoint, System.Action<T> onSuccess, S
     sw.Stop();
 
     string responseText = request.downloadHandler.text;
-    Debug.Log($"[⏱️ API] PUT {endpoint} completado en {sw.ElapsedMilliseconds} ms\nRespuesta: {responseText}");
+    Debug.Log($"[⏱️ API] PUT {endpoint} en {sw.ElapsedMilliseconds} ms\nRespuesta: {responseText}");
 
-        if (request.result == UnityWebRequest.Result.Success)
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        TryUpdateAmountFromJson(responseText);
+        onSuccess?.Invoke(responseText);
+    }
+    else
+    {
+        if ((int)request.responseCode == 400)
         {
-
-            TryUpdateAmountFromJson(responseText); // 💰 Intentar actualizar amount si lo hay
-            onSuccess?.Invoke(responseText);
+            try
+            {
+                PostErrorWithMessage errorObj = JsonUtility.FromJson<PostErrorWithMessage>(responseText);
+                Debug.LogWarning("⚠️ Error 400: " + errorObj.message);
+                onError?.Invoke("poor");
+            }
+            catch
+            {
+                Debug.LogError("❌ Error 400 sin mensaje parseable");
+                onError?.Invoke("Error 400");
+            }
         }
         else
         {
-            if ((int)request.responseCode == 400)
-            {
-                try
-                {
-                    PostErrorWithMessage errorObj = JsonUtility.FromJson<PostErrorWithMessage>(responseText);
-                    Debug.LogWarning("⚠️ Error 400: " + errorObj.message);
-                    onError?.Invoke("poor");
-                }
-                catch
-                {
-                    Debug.LogError("❌ Error 400 sin mensaje parseable");
-                    onError?.Invoke("Error 400");
-                }
-            }
-            else
-            {
-                Debug.LogError("❌ Error HTTP: " + request.error);
-                onError?.Invoke(request.error);
-            }
+            Debug.LogError("❌ Error HTTP: " + request.error);
+            onError?.Invoke(request.error);
         }
+    }
 }
+
 
 public void ResetUser(System.Action onSuccess, System.Action<string> onError)
 {

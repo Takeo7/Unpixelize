@@ -30,9 +30,9 @@ public class Movie_Buttons_Controller : MonoBehaviour
     {
         pic = PlayerInfoController.Player_Instance;
         pd = pic.playerData;
-        level_name.text = "Level " + PlayerInfoController.Player_Instance.currentLevel;
+        level_name.text = "Level " + pic.currentLevel;
 
-        ApiClient.Instance.GetLevel(PlayerInfoController.Player_Instance.currentLevel,
+        ApiClient.Instance.GetLevel(pic.currentLevel,
             onSuccess: response =>
             {
                 pic.LoadPopcornsText(pop_text);
